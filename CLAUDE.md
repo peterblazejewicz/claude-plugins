@@ -70,6 +70,46 @@ Pattern types:
 
 When patterns fail to match, Claude Code triggers shell operator safety checks which block execution with error: "This command uses shell operators that require approval for safety"
 
+### Handling Multiline Arguments
+
+When command arguments may contain newlines (e.g., multiline prompts), **do not pass them via command-line or echo** as Claude Code's security model rejects commands containing newlines. Instead, use the Write tool to write arguments to a temp file, then have the script read from that file.
+
+```yaml
+# ✅ Correct - write to temp file first, then execute without args
+allowed-tools: ["Write", "Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File *script.ps1)"]
+```
+
+Command usage (two-step process):
+```markdown
+First, write the arguments to a temp file:
+
+` ` `!Write(.claude/script-args.tmp)
+$ARGUMENTS
+` ` `
+
+Then execute the script (it reads from the temp file):
+
+` ` `!
+pwsh -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/script.ps1"
+` ` `
+```
+
+The PowerShell script reads from the temp file when no command-line arguments are provided:
+```powershell
+if (-not $Arguments -or $Arguments.Count -eq 0) {
+    $argsFile = ".claude/script-args.tmp"
+    if (Test-Path $argsFile) {
+        $argsContent = Get-Content -Path $argsFile -Raw
+        Remove-Item -Path $argsFile -Force -ErrorAction SilentlyContinue
+        # Parse $argsContent...
+    }
+}
+```
+
+This pattern avoids command-line expansion issues when `$ARGUMENTS` contains newlines.
+
+**Why not stdin/echo?** The `echo "$ARGUMENTS" | ...` approach fails because `$ARGUMENTS` is expanded *before* the command runs, putting newlines directly in the command string. Claude Code's security model rejects this with: "Command contains newlines that could separate multiple commands".
+
 ### Hooks
 
 Hooks intercept Claude events. Defined in `hooks/hooks.json`:
