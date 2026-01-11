@@ -1,6 +1,6 @@
 ---
 description: "Cancel active Ralph Loop"
-allowed-tools: ["Bash(pwsh -Command \"Test-Path .claude/ralph-loop.local.md\":*)", "Bash(pwsh -Command \"Remove-Item .claude/ralph-loop.local.md -Force\")", "Read(.claude/ralph-loop.local.md)"]
+allowed-tools: ["Bash(pwsh -Command \"if (Test-Path .claude/ralph-loop.local.md) { 'EXISTS' } else { 'NOT_FOUND' }\")", "Bash(pwsh -Command \"Remove-Item .claude/ralph-loop.local.md -Force\")", "Read(.claude/ralph-loop.local.md)"]
 hide-from-slash-command-tool: "true"
 ---
 
