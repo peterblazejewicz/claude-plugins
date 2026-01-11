@@ -1,0 +1,13 @@
+{
+  "name": "ralph-loop-ps",
+  "description": "PowerShell 7.x port of Ralph Loop - Continuous self-referential AI loops for iterative development. Windows-native implementation of the Ralph Wiggum technique, no WSL required.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Piotr Błażejewicz",
+    "email": "peterblazejewicz@users.noreply.github.com"
+  },
+  "homepage": "https://github.com/peterblazejewicz/claude-plugins",
+  "repository": "https://github.com/peterblazejewicz/claude-plugins",
+  "license": "MIT",
+  "keywords": ["powershell", "windows", "ralph-loop", "iterative-development", "automation", "port"]
+}
