@@ -1,0 +1,115 @@
+name: Watch Upstream Ralph Loop
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:       # Manual trigger
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.compare.outputs.has_changes }}
+      upstream_sha: ${{ steps.upstream.outputs.latest_commit }}
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name:  Get last synced commit
+        id: last_sync
+        run: |
+          if [ -f . upstream-sync/ralph-loop-commit ]; then
+            echo "commit=$(cat .upstream-sync/ralph-loop-commit)" >> $GITHUB_OUTPUT
+          else
+            echo "commit=" >> $GITHUB_OUTPUT
+          fi
+
+      - name:  Fetch upstream ralph-loop latest commit
+        id:  upstream
+        run:  |
+          # Get latest commit affecting ralph-loop path
+          LATEST=$(gh api repos/anthropics/claude-plugins-official/commits \
+            -H "Accept: application/vnd.github+json" \
+            --jq '.[0].sha' \
+            -f path=plugins/ralph-loop 2>/dev/null || echo "")
+          echo "latest_commit=$LATEST" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compare commits
+        id: compare
+        run: |
+          LAST="${{ steps.last_sync. outputs.commit }}"
+          LATEST="${{ steps.upstream. outputs.latest_commit }}"
+
+          if [ -z "$LATEST" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "Could not fetch upstream commit"
+            exit 0
+          fi
+
+          if [ -z "$LAST" ] || [ "$LAST" != "$LATEST" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected: $LAST -> $LATEST"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+
+  create-sync-issue:
+    needs: check-upstream
+    if: needs.check-upstream. outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create sync issue
+        uses:  actions/github-script@v7
+        with:
+          script: |
+            const upstreamSha = '${{ needs. check-upstream.outputs.upstream_sha }}';
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'upstream-sync',
+              state: 'open'
+            });
+
+            if (issues.data.length > 0) {
+              console.log('Sync issue already exists, skipping creation');
+              return;
+            }
+
+            await github.rest. issues.create({
+              owner: context. repo.owner,
+              repo: context. repo.repo,
+              title: '🔄 Upstream ralph-loop changes detected',
+              labels:  ['upstream-sync', 'automated'],
+              body: `## Upstream Changes Detected
+  
+  The \`plugins/ralph-loop\` folder in \`anthropics/claude-plugins-official\` has been updated.
+  
+  **Upstream commit:** \`${upstreamSha}\`
+
+### Action Required
+
+Port the following changes to \`plugins/ralph-loop-ps\`:
+
+1. Review changes at: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop
+2. Compare with commit: https://github.com/anthropics/claude-plugins-official/commit/${upstreamSha}
+  3. Update PowerShell equivalents in this repository
+  4. Test the ported changes on Windows with PowerShell 7.x
+  5. Update version in \`plugin.json\` and \`marketplace.json\`
+
+### Files to Review
+
+- \`hooks/stop-hook.sh\` → \`hooks/stop-hook. ps1\`
+- \`scripts/setup-ralph-loop.sh\` → \`scripts/setup-ralph-loop. ps1\`
+- \`commands/*.md\` (check for path/command updates)
+- \`hooks/hooks.json\` (check for hook configuration changes)
+
+---
+*This issue was automatically created by the upstream-watch workflow.*`
+  });
