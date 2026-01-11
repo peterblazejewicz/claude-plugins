@@ -1,0 +1,21 @@
+{
+  "name": "blazejewicz-claude-plugins",
+  "owner": {
+    "name": "Piotr Błażejewicz",
+    "email": "peterblazejewicz@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "PowerShell 7.x ports and Windows-compatible Claude Code plugins",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "ralph-loop-ps",
+      "description": "PowerShell 7.x port of Ralph Loop - Continuous self-referential AI loops for iterative development. Windows-native, no WSL required.",
+      "version": "1.0.0",
+      "source": "./plugins/ralph-loop-ps",
+      "category": "developer-tools",
+      "tags": ["powershell", "windows", "ralph-loop", "iterative-development", "automation"]
+    }
+  ]
+}
