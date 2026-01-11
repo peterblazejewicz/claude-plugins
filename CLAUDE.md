@@ -58,7 +58,7 @@ All scripts require PowerShell 7.x (`#Requires -Version 7.0`). Key porting patte
 |------|------------|
 | `#!/bin/bash` | `#Requires -Version 7.0` |
 | `set -euo pipefail` | `$ErrorActionPreference = 'Stop'` |
-| `$(cat)` / stdin | `$input \| Out-String` |
+| `$(cat)` / stdin | `$input | Out-String` |
 | `jq` | `ConvertFrom-Json` / `ConvertTo-Json` |
 | `sed`, `grep` | PowerShell regex, `Select-String` |
 
