@@ -6,6 +6,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Claude Code plugin marketplace providing PowerShell 7.x ports of Claude Code plugins for Windows users. Plugins run natively on Windows without requiring WSL.
 
+## Development Commands
+
+### Lint PowerShell scripts locally
+```powershell
+# Install PSScriptAnalyzer (once)
+Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+# Run linter on all scripts (recommended - uses same settings as CI)
+./scripts/powershell-lint.ps1
+
+# Or manually run on all scripts
+Get-ChildItem -Path . -Include '*.ps1' -Recurse | ForEach-Object {
+    Invoke-ScriptAnalyzer -Path $_.FullName -Settings ./PSScriptAnalyzerSettings.psd1
+}
+
+# Lint a single file
+Invoke-ScriptAnalyzer -Path plugins/ralph-loop-ps/hooks/stop-hook.ps1 -Settings ./PSScriptAnalyzerSettings.psd1
+```
+
+### Syntax check a script
+```powershell
+pwsh -NoProfile -Command "& { `$null = [System.Management.Automation.Language.Parser]::ParseFile('script.ps1', [ref]`$null, [ref]`$null) }"
+```
+
 ## Plugin Architecture
 
 The marketplace structure:
@@ -27,6 +51,64 @@ Commands are markdown files with YAML frontmatter. Key frontmatter fields:
 - `allowed-tools`: Array of Bash patterns the command can execute
 - `hide-from-slash-command-tool`: Whether to hide from tool listing
 
+### allowed-tools Pattern Syntax
+
+Claude Code uses pattern matching to validate Bash commands. **Important**: Avoid escaped quotes in patterns as they break matching.
+
+```yaml
+# ✅ Correct patterns
+allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File *script.ps1*)"]
+allowed-tools: ["Bash(pwsh *)"]
+allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass *)"]
+
+# ❌ Wrong - escaped quotes break pattern matching
+allowed-tools: ["Bash(pwsh -File \"*script.ps1\"*)"]
+```
+
+Pattern types:
+- `Bash(exact command)` - Exact match
+- `Bash(prefix *)` - Wildcard at end
+- `Bash(* suffix)` - Wildcard at start
+- `Bash(start * end)` - Wildcard in middle
+
+When patterns fail to match, Claude Code triggers shell operator safety checks which block execution with error: "This command uses shell operators that require approval for safety"
+
+### Handling Multiline Arguments
+
+When command arguments may contain newlines (e.g., multiline prompts), Claude Code's security model rejects commands containing newlines with: "Command contains newlines that could separate multiple commands".
+
+**Recommended approach: Instruction-based commands (no bash execution)**
+
+The most reliable solution is to avoid bash execution entirely in the command file. Instead, provide instructions for Claude to use its Write tool directly:
+
+```yaml
+allowed-tools: ["Write"]
+```
+
+```markdown
+Parse arguments from: $ARGUMENTS
+
+Create the state file `.claude/my-state.local.md` using your Write tool with this format:
+...
+```
+
+This approach:
+- Completely avoids the newline security check
+- Works regardless of argument content
+- Is more robust than bash-based alternatives
+
+**Alternative: Temp file approach (if bash execution is required)**
+
+If you must use bash execution, write arguments to a temp file first:
+
+```yaml
+allowed-tools: ["Write", "Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File *script.ps1)"]
+```
+
+**Note:** The ` ```!Write() ` and ` ```! ` auto-execute syntax has bugs with permission checking. Use instruction-based approaches instead.
+
+**Why not stdin/echo?** The `echo "$ARGUMENTS" | ...` approach fails because `$ARGUMENTS` is expanded *before* the command runs, putting newlines directly in the command string.
+
 ### Hooks
 
 Hooks intercept Claude events. Defined in `hooks/hooks.json`:
@@ -45,10 +127,13 @@ Hook scripts receive input via stdin, output JSON decisions (e.g., `{"decision":
 PowerShell port of the Ralph Loop iterative development technique. Uses a Stop hook to intercept exit and feed the same prompt back, creating self-referential loops.
 
 Key files:
-- `scripts/setup-ralph-loop.ps1` - Initializes loop state in `.claude/ralph-loop.local.md`
+- `commands/ralph-loop.md` - Instruction-based command that directs Claude to create state file
 - `hooks/stop-hook.ps1` - Intercepts stop, checks completion promise, continues loop
+- `scripts/setup-ralph-loop.ps1` - Standalone script for direct invocation/testing (not called by command)
 
-State file format: Markdown with YAML frontmatter containing `iteration`, `max_iterations`, `completion_promise`.
+State file location: `.claude/ralph-loop.local.md` in the user's project directory. Format is Markdown with YAML frontmatter containing `iteration`, `max_iterations`, `completion_promise`, and `prompt`.
+
+Note: The command uses an instruction-based approach (Claude creates the state file directly) rather than calling the setup script. This avoids Claude Code's newline security restrictions when prompts contain multiple lines.
 
 ## PowerShell Requirements
 
@@ -64,8 +149,15 @@ All scripts require PowerShell 7.x (`#Requires -Version 7.0`). Key porting patte
 
 Scripts invoked with: `pwsh -NoProfile -ExecutionPolicy Bypass -File "script.ps1"`
 
+For comprehensive porting patterns, see `.github/copilot-instructions.md`.
+
 ## Upstream Tracking
 
 This repo ports plugins from `anthropics/claude-plugins-official`. The ralph-loop-ps plugin is a 1:1 functional port of the original ralph-loop bash plugin.
 
-A GitHub Actions workflow (`.github/workflows/watch-upstream.yml`) runs daily to detect changes in upstream plugins. When changes are detected, it creates an issue with the `upstream-sync` label detailing what needs to be ported.
+A GitHub Actions workflow (`.github/workflows/watch-upstream.yml`) runs daily at 6 AM UTC to detect changes. When changes are detected:
+1. Creates/updates an issue with `upstream-sync` label
+2. Creates a branch `upstream-sync/ralph-loop` with sync marker
+3. Opens a PR for porting the changes
+
+After syncing, update `.upstream-sync/ralph-loop-commit` with the upstream commit SHA to mark sync complete.

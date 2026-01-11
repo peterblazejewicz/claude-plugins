@@ -23,29 +23,4 @@ jobs:
 
       - name: Run PSScriptAnalyzer
         shell: pwsh
-        run: |
-          $settingsPath = './PSScriptAnalyzerSettings.psd1'
-
-          if (-not (Test-Path $settingsPath)) {
-              Write-Host "ERROR: Settings file not found at $settingsPath"
-              exit 1
-          }
-
-          Write-Host "Running PSScriptAnalyzer with settings from: $settingsPath"
-          Write-Host ""
-
-          # Scan only PowerShell script files, excluding settings/config files
-          $results = Get-ChildItem -Path . -Include '*.ps1' -Recurse |
-              ForEach-Object { Invoke-ScriptAnalyzer -Path $_.FullName -Settings $settingsPath }
-
-          if ($results) {
-              Write-Host "PSScriptAnalyzer found issues:"
-              Write-Host ""
-              $results | Format-Table -Property RuleName, Severity, ScriptName, Line, Message -AutoSize -Wrap
-              Write-Host ""
-              Write-Host "Total issues: $(@($results).Count)"
-              exit 1
-          }
-          else {
-              Write-Host "PSScriptAnalyzer: No issues found"
-          }
+        run: ./scripts/powershell-lint.ps1

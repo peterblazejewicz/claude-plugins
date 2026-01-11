@@ -3,11 +3,19 @@
 .SYNOPSIS
     Ralph Loop Setup Script - PowerShell 7.x Port
 .DESCRIPTION
-    Creates state file for in-session Ralph loop.
+    Standalone script for creating Ralph loop state files.
+
+    NOTE: The /ralph-loop command uses an instruction-based approach where Claude
+    creates the state file directly. This script is retained for:
+    - Direct invocation and testing
+    - Reference implementation of argument parsing and state file format
+    - Potential future use if bash execution becomes viable
 .NOTES
     Port of: anthropics/claude-plugins-official/plugins/ralph-loop/scripts/setup-ralph-loop.sh
 .EXAMPLE
     ./setup-ralph-loop.ps1 "Build a REST API" --max-iterations 20 --completion-promise "DONE"
+.EXAMPLE
+    ./setup-ralph-loop.ps1 --help
 #>
 
 param(
@@ -16,6 +24,24 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Show usage if no arguments provided
+if (-not $Arguments -or $Arguments.Count -eq 0) {
+    Write-Host ""
+    Write-Host "  Ralph Loop - No Arguments" -ForegroundColor Red
+    Write-Host "  ==========================" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  No arguments provided." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  Usage:" -ForegroundColor Cyan
+    Write-Host "    ./setup-ralph-loop.ps1 <your task> [options]"
+    Write-Host "    /ralph-loop <your task> [options]  (preferred)"
+    Write-Host ""
+    Write-Host "  For help: " -NoNewline
+    Write-Host "./setup-ralph-loop.ps1 --help" -ForegroundColor Green
+    Write-Host ""
+    exit 1
+}
 
 # Parse arguments
 $promptParts = @()
@@ -34,26 +60,37 @@ while ($i -lt $Arguments.Count) {
         }
         '^--max-iterations$' {
             if ($i + 1 -ge $Arguments.Count -or $Arguments[$i + 1] -match '^--') {
-                Write-Error "❌ Error: --max-iterations requires a number argument"
-                Write-Error ""
-                Write-Error "   Valid examples:"
-                Write-Error "     --max-iterations 10"
-                Write-Error "     --max-iterations 50"
-                Write-Error "     --max-iterations 0  (unlimited)"
-                Write-Error ""
-                Write-Error "   You provided: --max-iterations (with no number)"
+                Write-Host ""
+                Write-Host "  Ralph Loop - Invalid Option" -ForegroundColor Red
+                Write-Host "  ============================" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "  --max-iterations requires a number argument" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "  Valid examples:" -ForegroundColor Cyan
+                Write-Host "    --max-iterations 10"
+                Write-Host "    --max-iterations 50"
+                Write-Host "    --max-iterations 0  (unlimited)"
+                Write-Host ""
+                Write-Host "  You provided: --max-iterations (with no number)" -ForegroundColor Gray
+                Write-Host ""
                 exit 1
             }
             $nextArg = $Arguments[$i + 1]
             if ($nextArg -notmatch '^\d+$') {
-                Write-Error "❌ Error: --max-iterations must be a positive integer or 0, got: $nextArg"
-                Write-Error ""
-                Write-Error "   Valid examples:"
-                Write-Error "     --max-iterations 10"
-                Write-Error "     --max-iterations 50"
-                Write-Error "     --max-iterations 0  (unlimited)"
-                Write-Error ""
-                Write-Error "   Invalid: decimals (10.5), negative numbers (-5), text"
+                Write-Host ""
+                Write-Host "  Ralph Loop - Invalid Option" -ForegroundColor Red
+                Write-Host "  ============================" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "  --max-iterations must be a positive integer or 0" -ForegroundColor Yellow
+                Write-Host "  You provided: $nextArg" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "  Valid examples:" -ForegroundColor Cyan
+                Write-Host "    --max-iterations 10"
+                Write-Host "    --max-iterations 50"
+                Write-Host "    --max-iterations 0  (unlimited)"
+                Write-Host ""
+                Write-Host "  Invalid: decimals (10.5), negative numbers (-5), text" -ForegroundColor Gray
+                Write-Host ""
                 exit 1
             }
             $maxIterations = [int]$nextArg
@@ -61,16 +98,21 @@ while ($i -lt $Arguments.Count) {
         }
         '^--completion-promise$' {
             if ($i + 1 -ge $Arguments.Count -or $Arguments[$i + 1] -match '^--') {
-                Write-Error "❌ Error: --completion-promise requires a text argument"
-                Write-Error ""
-                Write-Error "   Valid examples:"
-                Write-Error "     --completion-promise 'DONE'"
-                Write-Error "     --completion-promise 'TASK COMPLETE'"
-                Write-Error "     --completion-promise 'All tests passing'"
-                Write-Error ""
-                Write-Error "   You provided: --completion-promise (with no text)"
-                Write-Error ""
-                Write-Error "   Note: Multi-word promises must be quoted!"
+                Write-Host ""
+                Write-Host "  Ralph Loop - Invalid Option" -ForegroundColor Red
+                Write-Host "  ============================" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "  --completion-promise requires a text argument" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "  Valid examples:" -ForegroundColor Cyan
+                Write-Host "    --completion-promise 'DONE'"
+                Write-Host "    --completion-promise 'TASK COMPLETE'"
+                Write-Host "    --completion-promise 'All tests passing'"
+                Write-Host ""
+                Write-Host "  You provided: --completion-promise (with no text)" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "  Note: Multi-word promises must be quoted!" -ForegroundColor Yellow
+                Write-Host ""
                 exit 1
             }
             $completionPromise = $Arguments[$i + 1]
@@ -135,16 +177,23 @@ $prompt = $promptParts -join ' '
 
 # Validate prompt is non-empty
 if (-not $prompt) {
-    Write-Error "❌ Error: No prompt provided"
-    Write-Error ""
-    Write-Error "   Ralph needs a task description to work on."
-    Write-Error ""
-    Write-Error "   Examples:"
-    Write-Error "     /ralph-loop Build a REST API for todos"
-    Write-Error "     /ralph-loop Fix the auth bug --max-iterations 20"
-    Write-Error "     /ralph-loop --completion-promise 'DONE' Refactor code"
-    Write-Error ""
-    Write-Error "   For all options: /ralph-loop --help"
+    Write-Host ""
+    Write-Host "  Ralph Loop - Missing Prompt" -ForegroundColor Red
+    Write-Host "  ============================" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  Ralph needs a task description to work on." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  Usage:" -ForegroundColor Cyan
+    Write-Host "    /ralph-loop <your task> [options]"
+    Write-Host ""
+    Write-Host "  Examples:" -ForegroundColor Cyan
+    Write-Host "    /ralph-loop Build a REST API for todos"
+    Write-Host "    /ralph-loop Fix the auth bug --max-iterations 20"
+    Write-Host "    /ralph-loop --completion-promise 'DONE' Refactor code"
+    Write-Host ""
+    Write-Host "  For all options: " -NoNewline
+    Write-Host "/ralph-loop --help" -ForegroundColor Green
+    Write-Host ""
     exit 1
 }
 
