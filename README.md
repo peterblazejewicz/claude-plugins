@@ -2,17 +2,17 @@
 
 A curated collection of **PowerShell 7.x ports and Windows-compatible** Claude Code plugins.
 
-## 🎯 Purpose
+## Purpose
 
 This marketplace provides Windows-native versions of popular Claude Code plugins that typically require Bash/Unix environments. All plugins are designed to run natively on Windows using PowerShell 7.x without requiring WSL.
 
-## 📦 Available Plugins
+## Available Plugins
 
 | Plugin | Description | Upstream |
 |--------|-------------|----------|
 | [ralph-loop-ps](./plugins/ralph-loop-ps/) | PowerShell port of Ralph Loop - iterative AI development loops | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop) |
 
-## 🚀 Installation
+## Installation
 
 ### Add the Marketplace
 
@@ -26,7 +26,7 @@ claude plugins marketplace add peterblazejewicz/claude-plugins
 claude plugins install ralph-loop-ps
 ```
 
-## 📋 Requirements
+## Requirements
 
 - **PowerShell 7.x** (cross-platform) - [Install PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
 - **Claude Code** with plugin support
@@ -44,7 +44,7 @@ $PSVersionTable.PSVersion
 winget install Microsoft.PowerShell
 ```
 
-## 🔄 Upstream Synchronization
+## Upstream Synchronization
 
 This repository monitors upstream sources for changes and ports them to PowerShell. When changes are detected in the original plugins, issues are created for review and porting.
 
@@ -54,7 +54,7 @@ This repository monitors upstream sources for changes and ports them to PowerShe
 |--------|---------------------|------|
 | ralph-loop-ps | anthropics/claude-plugins-official | plugins/ralph-loop |
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! If you'd like to:
 
@@ -75,11 +75,11 @@ When porting Bash scripts to PowerShell:
 | `sed`, `awk`, `grep` | PowerShell regex, `Select-String` |
 | `perl` regex | `[regex]::Match()` |
 
-## 📄 License
+## License
 
 MIT License - See [LICENSE](./LICENSE)
 
-## 🙏 Credits
+## Credits
 
 - **Original Ralph Loop**: [Geoffrey Huntley](https://ghuntley.com/ralph/)
 - **Official Plugins**: [Anthropic](https://github.com/anthropics/claude-plugins-official)

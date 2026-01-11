@@ -1,0 +1,281 @@
+name: Watch Upstream Ralph Loop
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:       # Manual trigger
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.compare.outputs.has_changes }}
+      upstream_sha: ${{ steps.upstream.outputs.latest_commit }}
+      existing_issue: ${{ steps.check_issue.outputs.issue_number }}
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Get last synced commit
+        id: last_sync
+        # Note: .upstream-sync/ralph-loop-commit is created manually after syncing
+        # with upstream. If missing, defaults to empty (triggers first sync issue).
+        run: |
+          if [ -f .upstream-sync/ralph-loop-commit ]; then
+            echo "commit=$(cat .upstream-sync/ralph-loop-commit)" >> "$GITHUB_OUTPUT"
+          else
+            echo "commit=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch upstream ralph-loop latest commit
+        id: upstream
+        run: |
+          # Get latest commit affecting ralph-loop path
+          LATEST=$(gh api repos/anthropics/claude-plugins-official/commits \
+            -H "Accept: application/vnd.github+json" \
+            --jq '.[0].sha' \
+            -f path=plugins/ralph-loop 2>/dev/null || echo "")
+          echo "latest_commit=$LATEST" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compare commits
+        id: compare
+        run: |
+          LAST="${{ steps.last_sync.outputs.commit }}"
+          LATEST="${{ steps.upstream.outputs.latest_commit }}"
+
+          if [ -z "$LATEST" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Could not fetch upstream commit"
+            exit 0
+          fi
+
+          if [ -z "$LAST" ] || [ "$LAST" != "$LATEST" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Changes detected: $LAST -> $LATEST"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes detected"
+          fi
+
+      - name: Check for existing sync issue
+        id: check_issue
+        if: steps.compare.outputs.has_changes == 'true'
+        run: |
+          ISSUE_NUMBER=$(gh issue list \
+            --label "upstream-sync" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+          echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  handle-sync:
+    needs: check-upstream
+    if: needs.check-upstream.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create or update sync issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const upstreamSha = '${{ needs.check-upstream.outputs.upstream_sha }}';
+            const existingIssue = '${{ needs.check-upstream.outputs.existing_issue }}';
+
+            if (existingIssue) {
+              // Add comment to existing issue with new commit info
+              const comment = [
+                '## New Upstream Commit Detected',
+                '',
+                `**New upstream commit:** \`${upstreamSha}\``,
+                `**Detected at:** ${new Date().toISOString()}`,
+                '',
+                `View changes: https://github.com/anthropics/claude-plugins-official/commit/${upstreamSha}`,
+                '',
+                'The sync branch will be updated with the latest changes.'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(existingIssue),
+                body: comment
+              });
+
+              console.log(`Added comment to existing issue #${existingIssue}`);
+            } else {
+              // Create new issue
+              const body = [
+                '## Upstream Changes Detected',
+                '',
+                'The `plugins/ralph-loop` folder in `anthropics/claude-plugins-official` has been updated.',
+                '',
+                `**Upstream commit:** \`${upstreamSha}\``,
+                '',
+                '### Action Required',
+                '',
+                'Port the following changes to `plugins/ralph-loop-ps`:',
+                '',
+                '1. Review changes at: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop',
+                `2. Compare with commit: https://github.com/anthropics/claude-plugins-official/commit/${upstreamSha}`,
+                '3. Update PowerShell equivalents in this repository',
+                '4. Test the ported changes on Windows with PowerShell 7.x',
+                '5. Update version in `plugin.json` and `marketplace.json`',
+                '',
+                '### Files to Review',
+                '',
+                '- `hooks/stop-hook.sh` -> `hooks/stop-hook.ps1`',
+                '- `scripts/setup-ralph-loop.sh` -> `scripts/setup-ralph-loop.ps1`',
+                '- `commands/*.md` (check for path/command updates)',
+                '- `hooks/hooks.json` (check for hook configuration changes)',
+                '',
+                '### Automated PR',
+                '',
+                'A pull request has been created and assigned to @copilot for automated porting.',
+                'See `.github/copilot-instructions.md` for porting guidelines.',
+                '',
+                '---',
+                '*This issue was automatically created by the upstream-watch workflow.*'
+              ].join('\n');
+
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Upstream ralph-loop changes detected',
+                labels: ['upstream-sync', 'automated'],
+                body: body
+              });
+
+              console.log(`Created new issue #${issue.data.number}`);
+            }
+
+      - name: Setup sync branch
+        id: setup_branch
+        run: |
+          BRANCH_NAME="upstream-sync/ralph-loop"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+          # Check if branch exists remotely
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "Branch exists, will update"
+            echo "branch_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Branch does not exist, will create"
+            echo "branch_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Create or reset branch from main
+          git checkout -B "$BRANCH_NAME" origin/main
+
+      - name: Create placeholder for Copilot
+        run: |
+          UPSTREAM_SHA="${{ needs.check-upstream.outputs.upstream_sha }}"
+
+          # Create a sync marker file that Copilot can use
+          mkdir -p .upstream-sync
+          cat > .upstream-sync/pending-sync.md << EOF
+          # Pending Upstream Sync
+
+          **Upstream commit:** ${UPSTREAM_SHA}
+          **Detected:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          ## Instructions for @copilot
+
+          Please port the changes from upstream commit ${UPSTREAM_SHA} to this repository.
+
+          1. Fetch the upstream changes from:
+             https://github.com/anthropics/claude-plugins-official/commit/${UPSTREAM_SHA}
+
+          2. Review what files changed in plugins/ralph-loop/
+
+          3. Port each change to the PowerShell equivalent in plugins/ralph-loop-ps/
+
+          4. Follow the porting guidelines in .github/copilot-instructions.md
+
+          5. Update versions in:
+             - plugins/ralph-loop-ps/.claude-plugin/plugin.json
+             - .claude-plugin/marketplace.json
+
+          6. Remove this file when porting is complete.
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .upstream-sync/pending-sync.md
+          git commit -m "chore: mark upstream sync pending for ${UPSTREAM_SHA:0:7}"
+
+      - name: Push sync branch
+        run: |
+          BRANCH_NAME="${{ steps.setup_branch.outputs.branch_name }}"
+          git push --force origin "$BRANCH_NAME"
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="${{ steps.setup_branch.outputs.branch_name }}"
+          UPSTREAM_SHA="${{ needs.check-upstream.outputs.upstream_sha }}"
+
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list \
+            --head "$BRANCH_NAME" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          PR_BODY=$(cat << EOF
+          ## Upstream Sync
+
+          This PR ports changes from upstream commit \`${UPSTREAM_SHA}\` in \`anthropics/claude-plugins-official\`.
+
+          ### Instructions
+
+          @copilot Please review the upstream changes and port them to PowerShell following the guidelines in \`.github/copilot-instructions.md\`.
+
+          ### Upstream Reference
+
+          - Commit: https://github.com/anthropics/claude-plugins-official/commit/${UPSTREAM_SHA}
+          - Path: \`plugins/ralph-loop\`
+
+          ### Checklist
+
+          - [ ] Port bash scripts to PowerShell 7.x equivalents
+          - [ ] Update \`hooks/stop-hook.ps1\`
+          - [ ] Update \`scripts/setup-ralph-loop.ps1\`
+          - [ ] Update commands if changed
+          - [ ] Update versions in plugin.json and marketplace.json
+          - [ ] PSScriptAnalyzer passes
+          - [ ] Functional testing on Windows
+
+          ---
+          *This PR was automatically created by the upstream-watch workflow.*
+          EOF
+          )
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists, updating..."
+            gh pr comment "$EXISTING_PR" --body "Branch updated with new upstream commit \`${UPSTREAM_SHA}\`. @copilot please review and port the latest changes."
+          else
+            echo "Creating new PR..."
+            gh pr create \
+              --title "chore: sync upstream ralph-loop changes" \
+              --body "$PR_BODY" \
+              --base main \
+              --head "$BRANCH_NAME" \
+              --label "upstream-sync" \
+              --label "automated"
+          fi
