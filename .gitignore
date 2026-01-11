@@ -1,0 +1,16 @@
+# Claude local state
+.claude/ralph-loop.local.md
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# PowerShell
+*.ps1xml
