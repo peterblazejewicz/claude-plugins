@@ -13,7 +13,10 @@ This is a Claude Code plugin marketplace providing PowerShell 7.x ports of Claud
 # Install PSScriptAnalyzer (once)
 Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
 
-# Run linter on all scripts
+# Run linter on all scripts (recommended - uses same settings as CI)
+./scripts/powershell-lint.ps1
+
+# Or manually run on all scripts
 Get-ChildItem -Path . -Include '*.ps1' -Recurse | ForEach-Object {
     Invoke-ScriptAnalyzer -Path $_.FullName -Settings ./PSScriptAnalyzerSettings.psd1
 }

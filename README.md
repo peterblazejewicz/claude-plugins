@@ -44,6 +44,19 @@ $PSVersionTable.PSVersion
 winget install Microsoft.PowerShell
 ```
 
+## Development
+
+### Lint PowerShell Scripts
+
+Run PSScriptAnalyzer on all PowerShell scripts in the repository:
+
+```powershell
+# From repository root
+./scripts/powershell-lint.ps1
+```
+
+This runs the same linting used by the CI/CD pipeline.
+
 ## Upstream Synchronization
 
 This repository monitors upstream sources for changes and ports them to PowerShell. When changes are detected in the original plugins, issues are created for review and porting.
