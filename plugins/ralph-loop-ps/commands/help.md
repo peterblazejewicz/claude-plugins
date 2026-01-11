@@ -19,7 +19,7 @@ while ($true) {
 }
 ```
 
-The same prompt is fed to Claude repeatedly.  The "self-referential" aspect comes from Claude seeing its own previous work in the files and git history, not from feeding output back as input.
+The same prompt is fed to Claude repeatedly. The "self-referential" aspect comes from Claude seeing its own previous work in the files and git history, not from feeding output back as input.
 
 **Each iteration:**
 1. Claude receives the SAME prompt
