@@ -1,7 +1,7 @@
 ---
 description: "Start Ralph Loop in current session (PowerShell)"
 argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT]"
-allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/setup-ralph-loop.ps1\":*)"]
+allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File *setup-ralph-loop.ps1*)"]
 hide-from-slash-command-tool: "true"
 ---
 

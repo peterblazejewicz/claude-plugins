@@ -48,6 +48,28 @@ Commands are markdown files with YAML frontmatter. Key frontmatter fields:
 - `allowed-tools`: Array of Bash patterns the command can execute
 - `hide-from-slash-command-tool`: Whether to hide from tool listing
 
+### allowed-tools Pattern Syntax
+
+Claude Code uses pattern matching to validate Bash commands. **Important**: Avoid escaped quotes in patterns as they break matching.
+
+```yaml
+# ✅ Correct patterns
+allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File *script.ps1*)"]
+allowed-tools: ["Bash(pwsh *)"]
+allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass *)"]
+
+# ❌ Wrong - escaped quotes break pattern matching
+allowed-tools: ["Bash(pwsh -File \"*script.ps1\"*)"]
+```
+
+Pattern types:
+- `Bash(exact command)` - Exact match
+- `Bash(prefix *)` - Wildcard at end
+- `Bash(* suffix)` - Wildcard at start
+- `Bash(start * end)` - Wildcard in middle
+
+When patterns fail to match, Claude Code triggers shell operator safety checks which block execution with error: "This command uses shell operators that require approval for safety"
+
 ### Hooks
 
 Hooks intercept Claude events. Defined in `hooks/hooks.json`:
