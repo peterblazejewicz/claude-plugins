@@ -20,9 +20,9 @@ jobs:
         id: last_sync
         run: |
           if [ -f .upstream-sync/ralph-loop-commit ]; then
-            echo "commit=$(cat .upstream-sync/ralph-loop-commit)" >> $GITHUB_OUTPUT
+            echo "commit=$(cat .upstream-sync/ralph-loop-commit)" >> "$GITHUB_OUTPUT"
           else
-            echo "commit=" >> $GITHUB_OUTPUT
+            echo "commit=" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Fetch upstream ralph-loop latest commit
@@ -33,7 +33,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             --jq '.[0].sha' \
             -f path=plugins/ralph-loop 2>/dev/null || echo "")
-          echo "latest_commit=$LATEST" >> $GITHUB_OUTPUT
+          echo "latest_commit=$LATEST" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -44,16 +44,16 @@ jobs:
           LATEST="${{ steps.upstream.outputs.latest_commit }}"
 
           if [ -z "$LATEST" ]; then
-            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "Could not fetch upstream commit"
             exit 0
           fi
 
           if [ -z "$LAST" ] || [ "$LAST" != "$LATEST" ]; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
             echo "Changes detected: $LAST -> $LATEST"
           else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "No changes detected"
           fi
 
