@@ -82,34 +82,38 @@ jobs:
               return;
             }
 
+            const body = [
+              '## Upstream Changes Detected',
+              '',
+              'The `plugins/ralph-loop` folder in `anthropics/claude-plugins-official` has been updated.',
+              '',
+              `**Upstream commit:** \`${upstreamSha}\``,
+              '',
+              '### Action Required',
+              '',
+              'Port the following changes to `plugins/ralph-loop-ps`:',
+              '',
+              '1. Review changes at: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop',
+              `2. Compare with commit: https://github.com/anthropics/claude-plugins-official/commit/${upstreamSha}`,
+              '3. Update PowerShell equivalents in this repository',
+              '4. Test the ported changes on Windows with PowerShell 7.x',
+              '5. Update version in `plugin.json` and `marketplace.json`',
+              '',
+              '### Files to Review',
+              '',
+              '- `hooks/stop-hook.sh` -> `hooks/stop-hook.ps1`',
+              '- `scripts/setup-ralph-loop.sh` -> `scripts/setup-ralph-loop.ps1`',
+              '- `commands/*.md` (check for path/command updates)',
+              '- `hooks/hooks.json` (check for hook configuration changes)',
+              '',
+              '---',
+              '*This issue was automatically created by the upstream-watch workflow.*'
+            ].join('\n');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Upstream ralph-loop changes detected',
               labels: ['upstream-sync', 'automated'],
-              body: `## Upstream Changes Detected
-  
-  The \`plugins/ralph-loop\` folder in \`anthropics/claude-plugins-official\` has been updated.
-  
-  **Upstream commit:** \`${upstreamSha}\`
-
-### Action Required
-
-Port the following changes to \`plugins/ralph-loop-ps\`:
-
-1. Review changes at: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop
-2. Compare with commit: https://github.com/anthropics/claude-plugins-official/commit/${upstreamSha}
-  3. Update PowerShell equivalents in this repository
-  4. Test the ported changes on Windows with PowerShell 7.x
-  5. Update version in \`plugin.json\` and \`marketplace.json\`
-
-### Files to Review
-
-- \`hooks/stop-hook.sh\` → \`hooks/stop-hook.ps1\`
-- \`scripts/setup-ralph-loop.sh\` → \`scripts/setup-ralph-loop.ps1\`
-- \`commands/*.md\` (check for path/command updates)
-- \`hooks/hooks.json\` (check for hook configuration changes)
-
----
-*This issue was automatically created by the upstream-watch workflow.*`
-  });
+              body: body
+            });
