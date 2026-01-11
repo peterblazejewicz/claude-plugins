@@ -1,12 +1,10 @@
 {
   "name": "blazejewicz-claude-plugins",
+  "version": "1.0.0",
+  "description": "PowerShell 7.x ports and Windows-compatible Claude Code plugins",
   "owner": {
     "name": "Piotr Błażejewicz",
     "email": "peterblazejewicz@users.noreply.github.com"
-  },
-  "metadata": {
-    "description": "PowerShell 7.x ports and Windows-compatible Claude Code plugins",
-    "version": "1.0.0"
   },
   "plugins": [
     {
