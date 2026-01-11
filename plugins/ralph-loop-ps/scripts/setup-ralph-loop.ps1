@@ -3,18 +3,19 @@
 .SYNOPSIS
     Ralph Loop Setup Script - PowerShell 7.x Port
 .DESCRIPTION
-    Creates state file for in-session Ralph loop.
-    Arguments are read from a temp file (.claude/ralph-loop-args.tmp) to handle
-    multiline prompts and special characters safely. This avoids command-line
-    expansion issues with newlines in Claude Code's security model.
+    Standalone script for creating Ralph loop state files.
+
+    NOTE: The /ralph-loop command uses an instruction-based approach where Claude
+    creates the state file directly. This script is retained for:
+    - Direct invocation and testing
+    - Reference implementation of argument parsing and state file format
+    - Potential future use if bash execution becomes viable
 .NOTES
     Port of: anthropics/claude-plugins-official/plugins/ralph-loop/scripts/setup-ralph-loop.sh
 .EXAMPLE
-    # The command writes arguments to .claude/ralph-loop-args.tmp first, then:
-    ./setup-ralph-loop.ps1
-.EXAMPLE
-    # Direct invocation with arguments (for testing):
     ./setup-ralph-loop.ps1 "Build a REST API" --max-iterations 20 --completion-promise "DONE"
+.EXAMPLE
+    ./setup-ralph-loop.ps1 --help
 #>
 
 param(
@@ -24,68 +25,22 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# Read arguments from temp file if no command-line arguments provided
+# Show usage if no arguments provided
 if (-not $Arguments -or $Arguments.Count -eq 0) {
-    $argsFile = ".claude/ralph-loop-args.tmp"
-
-    if (Test-Path $argsFile) {
-        $argsContent = Get-Content -Path $argsFile -Raw
-
-        # Clean up the temp file immediately after reading
-        Remove-Item -Path $argsFile -Force -ErrorAction SilentlyContinue
-
-        if ($argsContent) {
-            $argsContent = $argsContent.Trim()
-            # Parse file content into arguments array
-            # Handle quoted strings and arguments with spaces
-            $Arguments = @()
-            $current = ""
-            $inQuote = $false
-            $quoteChar = $null
-
-            for ($i = 0; $i -lt $argsContent.Length; $i++) {
-                $char = $argsContent[$i]
-
-                if (-not $inQuote -and ($char -eq '"' -or $char -eq "'")) {
-                    $inQuote = $true
-                    $quoteChar = $char
-                }
-                elseif ($inQuote -and $char -eq $quoteChar) {
-                    $inQuote = $false
-                    $quoteChar = $null
-                }
-                elseif (-not $inQuote -and ($char -eq ' ' -or $char -eq "`t" -or $char -eq "`n" -or $char -eq "`r")) {
-                    if ($current) {
-                        $Arguments += $current
-                        $current = ""
-                    }
-                }
-                else {
-                    $current += $char
-                }
-            }
-
-            if ($current) {
-                $Arguments += $current
-            }
-        }
-    }
-    else {
-        # No args file and no command-line args - show usage
-        Write-Host ""
-        Write-Host "  Ralph Loop - No Arguments" -ForegroundColor Red
-        Write-Host "  ==========================" -ForegroundColor Red
-        Write-Host ""
-        Write-Host "  No arguments found. Use /ralph-loop command to start a loop." -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "  Usage:" -ForegroundColor Cyan
-        Write-Host "    /ralph-loop <your task> [options]"
-        Write-Host ""
-        Write-Host "  For help: " -NoNewline
-        Write-Host "/ralph-loop --help" -ForegroundColor Green
-        Write-Host ""
-        exit 1
-    }
+    Write-Host ""
+    Write-Host "  Ralph Loop - No Arguments" -ForegroundColor Red
+    Write-Host "  ==========================" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  No arguments provided." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  Usage:" -ForegroundColor Cyan
+    Write-Host "    ./setup-ralph-loop.ps1 <your task> [options]"
+    Write-Host "    /ralph-loop <your task> [options]  (preferred)"
+    Write-Host ""
+    Write-Host "  For help: " -NoNewline
+    Write-Host "./setup-ralph-loop.ps1 --help" -ForegroundColor Green
+    Write-Host ""
+    exit 1
 }
 
 # Parse arguments

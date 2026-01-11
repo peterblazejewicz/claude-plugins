@@ -127,10 +127,13 @@ Hook scripts receive input via stdin, output JSON decisions (e.g., `{"decision":
 PowerShell port of the Ralph Loop iterative development technique. Uses a Stop hook to intercept exit and feed the same prompt back, creating self-referential loops.
 
 Key files:
-- `scripts/setup-ralph-loop.ps1` - Initializes loop state in `.claude/ralph-loop.local.md`
+- `commands/ralph-loop.md` - Instruction-based command that directs Claude to create state file
 - `hooks/stop-hook.ps1` - Intercepts stop, checks completion promise, continues loop
+- `scripts/setup-ralph-loop.ps1` - Standalone script for direct invocation/testing (not called by command)
 
 State file location: `.claude/ralph-loop.local.md` in the user's project directory. Format is Markdown with YAML frontmatter containing `iteration`, `max_iterations`, `completion_promise`, and `prompt`.
+
+Note: The command uses an instruction-based approach (Claude creates the state file directly) rather than calling the setup script. This avoids Claude Code's newline security restrictions when prompts contain multiple lines.
 
 ## PowerShell Requirements
 

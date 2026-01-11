@@ -52,19 +52,29 @@ if (-not (Test-Path $SettingsPath)) {
 Write-Host "Running PSScriptAnalyzer with settings from: $SettingsPath"
 Write-Host ""
 
-# Scan only PowerShell script files, excluding settings/config files
-$results = Get-ChildItem -Path $repoRoot -Include '*.ps1' -Recurse |
-    ForEach-Object { Invoke-ScriptAnalyzer -Path $_.FullName -Settings $SettingsPath }
+# Find all PowerShell script files
+$scripts = Get-ChildItem -Path $repoRoot -Include '*.ps1' -Recurse
+
+if ($scripts.Count -eq 0) {
+    Write-Host "No PowerShell scripts (.ps1) found to scan." -ForegroundColor Yellow
+    exit 0
+}
+
+Write-Host "Scanning $($scripts.Count) PowerShell file(s)..."
+Write-Host ""
+
+# Run analyzer on all scripts
+$results = $scripts | ForEach-Object { Invoke-ScriptAnalyzer -Path $_.FullName -Settings $SettingsPath }
 
 if ($results) {
     Write-Host "PSScriptAnalyzer found issues:" -ForegroundColor Yellow
     Write-Host ""
     $results | Format-Table -Property RuleName, Severity, ScriptName, Line, Message -AutoSize -Wrap
     Write-Host ""
-    Write-Host "Total issues: $(@($results).Count)" -ForegroundColor Yellow
+    Write-Host "Total issues: $($results.Count)" -ForegroundColor Yellow
     exit 1
 }
 else {
-    Write-Host "PSScriptAnalyzer: No issues found" -ForegroundColor Green
+    Write-Host "PSScriptAnalyzer: No issues found in $($scripts.Count) file(s)" -ForegroundColor Green
     exit 0
 }
