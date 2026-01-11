@@ -29,7 +29,7 @@ This plugin implements Ralph using a **Stop hook** that intercepts Claude's exit
 ## Quick Start
 
 ```bash
-/ralph-loop "Build a REST API for todos.  Requirements:  CRUD operations, input validation, tests.  Output <promise>COMPLETE</promise> when done." --completion-promise "COMPLETE" --max-iterations 50
+/ralph-loop "Build a REST API for todos. Requirements: CRUD operations, input validation, tests. Output <promise>COMPLETE</promise> when done." --completion-promise "COMPLETE" --max-iterations 50
 ```
 
 Claude will:
