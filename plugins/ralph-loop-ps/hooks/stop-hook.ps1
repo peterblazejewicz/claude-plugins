@@ -37,17 +37,17 @@ if ($stateContent -notmatch '(?s)^---\r?\n(.+?)\r?\n---\r?\n(.*)$') {
 $frontmatter = $Matches[1]
 $promptText = $Matches[2].Trim()
 
-# Parse frontmatter values
-$iteration = 0
-$maxIterations = 0
+# Parse frontmatter values - extract raw strings first for validation
+$iterationRaw = $null
+$maxIterationsRaw = $null
 $completionPromise = $null
 
 foreach ($line in $frontmatter -split '\r?\n') {
-    if ($line -match '^iteration:\s*(\d+)') {
-        $iteration = [int]$Matches[1]
+    if ($line -match '^iteration:\s*(.*)$') {
+        $iterationRaw = $Matches[1].Trim()
     }
-    elseif ($line -match '^max_iterations:\s*(\d+)') {
-        $maxIterations = [int]$Matches[1]
+    elseif ($line -match '^max_iterations:\s*(.*)$') {
+        $maxIterationsRaw = $Matches[1].Trim()
     }
     elseif ($line -match '^completion_promise:\s*"?([^"]*)"?') {
         $completionPromise = $Matches[1]
@@ -55,17 +55,32 @@ foreach ($line in $frontmatter -split '\r?\n') {
     }
 }
 
-# Validate numeric fields
-if ($iteration -lt 0) {
+# Validate numeric fields before use (matches upstream bash validation)
+if ($iterationRaw -notmatch '^\d+$') {
     Write-Error "⚠️  Ralph loop: State file corrupted"
     Write-Error "   File: $RalphStateFile"
-    Write-Error "   Problem: 'iteration' field is not a valid number (got: '$iteration')"
+    Write-Error "   Problem: 'iteration' field is not a valid number (got: '$iterationRaw')"
     Write-Error ""
     Write-Error "   This usually means the state file was manually edited or corrupted."
     Write-Error "   Ralph loop is stopping. Run /ralph-loop again to start fresh."
     Remove-Item $RalphStateFile -Force
     exit 0
 }
+
+if ($maxIterationsRaw -notmatch '^\d+$') {
+    Write-Error "⚠️  Ralph loop: State file corrupted"
+    Write-Error "   File: $RalphStateFile"
+    Write-Error "   Problem: 'max_iterations' field is not a valid number (got: '$maxIterationsRaw')"
+    Write-Error ""
+    Write-Error "   This usually means the state file was manually edited or corrupted."
+    Write-Error "   Ralph loop is stopping. Run /ralph-loop again to start fresh."
+    Remove-Item $RalphStateFile -Force
+    exit 0
+}
+
+# Convert to integers after validation
+$iteration = [int]$iterationRaw
+$maxIterations = [int]$maxIterationsRaw
 
 # Check if max iterations reached
 if ($maxIterations -gt 0 -and $iteration -ge $maxIterations) {

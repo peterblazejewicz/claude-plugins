@@ -77,7 +77,7 @@ winget install Microsoft.PowerShell
 
 ## Differences from Bash Version
 
-This is a **1: 1 functional port** with these implementation differences:
+This is a **1:1 functional port** with these implementation differences:
 
 | Aspect | Bash Version | PowerShell Version |
 |--------|--------------|-------------------|

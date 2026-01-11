@@ -18,6 +18,8 @@ jobs:
 
       - name: Get last synced commit
         id: last_sync
+        # Note: .upstream-sync/ralph-loop-commit is created manually after syncing
+        # with upstream. If missing, defaults to empty (triggers first sync issue).
         run: |
           if [ -f .upstream-sync/ralph-loop-commit ]; then
             echo "commit=$(cat .upstream-sync/ralph-loop-commit)" >> "$GITHUB_OUTPUT"

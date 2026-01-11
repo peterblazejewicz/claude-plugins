@@ -114,7 +114,7 @@ This plugin uses **PowerShell 7.x** (pwsh) which is cross-platform.  Ensure you 
 
 ```powershell
 # Check version
-$PSVersionTable. PSVersion
+$PSVersionTable.PSVersion
 
 # Install on Windows (if needed)
 winget install Microsoft.PowerShell
