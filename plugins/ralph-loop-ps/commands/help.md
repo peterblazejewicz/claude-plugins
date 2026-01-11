@@ -15,7 +15,7 @@ Ralph Loop implements the Ralph Wiggum technique - an iterative development meth
 **Core concept:**
 ```powershell
 while ($true) {
-  Get-Content PROMPT. md | claude-code --continue
+  Get-Content PROMPT.md | claude-code --continue
 }
 ```
 
