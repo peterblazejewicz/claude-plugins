@@ -6,6 +6,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Claude Code plugin marketplace providing PowerShell 7.x ports of Claude Code plugins for Windows users. Plugins run natively on Windows without requiring WSL.
 
+## Development Commands
+
+### Lint PowerShell scripts locally
+```powershell
+# Install PSScriptAnalyzer (once)
+Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+# Run linter on all scripts
+Get-ChildItem -Path . -Include '*.ps1' -Recurse | ForEach-Object {
+    Invoke-ScriptAnalyzer -Path $_.FullName -Settings ./PSScriptAnalyzerSettings.psd1
+}
+
+# Lint a single file
+Invoke-ScriptAnalyzer -Path plugins/ralph-loop-ps/hooks/stop-hook.ps1 -Settings ./PSScriptAnalyzerSettings.psd1
+```
+
+### Syntax check a script
+```powershell
+pwsh -NoProfile -Command "& { `$null = [System.Management.Automation.Language.Parser]::ParseFile('script.ps1', [ref]`$null, [ref]`$null) }"
+```
+
 ## Plugin Architecture
 
 The marketplace structure:
@@ -48,7 +69,7 @@ Key files:
 - `scripts/setup-ralph-loop.ps1` - Initializes loop state in `.claude/ralph-loop.local.md`
 - `hooks/stop-hook.ps1` - Intercepts stop, checks completion promise, continues loop
 
-State file format: Markdown with YAML frontmatter containing `iteration`, `max_iterations`, `completion_promise`.
+State file location: `.claude/ralph-loop.local.md` in the user's project directory. Format is Markdown with YAML frontmatter containing `iteration`, `max_iterations`, `completion_promise`, and `prompt`.
 
 ## PowerShell Requirements
 
@@ -64,8 +85,15 @@ All scripts require PowerShell 7.x (`#Requires -Version 7.0`). Key porting patte
 
 Scripts invoked with: `pwsh -NoProfile -ExecutionPolicy Bypass -File "script.ps1"`
 
+For comprehensive porting patterns, see `.github/copilot-instructions.md`.
+
 ## Upstream Tracking
 
 This repo ports plugins from `anthropics/claude-plugins-official`. The ralph-loop-ps plugin is a 1:1 functional port of the original ralph-loop bash plugin.
 
-A GitHub Actions workflow (`.github/workflows/watch-upstream.yml`) runs daily to detect changes in upstream plugins. When changes are detected, it creates an issue with the `upstream-sync` label detailing what needs to be ported.
+A GitHub Actions workflow (`.github/workflows/watch-upstream.yml`) runs daily at 6 AM UTC to detect changes. When changes are detected:
+1. Creates/updates an issue with `upstream-sync` label
+2. Creates a branch `upstream-sync/ralph-loop` with sync marker
+3. Opens a PR for porting the changes
+
+After syncing, update `.upstream-sync/ralph-loop-commit` with the upstream commit SHA to mark sync complete.
