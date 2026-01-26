@@ -14,6 +14,14 @@
       "source": "./plugins/ralph-loop-ps",
       "category": "developer-tools",
       "tags": ["powershell", "windows", "ralph-loop", "iterative-development", "automation"]
+    },
+    {
+      "name": "avalonia-dev",
+      "description": "Avalonia development tools including project structure review, theming guidance, and MVVM patterns for .NET cross-platform UI development.",
+      "version": "1.0.2",
+      "source": "./plugins/avalonia-dev",
+      "category": "developer-tools",
+      "tags": ["avalonia", "xaml", "dotnet", "ui", "theming", "design-tokens", "mvvm"]
     }
   ]
 }
