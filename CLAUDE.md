@@ -4,22 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a Claude Code plugin marketplace providing PowerShell 7.x ports of Claude Code plugins for Windows users. Plugins run natively on Windows without requiring WSL.
+This is a Claude Code plugin marketplace providing PowerShell 7.x ports and Windows-compatible Claude Code plugins. Plugins run natively on Windows without requiring WSL.
 
 ## Development Commands
 
-### Lint PowerShell scripts locally
+### Lint PowerShell scripts
 ```powershell
 # Install PSScriptAnalyzer (once)
 Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
 
 # Run linter on all scripts (recommended - uses same settings as CI)
 ./scripts/powershell-lint.ps1
-
-# Or manually run on all scripts
-Get-ChildItem -Path . -Include '*.ps1' -Recurse | ForEach-Object {
-    Invoke-ScriptAnalyzer -Path $_.FullName -Settings ./PSScriptAnalyzerSettings.psd1
-}
 
 # Lint a single file
 Invoke-ScriptAnalyzer -Path plugins/ralph-loop-ps/hooks/stop-hook.ps1 -Settings ./PSScriptAnalyzerSettings.psd1
@@ -38,9 +33,11 @@ The marketplace structure:
 plugins/<plugin-name>/
   .claude-plugin/plugin.json       # Plugin metadata
   commands/*.md                    # Slash commands (markdown with YAML frontmatter)
-  hooks/hooks.json                 # Hook definitions
-  hooks/*.ps1                      # PowerShell hook implementations
-  scripts/*.ps1                    # Supporting PowerShell scripts
+  skills/<skill-name>/SKILL.md     # Skill definitions with references
+  skills/<skill-name>/references/  # Skill reference files (patterns, guides)
+  hooks/hooks.json                 # Hook definitions (optional)
+  hooks/*.ps1                      # PowerShell hook implementations (optional)
+  scripts/*.ps1                    # Supporting PowerShell scripts (optional)
 ```
 
 ### Command Files
@@ -122,7 +119,7 @@ Hooks intercept Claude events. Defined in `hooks/hooks.json`:
 
 Hook scripts receive input via stdin, output JSON decisions (e.g., `{"decision": "block", "reason": "..."}`).
 
-## Current Plugin: ralph-loop-ps
+## Plugin: ralph-loop-ps
 
 PowerShell port of the Ralph Loop iterative development technique. Uses a Stop hook to intercept exit and feed the same prompt back, creating self-referential loops.
 
@@ -134,6 +131,17 @@ Key files:
 State file location: `.claude/ralph-loop.local.md` in the user's project directory. Format is Markdown with YAML frontmatter containing `iteration`, `max_iterations`, `completion_promise`, and `prompt`.
 
 Note: The command uses an instruction-based approach (Claude creates the state file directly) rather than calling the setup script. This avoids Claude Code's newline security restrictions when prompts contain multiple lines.
+
+## Plugin: avalonia-dev
+
+Provides Avalonia/MAUI development guidance including project structure review, design token patterns, and theming systems.
+
+Key files:
+- `commands/avalonia-review.md` - Command to trigger project review skill
+- `skills/review/SKILL.md` - Review skill with structured guidance for architecture analysis
+- `skills/review/references/*.md` - Reference files for design tokens, migration patterns, project structures
+
+Skills architecture: Skills are markdown files with YAML frontmatter (`name`, `description`, `version`) that provide structured guidance. Skills reference additional files in `references/` subdirectory for detailed patterns. The `plugin.json` points to the skills directory via the `skills` field.
 
 ## PowerShell Requirements
 
