@@ -341,6 +341,7 @@ mkdir -p src/AppName.Controls
 <!-- src/AppName.Theme/AppName.Theme.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Avalonia 11.x: net8.0 | Avalonia 12.x: net10.0 -->
     <TargetFramework>net8.0</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
@@ -350,7 +351,10 @@ mkdir -p src/AppName.Controls
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Avalonia 11.x -->
     <PackageReference Include="Avalonia" Version="11.*" />
+    <!-- Avalonia 12.x -->
+    <!-- <PackageReference Include="Avalonia" Version="12.*" /> -->
   </ItemGroup>
 </Project>
 ```
@@ -368,6 +372,7 @@ mv Theme/Styles src/AppName.Theme/Styles
 <!-- src/AppName.Controls/AppName.Controls.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Avalonia 11.x: net8.0 | Avalonia 12.x: net10.0 -->
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
@@ -376,7 +381,10 @@ mv Theme/Styles src/AppName.Theme/Styles
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Avalonia 11.x -->
     <PackageReference Include="Avalonia" Version="11.*" />
+    <!-- Avalonia 12.x -->
+    <!-- <PackageReference Include="Avalonia" Version="12.*" /> -->
   </ItemGroup>
 </Project>
 ```
@@ -433,6 +441,40 @@ namespace AppName.Controls;  // Same, but in new project
 git add src/
 git commit -m "refactor(architecture): extract theme and controls into separate projects"
 ```
+
+## Avalonia 12 API Changes
+
+If the project targets Avalonia 12, be aware of these changes during the migration phases:
+
+| Avalonia 11 | Avalonia 12 | Notes |
+|-------------|-------------|-------|
+| `SystemDecorations` | `WindowDecorations` | Property rename on Window |
+| `FuncMultiValueConverter<TIn, TOut>` | Takes `IList<TIn>` parameter | Was `IEnumerable<TIn>` |
+| Data validation on specific controls | On base `Control` class | Simplified — validation works on any control |
+| Reflection bindings (default) | Compiled bindings (default) | Add `x:DataType` to views for type safety |
+| `netstandard2.0` support | Removed | Target `net10.0` |
+| Direct2D1 backend | Removed | SkiaSharp 3.0 only |
+| `PropertyPath` API | Removed | Use alternative binding paths |
+| `NativeMenuItemToggleType` | Removed | Use updated menu APIs |
+| `BinaryFormatter` usage | Removed | Use modern serialization |
+
+### Compiled Bindings Migration
+
+Avalonia 12 enables compiled bindings by default. During token extraction and style consolidation (Phases 1-2), also add `x:DataType` declarations to views:
+
+```xml
+<!-- Add x:DataType to enable compiled bindings -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AppName.ViewModels"
+             x:DataType="vm:MainViewModel"
+             x:Class="AppName.Views.MainView">
+    <!-- Bindings are now compiled and type-checked -->
+    <TextBlock Text="{Binding Title}"/>
+</UserControl>
+```
+
+This is a low-risk, high-impact change that can be done alongside Phase 1 (Token Extraction).
 
 ## Rollback Strategy
 

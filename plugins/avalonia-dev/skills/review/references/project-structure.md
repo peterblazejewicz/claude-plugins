@@ -110,6 +110,8 @@ AppName/
 │
 ├── Features/
 │   ├── Dashboard/
+│   │   ├── Pages/                          # (Avalonia 12+ navigation pages)
+│   │   │   └── DashboardPage.axaml
 │   │   ├── Views/
 │   │   │   ├── DashboardView.axaml
 │   │   │   └── DashboardView.axaml.cs
@@ -207,6 +209,9 @@ AppName.sln
 │       ├── Program.cs
 │       ├── Features/
 │       │   ├── Dashboard/
+│       │   │   ├── Pages/                # (Avalonia 12+ navigation pages)
+│       │   │   ├── Views/
+│       │   │   └── ViewModels/
 │       │   ├── Settings/
 │       │   └── Reports/
 │       ├── Services/
@@ -237,6 +242,7 @@ AppName.Theme        AppName.Core
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Avalonia 11.x: net8.0 | Avalonia 12.x: net10.0 -->
     <TargetFramework>net8.0</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
@@ -246,7 +252,10 @@ AppName.Theme        AppName.Core
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Avalonia 11.x -->
     <PackageReference Include="Avalonia" Version="11.*" />
+    <!-- Avalonia 12.x -->
+    <!-- <PackageReference Include="Avalonia" Version="12.*" /> -->
   </ItemGroup>
 </Project>
 ```
@@ -256,6 +265,7 @@ AppName.Theme        AppName.Core
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Avalonia 11.x: net8.0 | Avalonia 12.x: net10.0 -->
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
@@ -264,7 +274,10 @@ AppName.Theme        AppName.Core
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Avalonia 11.x -->
     <PackageReference Include="Avalonia" Version="11.*" />
+    <!-- Avalonia 12.x -->
+    <!-- <PackageReference Include="Avalonia" Version="12.*" /> -->
   </ItemGroup>
 </Project>
 ```
@@ -316,7 +329,9 @@ namespace AppName.Features.Settings;
 
 ## ViewLocator Pattern
 
-For MVVM with automatic View resolution:
+For MVVM with automatic View resolution.
+
+> **Avalonia 12 note**: Compiled bindings are enabled by default in v12. The ViewLocator pattern remains valid for view resolution, but views should always declare `x:DataType` for type-safe compiled bindings. Example: `<UserControl x:DataType="vm:DashboardViewModel" ...>`
 
 ```csharp
 // ViewLocator.cs
