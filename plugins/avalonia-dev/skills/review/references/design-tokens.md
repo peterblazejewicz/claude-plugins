@@ -50,6 +50,9 @@ Theme/
     <SolidColorBrush x:Key="BrushTextPrimary" Color="{StaticResource ColorTextPrimary}"/>
     <!-- ... etc -->
 
+    <!-- Placeholder Colors (Avalonia 12+) -->
+    <SolidColorBrush x:Key="BrushPlaceholderForeground" Color="{StaticResource ColorTextDisabled}"/>
+
 </ResourceDictionary>
 ```
 
@@ -113,6 +116,12 @@ For theme variant support, use ThemeDictionaries:
     <x:Double x:Key="LineHeightTight">1.2</x:Double>
     <x:Double x:Key="LineHeightNormal">1.5</x:Double>
     <x:Double x:Key="LineHeightRelaxed">1.75</x:Double>
+
+    <!-- Letter Spacing (Avalonia 12+) -->
+    <x:Double x:Key="LetterSpacingTight">-0.5</x:Double>
+    <x:Double x:Key="LetterSpacingNormal">0</x:Double>
+    <x:Double x:Key="LetterSpacingWide">0.5</x:Double>
+    <x:Double x:Key="LetterSpacingExtraWide">1.0</x:Double>
 
 </ResourceDictionary>
 ```
@@ -286,6 +295,28 @@ Load tokens before styles that depend on them:
 </Border>
 ```
 
+## Window Decoration Tokens (Avalonia 12+)
+
+Avalonia 12 introduces themeable client-side window decorations. Define tokens for window chrome styling:
+
+```xml
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Window Chrome Colors -->
+    <Color x:Key="ColorTitleBarBackground">#1E1E24</Color>
+    <Color x:Key="ColorTitleBarForeground">#FFFFFF</Color>
+    <Color x:Key="ColorTitleBarInactive">#808080</Color>
+
+    <SolidColorBrush x:Key="BrushTitleBarBackground" Color="{StaticResource ColorTitleBarBackground}"/>
+    <SolidColorBrush x:Key="BrushTitleBarForeground" Color="{StaticResource ColorTitleBarForeground}"/>
+    <SolidColorBrush x:Key="BrushTitleBarInactive" Color="{StaticResource ColorTitleBarInactive}"/>
+
+</ResourceDictionary>
+```
+
+These tokens integrate with the `WindowDecorations` property (renamed from `SystemDecorations` in Avalonia 12) to create custom title bars that respect native platform conventions.
+
 ## Dynamic vs Static Resources
 
 | Use Case | Resource Type |
@@ -295,8 +326,10 @@ Load tokens before styles that depend on them:
 | Performance-critical | `{StaticResource}` |
 | Values that change at runtime | `{DynamicResource}` |
 
-For theme switching support, colors should use `{DynamicResource}`:
+For theme switching support, colors **must** use `{DynamicResource}`:
 
 ```xml
 <TextBlock Foreground="{DynamicResource BrushTextPrimary}"/>
 ```
+
+> **Important**: With Avalonia 12's compiled bindings enabled by default, it can be tempting to use `{StaticResource}` everywhere for performance. However, any resource that changes between light and dark themes **must** use `{DynamicResource}` — otherwise theme switching will not update the UI. Only truly fixed values (spacing, radius, font sizes) should use `{StaticResource}`.
