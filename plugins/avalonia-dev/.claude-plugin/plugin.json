@@ -1,7 +1,7 @@
 {
   "name": "avalonia-dev",
-  "version": "1.0.2",
-  "description": "Avalonia development tools including project structure review, theming guidance, and MVVM patterns",
+  "version": "1.1.0",
+  "description": "Avalonia development tools including project structure review, theming guidance, and MVVM patterns for Avalonia 11.x and 12.x",
   "skills": "./skills/",
   "commands": "./commands/avalonia-review.md"
 }
