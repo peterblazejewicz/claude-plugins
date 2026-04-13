@@ -1,128 +1,47 @@
-# Claude Plugins (PowerShell & Windows)
+# Avalonia Dev — Claude Code Plugin
 
-A curated collection of **PowerShell 7.x ports and Windows-compatible** Claude Code plugins.
+A Claude Code plugin for reviewing and improving **Avalonia** and **MAUI** project architecture. Supports Avalonia 11.x and 12.x.
 
-## Purpose
+## What It Does
 
-This marketplace provides Windows-native versions of popular Claude Code plugins that typically require Bash/Unix environments. All plugins are designed to run natively on Windows using PowerShell 7.x without requiring WSL.
+Run `/avalonia-review` in your project to get a structured review covering:
 
-## Available Plugins
-
-| Plugin | Description | Upstream |
-|--------|-------------|----------|
-| [ralph-loop-ps](./plugins/ralph-loop-ps/) | PowerShell port of Ralph Loop - iterative AI development loops | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop) |
+- **Design token extraction** — find hardcoded colors, fonts, spacing and organize them into token files
+- **Theme architecture** — evaluate resource dictionaries, light/dark theme support, StaticResource vs DynamicResource usage
+- **Project structure** — assess folder organization, separation of concerns, recommend target layouts
+- **Migration planning** — phased approach with priorities and risk levels
+- **Version-specific checks (v12)** — compiled bindings (`x:DataType`), accessibility properties, page-based navigation patterns, new styling APIs
+- **Upgrade guidance (v11)** — key benefits and migration path to Avalonia 12
 
 ## Installation
 
-### Add the Marketplace
-
 ```bash
 claude plugins marketplace add peterblazejewicz/claude-plugins
+claude plugins install avalonia-dev
 ```
 
-### Install a Plugin
+## Usage
 
-```bash
-claude plugins install ralph-loop-ps
 ```
+/avalonia-review
+```
+
+The review auto-detects your Avalonia version from package references and applies the appropriate guidance.
+
+## Reference Material
+
+The plugin includes detailed reference files for:
+
+| Reference | Contents |
+|-----------|----------|
+| Design Tokens | Color, typography, spacing, elevation token patterns with AXAML examples |
+| Project Structure | Folder layouts for small and large projects, dependency layering |
+| Migration Guide | Phased migration steps, templates, Avalonia 12 API changes |
 
 ## Requirements
 
-- **PowerShell 7.x** (cross-platform) - [Install PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
-- **Claude Code** with plugin support
-
-### Verify PowerShell Version
-
-```powershell
-$PSVersionTable.PSVersion
-# Should show 7.x.x
-```
-
-### Install PowerShell 7 on Windows
-
-```powershell
-winget install Microsoft.PowerShell
-```
-
-## Development
-
-### Lint PowerShell Scripts
-
-Run PSScriptAnalyzer on all PowerShell scripts in the repository:
-
-```powershell
-# From repository root
-./scripts/powershell-lint.ps1
-```
-
-This runs the same linting used by the CI/CD pipeline.
-
-## Upstream Synchronization
-
-This repository monitors upstream sources for changes and ports them to PowerShell. When changes are detected in the original plugins, issues are created for review and porting.
-
-### Tracked Upstreams
-
-| Plugin | Upstream Repository | Path |
-|--------|---------------------|------|
-| ralph-loop-ps | anthropics/claude-plugins-official | plugins/ralph-loop |
-
-## Contributing
-
-Contributions are welcome! If you'd like to:
-
-1. **Port another plugin** - Open an issue with the plugin you'd like ported
-2. **Fix a bug** - Submit a PR with the fix
-3. **Improve documentation** - PRs welcome
-
-### Porting Guidelines
-
-When porting Bash scripts to PowerShell:
-
-| Bash | PowerShell |
-|------|------------|
-| `#!/bin/bash` | `#Requires -Version 7.0` |
-| `set -euo pipefail` | `$ErrorActionPreference = 'Stop'` |
-| `$(cat)` | `$input \| Out-String` |
-| `jq` | `ConvertFrom-Json` / `ConvertTo-Json` |
-| `sed`, `awk`, `grep` | PowerShell regex, `Select-String` |
-| `perl` regex | `[regex]::Match()` |
-
-## Troubleshooting
-
-### "Bash command permission check failed" Error
-
-If you see an error like:
-```
-Error: Bash command permission check failed for pattern "..."
-This command uses shell operators that require approval for safety
-```
-
-This is **not** a PowerShell execution policy issue. It's Claude Code's internal permission pattern matching.
-
-**Root Cause**: The `allowed-tools` pattern in command files must not contain escaped quotes (`\"`). Claude Code's pattern matching fails with embedded quotes, triggering stricter safety checks.
-
-**Solution**: Use simple wildcard patterns without quotes:
-```yaml
-# ❌ Wrong - quotes break pattern matching
-allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File \"*script.ps1\"*)"]
-
-# ✅ Correct - no quotes in pattern
-allowed-tools: ["Bash(pwsh -NoProfile -ExecutionPolicy Bypass -File *script.ps1*)"]
-```
-
-### PowerShell Execution Policy
-
-Scripts use `-ExecutionPolicy Bypass` flag which overrides system policy for that session. You don't need to:
-- Change your system execution policy
-- Run elevated/as administrator
-- Modify your PowerShell profile
+- [Claude Code](https://claude.ai/code) with plugin support
 
 ## License
 
-MIT License - See [LICENSE](./LICENSE)
-
-## Credits
-
-- **Original Ralph Loop**: [Geoffrey Huntley](https://ghuntley.com/ralph/)
-- **Official Plugins**: [Anthropic](https://github.com/anthropics/claude-plugins-official)
+MIT
