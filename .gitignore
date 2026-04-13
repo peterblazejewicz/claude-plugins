@@ -11,6 +11,3 @@ Thumbs.db
 *.swp
 *.swo
 *~
-
-# PowerShell
-*.ps1xml
