@@ -1,24 +1,16 @@
 {
   "name": "blazejewicz-claude-plugins",
-  "version": "1.0.0",
-  "description": "PowerShell 7.x ports and Windows-compatible Claude Code plugins",
+  "version": "2.0.0",
+  "description": "Claude Code plugins for Avalonia and .NET cross-platform UI development",
   "owner": {
     "name": "Piotr Błażejewicz",
     "email": "peterblazejewicz@users.noreply.github.com"
   },
   "plugins": [
     {
-      "name": "ralph-loop-ps",
-      "description": "PowerShell 7.x port of Ralph Loop - Continuous self-referential AI loops for iterative development. Windows-native, no WSL required.",
-      "version": "1.0.0",
-      "source": "./plugins/ralph-loop-ps",
-      "category": "developer-tools",
-      "tags": ["powershell", "windows", "ralph-loop", "iterative-development", "automation"]
-    },
-    {
       "name": "avalonia-dev",
-      "description": "Avalonia development tools including project structure review, theming guidance, and MVVM patterns for .NET cross-platform UI development.",
-      "version": "1.0.2",
+      "description": "Avalonia development tools including project structure review, theming guidance, and MVVM patterns for Avalonia 11.x and 12.x.",
+      "version": "1.1.0",
       "source": "./plugins/avalonia-dev",
       "category": "developer-tools",
       "tags": ["avalonia", "xaml", "dotnet", "ui", "theming", "design-tokens", "mvvm"]
