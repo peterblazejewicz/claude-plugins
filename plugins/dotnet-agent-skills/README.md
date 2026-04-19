@@ -4,7 +4,7 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-Pre-release (`0.4.0`). Waves 0, 1, and 2 complete — 18 of 21 skills ported. Wave 2 added `test-driven-development` (dual xUnit/MSTest), `ci-cd-and-automation` (GitHub Actions + Azure DevOps with `setup-dotnet`), and `integration-testing-dotnet` (rewritten from upstream's browser-testing-with-devtools to cover `WebApplicationFactory<T>`, Testcontainers, `Microsoft.Playwright`, and `Avalonia.Headless.XUnit`). Remaining 3 skills (Waves 3–4) tracked in [`SYNC.md`](./SYNC.md).
+Pre-release (`0.5.0`). Waves 0–3 complete — 20 of 21 skills ported. Wave 3 added two .NET-specific rewrites: `frontend-ui-engineering-avalonia` (Avalonia 11/12 + CommunityToolkit.Mvvm + compiled bindings + theming + `AutomationProperties`) and `performance-optimization-dotnet` (BenchmarkDotNet + dotnet-counters + dotnet-trace + PerfView + EF Core/Kestrel/GC/allocation triage). One skill (the meta `using-agent-skills`, Wave 4) remains pending.
 
 ## Attribution
 
@@ -42,7 +42,7 @@ Lists available skills and their triggers. Individual skills activate from natur
 | 1A (core execution) | planning-and-task-breakdown, incremental-implementation, code-review-and-quality, code-simplification, debugging-and-error-recovery, context-engineering | ✅ ported |
 | 1B (remaining agnostic) | idea-refine (+ 3 references), api-and-interface-design, security-and-hardening, git-workflow-and-versioning, deprecation-and-migration, documentation-and-adrs, source-driven-development, shipping-and-launch | ✅ ported |
 | 2 (testing/CI) | test-driven-development, ci-cd-and-automation, integration-testing-dotnet (rewritten from browser-testing-with-devtools) | ✅ ported |
-| 3 (.NET rewrites) | frontend-ui-engineering-avalonia, performance-optimization-dotnet | pending |
+| 3 (.NET rewrites) | frontend-ui-engineering-avalonia, performance-optimization-dotnet | ✅ ported |
 | 4 (meta) | using-agent-skills | pending |
 
 ## Syncing upstream

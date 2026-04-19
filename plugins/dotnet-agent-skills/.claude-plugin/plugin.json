@@ -1,6 +1,6 @@
 {
   "name": "dotnet-agent-skills",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Agent skills for .NET 8+ (Avalonia, ASP.NET Core, Blazor, MAUI, EF Core, xUnit/MSTest). Adapted from addyosmani/agent-skills (MIT).",
   "skills": "./skills/",
   "commands": "./commands/dotnet-skills.md"

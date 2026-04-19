@@ -25,6 +25,7 @@ Lists the skills currently available in this plugin and the natural-language pro
 - **api-and-interface-design** — Stable HTTP / library surface design with C# records, ProblemDetails, FluentValidation, strongly-typed IDs, pattern-matching unions. Triggers: *"design this API"*, *"what should the DTO shape be?"*.
 - **context-engineering** — Optimizes CLAUDE.md, `.editorconfig`, and conversation management for .NET projects. Triggers: *"the agent keeps hallucinating APIs"*, *"set up CLAUDE.md for this Avalonia project"*.
 - **source-driven-development** — Cites Microsoft Learn and official docs for every framework-specific decision; detects stack from `global.json` / `Directory.Packages.props`. Triggers: *"verify this EF Core pattern against the docs"*, *"I want cited code"*.
+- **frontend-ui-engineering-avalonia** — Production-quality Avalonia 11/12 UIs: CommunityToolkit.Mvvm view-models, compiled bindings, `FluentTheme` + `ThemeVariant`, `AutomationProperties`, adaptive layouts. Triggers: *"build this Avalonia view"*, *"fix binding errors"*, *"add dark mode support"*.
 
 **Verify** — catch bugs:
 - **debugging-and-error-recovery** — Systematic root-cause debugging for `dotnet test` failures, `NullReferenceException`, DbContext concurrency, missing DI registrations, cancellation surprises. Triggers: *"this test is failing"*, *"why is this breaking?"*.
@@ -35,6 +36,7 @@ Lists the skills currently available in this plugin and the natural-language pro
 - **code-review-and-quality** — Five-axis review (correctness, readability, architecture, security, performance) with .NET checks (async correctness, DI lifetimes, EF Core N+1). Triggers: *"review this PR"*, *"is this ready to merge?"*.
 - **code-simplification** — Reduces C# complexity while preserving behavior. Covers null-coalescing, `switch` expressions, `record struct`, LINQ tradeoffs. Triggers: *"simplify this code"*, *"this method is too long"*.
 - **security-and-hardening** — Full .NET security pass: FluentValidation, EF Core parameterization, ASP.NET Core Identity / JWT bearer, policy-based authz, Data Protection, antiforgery, `dotnet list package --vulnerable`, rate limiting. Triggers: *"review this for security"*, *"is this endpoint safe?"*.
+- **performance-optimization-dotnet** — Measure-first workflow with BenchmarkDotNet (`[MemoryDiagnoser]`), dotnet-counters, dotnet-trace, PerfView; fixes EF Core N+1 / sync-over-async / Gen2 GC pressure / thread-pool starvation / `HttpClient` misuse; tunes Kestrel and `AddOutputCache`. Triggers: *"this is slow"*, *"profile this endpoint"*, *"reduce allocations"*, *"fix cold start"*.
 
 **Ship** — release safely:
 - **git-workflow-and-versioning** — Trunk-based branches, atomic commits, Husky.Net pre-commit hooks running `dotnet test` / `dotnet format` / `dotnet build -warnaserror`. Triggers: *"what's a good commit message?"*, *"should I split this PR?"*.
