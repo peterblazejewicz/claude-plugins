@@ -28,6 +28,8 @@ Lists the skills currently available in this plugin and the natural-language pro
 
 **Verify** — catch bugs:
 - **debugging-and-error-recovery** — Systematic root-cause debugging for `dotnet test` failures, `NullReferenceException`, DbContext concurrency, missing DI registrations, cancellation surprises. Triggers: *"this test is failing"*, *"why is this breaking?"*.
+- **test-driven-development** — RED/GREEN/REFACTOR with xUnit or MSTest + FluentAssertions, the Prove-It Pattern for bug fixes, `TimeProvider`/`FakeTimeProvider` for deterministic time. Triggers: *"let's write the test first"*, *"how do I test this?"*.
+- **integration-testing-dotnet** — Tests the four .NET integration boundaries: HTTP (`WebApplicationFactory<T>`), DB (Testcontainers with real providers), browser (`Microsoft.Playwright`), Avalonia desktop (`Avalonia.Headless.XUnit`). Triggers: *"test this endpoint end-to-end"*, *"verify the EF Core query against Postgres"*, *"write a Playwright test for this Blazor page"*.
 
 **Review** — hold the bar:
 - **code-review-and-quality** — Five-axis review (correctness, readability, architecture, security, performance) with .NET checks (async correctness, DI lifetimes, EF Core N+1). Triggers: *"review this PR"*, *"is this ready to merge?"*.
@@ -36,6 +38,7 @@ Lists the skills currently available in this plugin and the natural-language pro
 
 **Ship** — release safely:
 - **git-workflow-and-versioning** — Trunk-based branches, atomic commits, Husky.Net pre-commit hooks running `dotnet test` / `dotnet format` / `dotnet build -warnaserror`. Triggers: *"what's a good commit message?"*, *"should I split this PR?"*.
+- **ci-cd-and-automation** — GitHub Actions / Azure DevOps with `setup-dotnet`, quality gates, Testcontainers in CI, Playwright.NET E2E, NuGet publish on tags, slot-per-PR preview deploys. Triggers: *"set up CI"*, *"why is the pipeline failing?"*, *"add a deployment workflow"*.
 - **documentation-and-adrs** — ADRs for EF Core / Dapper / UI-framework decisions, XML doc comments on public APIs, Swashbuckle OpenAPI metadata, README with `dotnet` CLI commands. Triggers: *"write an ADR for this"*, *"document this API"*.
 - **deprecation-and-migration** — Retires `[Obsolete]` types, strangler pattern for migrations, `IOptionsMonitor` feature flags, NuGet unlist, Roslyn analyzer code-fix migration tooling. Triggers: *"how do we deprecate this?"*, *"retire the legacy service"*.
 - **shipping-and-launch** — Pre-launch checklist, `IOptions<FeatureOptions>` / `Microsoft.FeatureManagement`, Application Insights / OpenTelemetry monitoring, EF Core migration rollback, expand-contract schema pattern. Triggers: *"are we ready to ship?"*, *"write a rollback plan"*.
