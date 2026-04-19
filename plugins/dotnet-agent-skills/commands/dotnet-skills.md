@@ -14,6 +14,12 @@ Lists the skills currently available in this plugin and the natural-language pro
 ## Skills available now
 
 - **spec-driven-development** — Creates specs before coding for .NET projects. Triggers: *"help me spec out a new C# service"*, *"write a spec for this Avalonia app before we build it"*, *"I need a specification for this feature"*.
+- **planning-and-task-breakdown** — Breaks .NET/C# work into ordered, verifiable tasks with `dotnet` CLI verification. Triggers: *"break this feature into tasks"*, *"how should I sequence this?"*.
+- **incremental-implementation** — Thin vertical slices with `dotnet test` + `dotnet build -warnaserror` between each. Triggers: *"this feels too big to land in one step"*, *"let's ship this in pieces"*.
+- **code-review-and-quality** — Five-axis review (correctness, readability, architecture, security, performance) with .NET-specific checks (async correctness, DI lifetimes, EF Core N+1). Triggers: *"review this PR"*, *"is this ready to merge?"*.
+- **code-simplification** — Reduces C# complexity while preserving behavior. Covers null-coalescing, `switch` expressions, `record struct`, LINQ-vs-loop tradeoffs. Triggers: *"simplify this code"*, *"this method is too long"*.
+- **debugging-and-error-recovery** — Systematic root-cause debugging for `dotnet test` failures, `NullReferenceException`, DbContext concurrency issues, missing DI registrations, cancellation surprises. Triggers: *"this test is failing"*, *"why is this breaking?"*.
+- **context-engineering** — Optimizes CLAUDE.md, `.editorconfig`, and conversation management for .NET projects. Triggers: *"the agent keeps hallucinating APIs"*, *"set up CLAUDE.md for this Avalonia project"*.
 
 ## Skills coming in later waves
 

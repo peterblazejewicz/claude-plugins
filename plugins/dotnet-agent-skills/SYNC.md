@@ -17,18 +17,18 @@ Per-skill port status against upstream [addyosmani/agent-skills](https://github.
 | skills/api-and-interface-design/SKILL.md | 1 | api-and-interface-design | pending | — | |
 | skills/browser-testing-with-devtools/SKILL.md | 2 | integration-testing-dotnet | pending | — | Rewrite for `WebApplicationFactory` + `Microsoft.Playwright` |
 | skills/ci-cd-and-automation/SKILL.md | 2 | ci-cd-and-automation | pending | — | Inject dotnet CLI + GitHub Actions examples |
-| skills/code-review-and-quality/SKILL.md | 1 | code-review-and-quality | pending | — | |
-| skills/code-simplification/SKILL.md | 1 | code-simplification | pending | — | |
-| skills/context-engineering/SKILL.md | 1 | context-engineering | pending | — | |
-| skills/debugging-and-error-recovery/SKILL.md | 1 | debugging-and-error-recovery | pending | — | |
+| skills/code-review-and-quality/SKILL.md | 1 | code-review-and-quality | modified | `44dac80` | Five-axis checks + DI lifetime, async correctness, EF Core N+1; `dotnet list package --vulnerable` replaces `npm audit`; `.editorconfig` as style authority |
+| skills/code-simplification/SKILL.md | 1 | code-simplification | modified | `44dac80` | Added C# language-specific section (async unwrap, null-coalescing, LINQ, `switch` expression, expression-bodied, `record struct`); TS/Python/React sections preserved |
+| skills/context-engineering/SKILL.md | 1 | context-engineering | modified | `44dac80` | CLAUDE.md template rewritten for .NET 8 / Avalonia / ASP.NET Core / EF Core stack; MCP table adds Microsoft Learn; conflict example uses Minimal APIs vs controllers |
+| skills/debugging-and-error-recovery/SKILL.md | 1 | debugging-and-error-recovery | modified | `44dac80` | Triage/reproduce/bisect use `dotnet test --filter`; runtime table covers DbContext concurrency, missing DI, `TaskCanceledException`; safe-fallback examples in C# with `OperationCanceledException` filter |
 | skills/deprecation-and-migration/SKILL.md | 1 | deprecation-and-migration | pending | — | |
 | skills/documentation-and-adrs/SKILL.md | 1 | documentation-and-adrs | pending | — | |
 | skills/frontend-ui-engineering/SKILL.md | 3 | frontend-ui-engineering-avalonia | pending | — | Rewrite for Avalonia 11/12 first; siblings for Blazor/ASP/MAUI later |
 | skills/git-workflow-and-versioning/SKILL.md | 1 | git-workflow-and-versioning | pending | — | |
 | skills/idea-refine/SKILL.md | 1 | idea-refine | pending | — | |
-| skills/incremental-implementation/SKILL.md | 1 | incremental-implementation | pending | — | |
+| skills/incremental-implementation/SKILL.md | 1 | incremental-implementation | modified | `44dac80` | `dotnet test` / `dotnet build -warnaserror` / `dotnet format` in increment checklist; feature flag example uses `IOptions<FeatureOptions>`; EF Core migration rollback guidance added |
 | skills/performance-optimization/SKILL.md | 3 | performance-optimization-dotnet | pending | — | Rewrite for BenchmarkDotNet, dotnet-counters, PerfView, dotnet-trace |
-| skills/planning-and-task-breakdown/SKILL.md | 1 | planning-and-task-breakdown | pending | — | |
+| skills/planning-and-task-breakdown/SKILL.md | 1 | planning-and-task-breakdown | modified | `44dac80` | Task verification uses `dotnet test --filter` / `dotnet build -warnaserror`; file-path examples use `.cs`; dependency graph labels EF Core + Avalonia/Blazor/MAUI |
 | skills/security-and-hardening/SKILL.md | 1 | security-and-hardening | pending | — | |
 | skills/shipping-and-launch/SKILL.md | 1 | shipping-and-launch | pending | — | |
 | skills/source-driven-development/SKILL.md | 1 | source-driven-development | pending | — | |
