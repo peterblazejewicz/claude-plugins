@@ -56,7 +56,7 @@ Per-wrapper port status against upstream `.claude/commands/`. Ported in plugin v
 
 ## Agents
 
-Per-agent port status against upstream `agents/`. Ported in plugin version `2.2.0` (2026-04-19). All personas live at `plugins/dotnet-skills/agents/<name>.md` and carry a `Source & Modifications` footer matching the SKILL.md pattern.
+Per-agent port status against upstream `agents/`. Ported in plugin version `2.2.0` (2026-04-19) — `2.2.0` failed manifest validation because an invalid `"agents"` key was added to `plugin.json`; `2.2.1` hotfixes that by removing the key and relying on Claude Code's auto-discovery of the `./agents/` directory. All personas live at `plugins/dotnet-skills/agents/<name>.md` and carry a `Source & Modifications` footer matching the SKILL.md pattern.
 
 | Upstream | Ported as | Status | Last sync SHA7 | Notes |
 |----------|-----------|--------|----------------|-------|
@@ -68,7 +68,7 @@ Per-agent port status against upstream `agents/`. Ported in plugin version `2.2.
 
 | Upstream | Disposition | Notes |
 |----------|-------------|-------|
-| agents/ | **ported** (v2.2.0) | All 3 personas ported; see the Agents table above |
+| agents/ | **ported** (v2.2.0, hotfix v2.2.1) | All 3 personas ported; see the Agents table above |
 | references/ | vendor-only | Promote into per-skill `references/` as ports land |
 | hooks/ | vendor-only | Re-evaluate when Wave 3 lands |
 | docs/ | vendor-only | Reference only |

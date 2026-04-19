@@ -4,7 +4,9 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`2.2.0` — **Adds 3 .NET-adapted subagents** (`code-reviewer`, `security-auditor`, `test-engineer`) ported from the upstream `agents/` set. Invoke via the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Backwards compatible: all 21 skills and 8 slash commands are unchanged. See [Agents](#agents) below for the full mapping.
+`2.2.1` — **Adds 3 .NET-adapted subagents** (`code-reviewer`, `security-auditor`, `test-engineer`) ported from the upstream `agents/` set. Invoke via the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Backwards compatible: all 21 skills and 8 slash commands are unchanged. See [Agents](#agents) below for the full mapping.
+
+> **Hotfix (2.2.1).** Supersedes 2.2.0, which shipped with an invalid `"agents": "./agents/"` entry in `plugin.json`. Claude Code auto-discovers the `./agents/` directory from a plugin root by convention — no manifest field is needed — and the extra key caused the plugin to fail manifest validation. 2.2.1 removes the field; no functional change vs. the intent of 2.2.0.
 
 Prior releases: `2.1.0` added 7 short slash-command wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
 
