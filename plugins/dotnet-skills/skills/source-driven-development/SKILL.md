@@ -54,7 +54,7 @@ Check whether the project uses:
 - **ASP.NET Core**: controllers vs Minimal APIs vs both
 - **EF Core**: provider (Npgsql, SqlServer, Sqlite), version, migrations layout
 - **UI framework**: Avalonia 11 vs 12, Blazor Server vs WebAssembly vs Hybrid, MAUI target frameworks
-- **Testing**: xUnit vs MSTest vs NUnit, FluentAssertions vs Assert
+- **Testing**: xUnit (v2 or v3) vs MSTest vs NUnit; native assertions (`Xunit.Assert.X` / `MSTest.Assert.X`); VSTest runner vs Microsoft.Testing.Platform
 
 State what you found explicitly:
 
@@ -66,7 +66,7 @@ STACK DETECTED:
 - ASP.NET Core 8.0.3 (Minimal APIs)
 - EF Core 8.0.3, Npgsql provider 8.0.2
 - Avalonia 11.2.1 with CommunityToolkit.Mvvm 8.3.0
-- Testing: xUnit 2.9.0 + FluentAssertions 6.12.0
+- Testing: xunit.v3 + Microsoft.Testing.Platform (native `Xunit.Assert`, no third-party assertion library)
 → Fetching official docs for the relevant patterns.
 ```
 

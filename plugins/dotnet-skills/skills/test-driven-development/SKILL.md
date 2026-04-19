@@ -44,7 +44,7 @@ The guidance below works with both current xUnit major versions and both current
 - `dotnet test` works in both worlds. On v3 the command invokes MTP; on v2 it invokes VSTest. Same user-facing command for agents driving tests from CI or a Husky.Net hook.
 - On v3, `dotnet run --project tests/MyApp.Tests` is a legitimate alternative — the test project is an executable — useful when the VSTest runner setup is causing trouble or when you want zero-overhead test startup locally.
 - MTP filtering syntax differs slightly from VSTest. `dotnet test --filter "FullyQualifiedName~X"` still works on both; for v3-native MTP flags see the xUnit v3 docs (link in "See Also").
-- For **new** projects on .NET 8+, prefer xUnit v3 + MTP. For **existing** v2 projects, don't migrate unless there's a concrete reason — the API surface for test authors is source-compatible.
+- **xUnit v3 is the current recommendation** for new projects on .NET 8+. Existing v2 projects can stay as-is — the test-author API is source-compatible — and migrate when the project has capacity. Samples below are shown in v3 form; swap the package references above to target v2.
 
 **MSTest parallel:** MSTest has shipped MTP-native support since 3.6. The `MSTest.TestFramework` + `MSTest.Sdk` packages give you an MTP-first experience with the same `[TestClass]`/`[TestMethod]`/`Assert.*` API.
 
@@ -63,10 +63,10 @@ The guidance below works with both current xUnit major versions and both current
 
 Write the test first. It must fail. A test that passes immediately proves nothing.
 
-Both xUnit and MSTest are first-class in the .NET world; pick one per project and stick to it. Examples below are shown in both.
+Both xUnit and MSTest are first-class in the .NET world; pick one per project and stick to it. Examples below are shown in both using **native assertions** — `Xunit.Assert.X` for xUnit, `Microsoft.VisualStudio.TestTools.UnitTesting.Assert.X` for MSTest. No third-party assertion library is introduced or recommended.
 
 ```csharp
-// xUnit
+// xUnit v3
 public sealed class TaskServiceTests
 {
     private readonly TaskService _service = new();
@@ -104,15 +104,6 @@ public sealed class TaskServiceTests
         Assert.IsTrue(task.CreatedAt <= DateTimeOffset.UtcNow);
     }
 }
-```
-
-FluentAssertions (works with both xUnit and MSTest) makes assertions more readable; pair with xUnit for the most common .NET convention:
-
-```csharp
-task.Id.Should().NotBe(default(TaskId));
-task.Title.Should().Be("Buy groceries");
-task.Status.Should().Be(TaskStatus.Pending);
-task.CreatedAt.Should().BeOnOrBefore(DateTimeOffset.UtcNow);
 ```
 
 ### Step 2: GREEN — Make It Pass
@@ -193,8 +184,8 @@ public async Task CompleteTaskAsync_SetsCompletedAtTimestamp()
 
     var completed = await _service.CompleteTaskAsync(created.Id);
 
-    completed.Status.Should().Be(TaskStatus.Completed);
-    completed.CompletedAt.Should().NotBeNull();  // This fails → bug confirmed
+    Assert.Equal(TaskStatus.Completed, completed.Status);
+    Assert.NotNull(completed.CompletedAt);  // This fails → bug confirmed
 }
 
 // Step 2: Fix the bug
@@ -228,7 +219,7 @@ Invest testing effort according to the pyramid — most tests should be small an
    ╱──────────────╲     DB           → Testcontainers (Postgres/MSSQL/Redis)
   ╱                ╲   Unit Tests (~80%)
  ╱                  ╲   Pure logic, isolated, milliseconds each
-╱────────────────────╲  xUnit / MSTest + FluentAssertions
+╱────────────────────╲  xUnit v3 / MSTest + native Assert
 ```
 
 **The Beyonce Rule:** If you liked it, you should have put a test on it. Infrastructure changes, refactoring, and migrations are not responsible for catching your bugs — your tests are. If a change breaks your code and you didn't have a test for it, that's on you.
@@ -271,7 +262,7 @@ public async Task ListTasks_SortedByCreationDate_NewestFirst()
 {
     var tasks = await _service.ListAsync(new ListTasksParams(SortBy: "createdAt", SortOrder: "desc"));
 
-    tasks.Data.Should().BeInDescendingOrder(t => t.CreatedAt);
+    Assert.Equal(tasks.Data.OrderByDescending(t => t.CreatedAt), tasks.Data);
 }
 
 // Bad: Tests how the service works internally (interaction-based using Moq/NSubstitute)
@@ -295,8 +286,8 @@ In production code, DRY (Don't Repeat Yourself) is usually right. In tests, **DA
 public void CreateTask_WithEmptyTitle_Throws()
 {
     var input = new CreateTaskInput("");
-    Action act = () => _service.Create(input);
-    act.Should().Throw<ValidationException>().WithMessage("*Title is required*");
+    var ex = Assert.Throws<ValidationException>(() => _service.Create(input));
+    Assert.Contains("Title is required", ex.Message);
 }
 
 [Fact]
@@ -304,7 +295,7 @@ public void CreateTask_TrimsWhitespaceFromTitle()
 {
     var input = new CreateTaskInput("  Buy groceries  ");
     var task = _service.Create(input);
-    task.Title.Should().Be("Buy groceries");
+    Assert.Equal("Buy groceries", task.Title);
 }
 
 // Over-DRY: Shared parameterized setup that obscures what each test actually verifies
@@ -352,7 +343,7 @@ public void MarkOverdue_DeadlinePassed_SetsOverdueFlag()
     var task = new TaskDto(/* ... */, Deadline: new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
     var result = service.MarkOverdue(task);
 
-    result.IsOverdue.Should().BeTrue();
+    Assert.True(result.IsOverdue);
 }
 ```
 
@@ -371,7 +362,7 @@ public void MarkOverdue_DeadlinePassed_SetsOverdueFlag()
     var result = service.MarkOverdue(task);
 
     // Assert
-    result.IsOverdue.Should().BeTrue();
+    Assert.True(result.IsOverdue);
 }
 ```
 
@@ -522,4 +513,5 @@ After completing any implementation:
   - Preserved verbatim: TDD cycle diagram, Step 1/2/3 structure, Prove-It Pattern flowchart, Test Pyramid diagram, Beyonce Rule, Arrange-Act-Assert frame, Common Rationalizations and Red Flags structure
 - **Downstream patches** (applied after the initial sync; not tracked against upstream):
   - **2026-04-19** (skill v1.0.1) — Added "Version Awareness: xUnit v2 vs v3, and Microsoft.Testing.Platform" section covering package-reference differences (`xunit` vs `xunit.v3`), test-project-as-executable output in v3, VSTest vs MTP runner differences, `dotnet run --project tests/…` as a v3-only alternative to `dotnet test`, source-level API compatibility for `[Fact]` / `Assert.*` / `IClassFixture<T>`, MSTest's parallel MTP-native story via `MSTest.Sdk`. Added MTP docs to "See Also". Description updated to mention "(v2 or v3)" and "VSTest and Microsoft.Testing.Platform (MTP) runners".
+  - **2026-04-19** (skill v1.0.2, plugin v2.3.0) — **FluentAssertions removed** and **xUnit v3 made canonical**. Rationale: FluentAssertions v8 (January 2025) moved to the XCEED source-available license; only v7.x remains Apache 2.0, and recommending "FluentAssertions" without pinning nudges agents toward v8. Every sample now uses native `Xunit.Assert.X` or MSTest `Assert.X`. The optional "FluentAssertions alternative" block after the RED step is deleted. Prove-It, State-vs-Interaction, DAMP, TimeProvider, and Arrange-Act-Assert samples rewritten — `completed.CompletedAt.Should().NotBeNull()` → `Assert.NotNull(completed.CompletedAt)`, `tasks.Data.Should().BeInDescendingOrder(...)` → `Assert.Equal(tasks.Data.OrderByDescending(...), tasks.Data)`, `act.Should().Throw<E>().WithMessage("*X*")` → `var ex = Assert.Throws<E>(act); Assert.Contains("X", ex.Message)`, `result.IsOverdue.Should().BeTrue()` → `Assert.True(result.IsOverdue)`. Test-pyramid diagram label changed `xUnit / MSTest + FluentAssertions` → `xUnit v3 / MSTest + native Assert`. Version Awareness "practical upshot" reframed — v3 is the current recommendation for new projects; v2 stays source-compatible for test authors.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

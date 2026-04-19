@@ -83,7 +83,7 @@ ASSUMPTIONS I'M MAKING:
 1. This is an Avalonia 11 desktop app (not MAUI or WPF)
 2. Target framework is net8.0 (LTS), <Nullable>enable</Nullable>
 3. EF Core 8 against PostgreSQL for prod, SQLite for tests
-4. Testing with xUnit + FluentAssertions
+4. Testing with xUnit v3 + native `Xunit.Assert`
 5. MVVM via CommunityToolkit.Mvvm source generators
 → Correct me now or I'll proceed with these.
 ```

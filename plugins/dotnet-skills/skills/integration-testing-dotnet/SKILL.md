@@ -38,37 +38,28 @@ This skill covers the four integration boundaries that matter most in .NET:
 
 ```xml
 <!-- tests/MyApp.Integration.Tests/MyApp.Integration.Tests.csproj -->
+<!-- Canonical setup: xUnit v3 on Microsoft.Testing.Platform (MTP), .NET 8+ -->
 
-<!-- Option A: xUnit v2 on VSTest (the broadly-deployed setup) -->
-<ItemGroup>
-  <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-  <PackageReference Include="xunit" />
-  <PackageReference Include="xunit.runner.visualstudio" />
-  <PackageReference Include="FluentAssertions" />
-  <PackageReference Include="Microsoft.NET.Test.Sdk" />
-</ItemGroup>
-
-<!-- Option B: xUnit v3 on Microsoft.Testing.Platform (.NET 8+; test project compiles to an executable) -->
-<!--
 <ItemGroup>
   <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
   <PackageReference Include="xunit.v3" />
   <PackageReference Include="xunit.v3.runner.visualstudio" />
-  <PackageReference Include="FluentAssertions" />
-  <!-- No Microsoft.NET.Test.Sdk needed — MTP is self-contained -->
+  <!-- No Microsoft.NET.Test.Sdk — MTP is self-contained -->
 </ItemGroup>
+
 <PropertyGroup>
   <OutputType>Exe</OutputType>
   <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
 </PropertyGroup>
--->
 
 <ItemGroup>
   <ProjectReference Include="..\..\src\MyApp\MyApp.csproj" />
 </ItemGroup>
 ```
 
-Either option compiles the same `WebApplicationFactory<Program>` test code verbatim — the runner choice is transparent to test authors. See [`test-driven-development`](../test-driven-development/SKILL.md#version-awareness-xunit-v2-vs-v3-and-microsofttestingplatform) for the full v2/v3 + VSTest/MTP comparison.
+**If you're still on xUnit v2:** swap the three xUnit lines above for `<PackageReference Include="xunit" />` + `<PackageReference Include="xunit.runner.visualstudio" />` + `<PackageReference Include="Microsoft.NET.Test.Sdk" />`, and drop the `OutputType`/`UseMicrosoftTestingPlatformRunner` property group. The `WebApplicationFactory<Program>` test bodies below compile unchanged. See [`test-driven-development`](../test-driven-development/SKILL.md#version-awareness-xunit-v2-vs-v3-and-microsofttestingplatform) for the full v2/v3 + VSTest/MTP comparison.
+
+Assertions throughout this skill are **native** — `Xunit.Assert.X` for xUnit, no third-party assertion library. (FluentAssertions is deliberately not introduced; v8+ is under a non-Apache license and recommending it without version-pinning invites licensing surprises.)
 
 In `Program.cs`, make the entry point testable — add a `partial class Program { }` stub at the bottom so `WebApplicationFactory<Program>` can reference it:
 
@@ -112,13 +103,13 @@ public sealed class TaskEndpointTests : IClassFixture<WebApplicationFactory<Prog
 
         var response = await _client.PostAsJsonAsync("/api/tasks", input);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
-        response.Headers.Location.Should().NotBeNull();
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.NotNull(response.Headers.Location);
 
         var created = await response.Content.ReadFromJsonAsync<TaskDto>();
-        created.Should().NotBeNull();
-        created!.Title.Should().Be("Buy groceries");
-        created.Status.Should().Be(TaskStatus.Pending);
+        Assert.NotNull(created);
+        Assert.Equal("Buy groceries", created.Title);
+        Assert.Equal(TaskStatus.Pending, created.Status);
     }
 
     [Fact]
@@ -126,9 +117,10 @@ public sealed class TaskEndpointTests : IClassFixture<WebApplicationFactory<Prog
     {
         var response = await _client.PostAsJsonAsync("/api/tasks", new CreateTaskInput(""));
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-        problem!.Errors.Should().ContainKey("Title");
+        Assert.NotNull(problem);
+        Assert.Contains("Title", problem.Errors.Keys);
     }
 }
 ```
@@ -207,7 +199,8 @@ public sealed class TaskQueryTests(PostgresFixture fixture)
         var mine = await new TaskQuery(context).ListByAssigneeAsync(me);
 
         // Assert
-        mine.Should().ContainSingle().Which.Title.Should().Be("Mine");
+        var single = Assert.Single(mine);
+        Assert.Equal("Mine", single.Title);
 
         // Transaction is rolled back by DisposeAsync — no cross-test pollution
     }
@@ -278,7 +271,7 @@ public sealed class TaskFlowTests : IAsyncLifetime
         // Console assertion — production-quality pages have zero console errors
         var consoleErrors = new List<string>();
         page.Console += (_, msg) => { if (msg.Type == "error") consoleErrors.Add(msg.Text); };
-        consoleErrors.Should().BeEmpty();
+        Assert.Empty(consoleErrors);
     }
 }
 ```
@@ -290,13 +283,16 @@ Pair Playwright with `WebApplicationFactory<Program>`'s in-process host when you
 ```csharp
 // Using the Axe-Playwright NuGet: https://github.com/IsaacVSPHE/axe-playwright-sharp
 var axeResults = await new AxeBuilder(page).AnalyzeAsync();
-axeResults.Violations.Should().BeEmpty(
-    "page should have no accessibility violations — see axe output for details");
+Assert.True(
+    axeResults.Violations.Count == 0,
+    $"Expected zero a11y violations; got {axeResults.Violations.Count}. See axe output for details.");
 ```
 
 ## Integration Testing the Avalonia Desktop Boundary
 
 `Avalonia.Headless.XUnit` runs Avalonia's actual dispatcher and rendering in-process without displaying a window. Use it to test view-model ↔ view bindings, command execution, and custom-control layout.
+
+> **xUnit version cliff.** `Avalonia.Headless.XUnit` gained **xUnit v3** support in **Avalonia 12.0** (Feb 2026). On **Avalonia 11.x**, the package only supports **xUnit v2** — mixing `xunit.v3` with Avalonia 11 headless tests will not compile. The sample below targets Avalonia 12 + xUnit v3 (the canonical direction); if your app is still on Avalonia 11, keep the Avalonia UI test project on xUnit v2 even if the rest of your test suite has moved to v3.
 
 ### Setup
 
@@ -304,6 +300,9 @@ axeResults.Violations.Should().BeEmpty(
 <ItemGroup>
   <PackageReference Include="Avalonia.Headless" />
   <PackageReference Include="Avalonia.Headless.XUnit" />
+  <!-- Avalonia 12 + xUnit v3 -->
+  <PackageReference Include="xunit.v3" />
+  <PackageReference Include="xunit.v3.runner.visualstudio" />
 </ItemGroup>
 ```
 
@@ -345,8 +344,9 @@ public sealed class TaskViewTests
         vm.CreateCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
 
-        vm.Tasks.Should().ContainSingle().Which.Title.Should().Be("Buy groceries");
-        vm.Title.Should().BeEmpty("the input should be cleared after Create");
+        var single = Assert.Single(vm.Tasks);
+        Assert.Equal("Buy groceries", single.Title);
+        Assert.Empty(vm.Title);   // the input should be cleared after Create
     }
 }
 ```
@@ -487,4 +487,5 @@ After any integration test pass:
   - Common Rationalizations and Red Flags table structure; individual rows retargeted to .NET tools
 - **Downstream patches** (applied after the initial sync; not tracked against upstream):
   - **2026-04-19** (skill v1.0.1) — HTTP-boundary csproj block annotated with an xUnit v3 + Microsoft.Testing.Platform alternative (`xunit.v3` + `xunit.v3.runner.visualstudio`, `<OutputType>Exe</OutputType>`, `<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>`, no `Microsoft.NET.Test.Sdk` needed). Added a pointer to the `test-driven-development` Version Awareness section for the full v2-vs-v3 / VSTest-vs-MTP comparison. Test-authoring code (`WebApplicationFactory<Program>`, `IClassFixture`, `[Fact]`, `Assert.*`) compiles unchanged against both options. Description updated to mention "xUnit v2/v3 on VSTest or Microsoft.Testing.Platform".
+  - **2026-04-19** (skill v1.0.2, plugin v2.3.0) — **FluentAssertions removed; xUnit v3 + MTP promoted to the single canonical csproj setup.** HTTP csproj now ships one `xunit.v3` block plus a short "swap these lines for v2" note — the dual Option A/B presentation is gone. All HTTP, DB, Playwright, and Avalonia test bodies rewritten to native `Xunit.Assert.X` — `Should().ContainSingle().Which` → `Assert.Single(...)` + `Assert.Equal(...)`, `Should().BeEmpty()` → `Assert.Empty(...)`, `Should().ContainKey(k)` → `Assert.Contains(k, col.Keys)`. Added explicit **Avalonia xUnit version cliff** callout: `Avalonia.Headless.XUnit` only gained xUnit v3 support in Avalonia 12.0 (Feb 2026, PR AvaloniaUI/Avalonia#20481); Avalonia 11.x projects must stay on xUnit v2 for headless UI tests. The Avalonia sample csproj now pins `xunit.v3` + `xunit.v3.runner.visualstudio` to make the canonical path unambiguous.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

@@ -4,11 +4,11 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`2.2.1` — **Adds 3 .NET-adapted subagents** (`code-reviewer`, `security-auditor`, `test-engineer`) ported from the upstream `agents/` set. Invoke via the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Backwards compatible: all 21 skills and 8 slash commands are unchanged. See [Agents](#agents) below for the full mapping.
+`2.3.0` — **Drops FluentAssertions everywhere and makes xUnit v3 + Microsoft.Testing.Platform the canonical test setup.** All code samples in `test-driven-development`, `integration-testing-dotnet`, and the `test-engineer` subagent now use native `Xunit.Assert.X` or MSTest `Assert.X`. Prose, frontmatter descriptions, package references, and stack-detection examples are scrubbed of FluentAssertions across 9 files. xUnit v2 is still supported (source-compatible at the test-author level) but relegated to a compact "Version Awareness" table. `Avalonia.Headless.XUnit` gets an explicit version-cliff callout: xUnit v3 requires Avalonia 12; 11.x stays on xUnit v2.
 
-> **Hotfix (2.2.1).** Supersedes 2.2.0, which shipped with an invalid `"agents": "./agents/"` entry in `plugin.json`. Claude Code auto-discovers the `./agents/` directory from a plugin root by convention — no manifest field is needed — and the extra key caused the plugin to fail manifest validation. 2.2.1 removes the field; no functional change vs. the intent of 2.2.0.
+> **Why drop FluentAssertions.** FluentAssertions v8 (January 2025) moved to the XCEED source-available license; only v7.x remains Apache 2.0. Recommending "FluentAssertions" without pinning drives agents toward v8+ and a licensing audit every team will lose. Native `Assert.X` keeps the toolchain simpler, eliminates a third-party dependency per test project, and avoids the license question entirely.
 
-Prior releases: `2.1.0` added 7 short slash-command wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
+Prior releases: `2.2.1` hotfix removed an invalid `"agents": "./agents/"` entry from `plugin.json` that slipped into 2.2.0 and broke install-time manifest validation (Claude Code auto-discovers `./agents/` by convention — no field required). `2.2.0` added 3 .NET-adapted subagents (`code-reviewer`, `security-auditor`, `test-engineer`) ported from the upstream `agents/` set. `2.1.0` added 7 short slash-command wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
 
 ## Attribution
 
@@ -75,7 +75,7 @@ If `/test` or `/review` collides with a personal command or another plugin in yo
 | --- | --- | --- |
 | [code-reviewer](./agents/code-reviewer.md) | Staff-Engineer five-axis reviewer (correctness, readability, architecture, security, performance) with nullable-RT / DI lifetime / EF Core N+1 / `IHttpClientFactory` / UI-thread checks | Thorough `file.cs:line`-anchored review before merge, categorized Critical / Important / Suggestion |
 | [security-auditor](./agents/security-auditor.md) | Security-Engineer running an OWASP-aligned audit of the ASP.NET Core / Blazor / MAUI stack (FluentValidation, Identity + JWT + policy-based authz, Data Protection, Key Vault, security headers, CORS, HMAC webhooks, OAuth PKCE) | Security-focused review with proof-of-concept Critical / High / Medium / Low findings and .NET-API-grounded fixes |
-| [test-engineer](./agents/test-engineer.md) | QA-Engineer designing test suites (xUnit v2/v3 or MSTest + FluentAssertions), `WebApplicationFactory<T>` / Testcontainers / `Microsoft.Playwright` / `Avalonia.Headless.XUnit`; `TimeProvider` + `FakeTimeProvider`; Prove-It Pattern | Planning a test suite, writing a failing test for a bug, or analyzing coverage gaps |
+| [test-engineer](./agents/test-engineer.md) | QA-Engineer designing test suites (xUnit v3 or v2, or MSTest — native `Assert.X`), `WebApplicationFactory<T>` / Testcontainers / `Microsoft.Playwright` / `Avalonia.Headless.XUnit`; `TimeProvider` + `FakeTimeProvider`; Prove-It Pattern | Planning a test suite, writing a failing test for a bug, or analyzing coverage gaps |
 
 **Invocation.** Launch an agent through the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Claude Code auto-namespaces plugin-provided agents, so `dotnet-skills:code-reviewer` coexists with built-in and sibling-plugin subagents of the same short name (e.g. `pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`) — always use the qualified form to pick the .NET-adapted one.
 
@@ -105,7 +105,7 @@ If `/test` or `/review` collides with a personal command or another plugin in yo
 | [context-engineering](./skills/context-engineering/SKILL.md)                                         | CLAUDE.md / `.editorconfig` / analyzer setup for .NET projects                                                     | Starting a session, switching stacks, or when output quality drops      |
 | [source-driven-development](./skills/source-driven-development/SKILL.md)                             | Ground decisions in Microsoft Learn + framework docs + analyzer diagnostics                                        | You want authoritative, source-cited code for any .NET framework        |
 | [frontend-ui-engineering-avalonia](./skills/frontend-ui-engineering-avalonia/SKILL.md)               | Avalonia 11/12 with CommunityToolkit.Mvvm, compiled bindings, `FluentTheme` + `ThemeVariant`, `AutomationProperties` | Building or modifying Avalonia UI                                       |
-| [test-driven-development](./skills/test-driven-development/SKILL.md)                                 | RED/GREEN/REFACTOR with xUnit (v2/v3) or MSTest + FluentAssertions, Prove-It Pattern, `TimeProvider`                | Implementing logic, fixing bugs, or changing behavior                   |
+| [test-driven-development](./skills/test-driven-development/SKILL.md)                                 | RED/GREEN/REFACTOR with xUnit v3 (or v2) or MSTest using native `Assert.X`, Prove-It Pattern, `TimeProvider`/`FakeTimeProvider`   | Implementing logic, fixing bugs, or changing behavior                   |
 
 ### Verify — prove it works
 
@@ -142,7 +142,7 @@ If `/test` or `/review` collides with a personal command or another plugin in yo
 ## Requirements
 
 - [Claude Code](https://claude.ai/code) with plugin support
-- Target workloads: .NET 8+ LTS, C# 12+, xUnit (v2 or v3) or MSTest, EF Core, Avalonia UI (ASP.NET Core, Blazor, MAUI covered by guidance; dedicated sibling UI skills are optional future work)
+- Target workloads: .NET 8+ LTS, C# 12+, xUnit v3 (recommended) or v2 or MSTest — native `Assert.X` only (no FluentAssertions), EF Core, Avalonia UI (ASP.NET Core, Blazor, MAUI covered by guidance; dedicated sibling UI skills are optional future work)
 
 ## License
 

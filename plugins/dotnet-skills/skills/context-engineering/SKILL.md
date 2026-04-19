@@ -52,7 +52,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 - Avalonia 11 for desktop UI (CommunityToolkit.Mvvm for view models)
 - ASP.NET Core 8 for the HTTP API
 - EF Core 8 against PostgreSQL (Npgsql); SQLite for integration tests
-- xUnit + FluentAssertions for unit tests; WebApplicationFactory for integration tests
+- xUnit v3 + native `Xunit.Assert` for unit tests; WebApplicationFactory for integration tests
 - `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<Nullable>enable</Nullable>`
 
 ## Solution layout
@@ -207,7 +207,7 @@ For richer context, use Model Context Protocol servers:
 
 | MCP Server | What It Provides |
 |-----------|-----------------|
-| **Context7** | Auto-fetches relevant documentation for libraries (e.g. EF Core, Avalonia, FluentAssertions) |
+| **Context7** | Auto-fetches relevant documentation for libraries (e.g. EF Core, Avalonia, xUnit v3) |
 | **Microsoft Learn** | Official Microsoft / Azure / .NET docs with code samples |
 | **Chrome DevTools** | Live browser state, DOM, console, network (Blazor WebAssembly debugging) |
 | **PostgreSQL / SQL Server** | Direct database schema and query results |

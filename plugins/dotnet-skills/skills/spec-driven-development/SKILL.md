@@ -46,7 +46,7 @@ ASSUMPTIONS I'M MAKING:
 1. This is an Avalonia 11 desktop app (not MAUI or WPF)
 2. Target framework is .NET 8 (LTS), C# 12 language features
 3. Persistence is EF Core 8 against SQLite for dev, PostgreSQL for prod
-4. Testing with xUnit + FluentAssertions (MSTest is acceptable per team standard)
+4. Testing with xUnit v3 + native `Xunit.Assert` (MSTest with its native `Assert` is acceptable per team standard)
 5. MVVM via CommunityToolkit.Mvvm source generators
 → Correct me now or I'll proceed with these.
 ```
