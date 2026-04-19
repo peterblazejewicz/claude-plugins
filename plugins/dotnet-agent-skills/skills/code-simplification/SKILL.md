@@ -195,7 +195,7 @@ If the "simplified" version is harder to understand or review, revert. Not every
 ### C# / .NET
 
 ```csharp
-// SIMPLIFY: Unnecessary async wrapper
+// SIMPLIFY: Unnecessary async wrapper — only when the method does nothing but forward the Task
 // Before
 public async Task<User> GetUserAsync(string id, CancellationToken cancellationToken)
 {
@@ -206,8 +206,40 @@ public Task<User> GetUserAsync(string id, CancellationToken cancellationToken)
 {
     return _userService.FindByIdAsync(id, cancellationToken);
 }
-// (Only when you don't need a try/catch, using, or post-await logic. An await is required
-//  to participate in exception unwrapping or ConfigureAwait context.)
+
+// KEEP the await — three concrete reasons not to strip it:
+
+// 1. Exception unwrapping via try/catch
+public async Task<User> GetUserSafeAsync(string id, CancellationToken cancellationToken)
+{
+    try
+    {
+        return await _userService.FindByIdAsync(id, cancellationToken);
+    }
+    catch (UserServiceException ex)
+    {
+        // Without await, the exception surfaces only when the caller observes
+        // the returned Task — often in a different stack frame with no catch.
+        _logger.LogError(ex, "Failed to load user {UserId}", id);
+        throw;
+    }
+}
+
+// 2. Disposal timing — `using` / `await using` must wrap the actual I/O
+public async Task<string> LoadAsync(string path, CancellationToken cancellationToken)
+{
+    await using var stream = File.OpenRead(path);
+    using var reader = new StreamReader(stream);
+    // Strip the await here and the using blocks dispose BEFORE the read completes → crash.
+    return await reader.ReadToEndAsync(cancellationToken);
+}
+
+// 3. Post-await logic — any work after the inner task requires the result in-frame
+public async Task<int> CountAsync(CancellationToken cancellationToken)
+{
+    var items = await _repository.ListAllAsync(cancellationToken);
+    return items.Count; // Can't inline `.Count` onto a Task<IReadOnlyList<T>>.
+}
 
 // SIMPLIFY: Verbose conditional assignment
 // Before
@@ -446,4 +478,6 @@ After completing a simplification pass:
   - Naming table keeps generic advice; rationalizations table unchanged
   - Red-flag list adds over-eager `class` → `record struct` conversions without value-equality intent
   - Preserved verbatim: Five Principles, Simplification Process, Chesterton's Fence guidance, TypeScript/Python/React examples, rationalization table
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.3) — Added three "KEEP the await" counter-examples alongside the "Unnecessary async wrapper" simplification (try/catch exception unwrapping, `await using` / `using` disposal timing, post-await logic needing the unwrapped result in-frame). Prevents agents from over-applying the unwrap to methods where `await` is load-bearing.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

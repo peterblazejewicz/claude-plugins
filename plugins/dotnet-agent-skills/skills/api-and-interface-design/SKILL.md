@@ -158,6 +158,16 @@ public sealed record CreateTaskInput(
 
 For serialization compatibility, also watch: `JsonPropertyName` attribute changes, enum string vs int representation, and nullability of optional fields (`string?` vs `string`). Adding a new non-nullable property to a DTO is a breaking change in JSON.
 
+**Database-side analog (EF Core)** — the same "add a non-nullable thing" hazard exists at the schema level and is easy to miss until migration time:
+
+- If you add a non-nullable property to an entity that already has rows in production, `dotnet ef database update` will fail: *"Cannot insert the value NULL into column X; column does not allow nulls."* The deployment hangs mid-rollout with a half-migrated schema.
+- Three safe strategies:
+  1. **Add as nullable, backfill, tighten later.** Ship migration A that adds `string? NewColumn`, deploy, run a backfill job, then ship migration B that changes it to `string NewColumn` (non-nullable). Safe in one-process deployments.
+  2. **Add with a default value.** Use `.HasDefaultValue(...)` in `OnModelCreating` or `[DefaultValue]` so existing rows get a valid seed. Simplest when a sensible default exists.
+  3. **Expand-contract** (see [`deprecation-and-migration`](../deprecation-and-migration/SKILL.md)). Dual-write during the transition, flip reads when the backfill completes, drop the old column in a later release. Required for zero-downtime multi-instance rollouts.
+
+Never ship a migration that adds a non-nullable column to a populated table without one of these strategies.
+
 ### 5. Predictable Naming
 
 | Pattern | Convention | Example |
@@ -317,7 +327,28 @@ modelBuilder.Entity<Task>()
     .HasConversion(id => id.Value, value => new TaskId(value));
 ```
 
-For JSON serialization, ship a `JsonConverter<TaskId>` so the wire format is just the GUID, not `{ "value": "..." }`.
+**JSON serialization caveat — do not skip this.** By default, `System.Text.Json` sees `readonly record struct TaskId(Guid Value)` as a regular type with a public `Value` property and emits `{"value": "..."}` on the wire. That shape almost never matches what consumers expect — they expect a raw GUID string. Ship a `JsonConverter<TaskId>`:
+
+```csharp
+public sealed class TaskIdJsonConverter : JsonConverter<TaskId>
+{
+    public override TaskId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        new(reader.GetGuid());
+
+    public override void Write(Utf8JsonWriter writer, TaskId value, JsonSerializerOptions options) =>
+        writer.WriteStringValue(value.Value);
+}
+
+// Attach to the type so any DTO using TaskId picks it up automatically:
+[JsonConverter(typeof(TaskIdJsonConverter))]
+public readonly record struct TaskId(Guid Value)
+{
+    public override string ToString() => Value.ToString();
+    public static TaskId New() => new(Guid.NewGuid());
+}
+```
+
+**Alternative if you don't want to maintain a converter per ID type:** keep the wire contract as plain `Guid` strings, and use the strongly-typed struct only in domain code. Map at the serialization boundary (the DTO/entity) rather than propagating the struct all the way to JSON. This trades type safety at the edge for zero serialization ceremony.
 
 ## Common Rationalizations
 
@@ -384,4 +415,8 @@ After designing an API:
   - Red-flag list adds public async methods missing `CancellationToken`, EF Core entities leaking from HTTP endpoints, list endpoints without a server-side `PageSize` cap
   - Verification checklist adds `CancellationToken` requirement and `DbContext`-entity-leak guard
   - Preserved verbatim: Hyrum's Law intro quote, five core principles structure, REST resource design conventions, Common Rationalizations table frame
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.3) — Two additions:
+    - **"Prefer Addition Over Modification" — EF Core migration hazard.** Added a "Database-side analog" subsection on the non-nullable-column migration failure mode (`Cannot insert NULL into column X`), with three safe strategies: nullable-first + backfill + tighten, `HasDefaultValue` / `[DefaultValue]`, and expand-contract (pointer to `deprecation-and-migration`).
+    - **"Use Strongly-Typed IDs" — JSON serialization shape.** Upgraded the one-line `JsonConverter<TaskId>` mention to a complete 10-line converter implementation plus `[JsonConverter(typeof(…))]` attachment on the struct. Added an alternative: keep `Guid` on the wire and use the struct only in domain code, trading edge type-safety for zero serialization ceremony.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

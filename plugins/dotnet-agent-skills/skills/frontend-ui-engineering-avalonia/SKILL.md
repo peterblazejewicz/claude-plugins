@@ -42,6 +42,39 @@ Key differences to keep front-of-mind (see Avalonia's official migration guide f
 
 When you detect the project's version (from the `Avalonia` NuGet reference in `Directory.Packages.props` / the UI `.csproj`), state it explicitly and apply version-appropriate patterns.
 
+**Side-by-side: the compiled-bindings opt-in**
+
+```xml
+<!-- Avalonia 11 — compiled bindings are OFF by default. Opt in explicitly. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyApp.ViewModels"
+             x:DataType="vm:TaskListViewModel"
+             x:CompileBindings="True">
+    <!--
+        Without x:CompileBindings="True", v11 resolves every {Binding Title}
+        at runtime using reflection. Typos become silent failures — the
+        view renders blank and the problem surfaces only in the debug output.
+    -->
+</UserControl>
+```
+
+```xml
+<!-- Avalonia 12 — compiled bindings are ON by default. Just declare the type. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyApp.ViewModels"
+             x:DataType="vm:TaskListViewModel">
+    <!--
+        x:CompileBindings is implicit. Forgetting x:DataType here means the
+        compiled bindings have nothing to check against and individual bindings
+        fall back to runtime resolution — so always declare the type anyway.
+    -->
+</UserControl>
+```
+
+The visible XAML diff is one attribute on the root element. The cost of getting it wrong is version-specific: **v11** without `x:CompileBindings="True"` silently degrades to runtime reflection; **either version** without `x:DataType` loses the build-time type check. Default posture: declare both on every `UserControl` / `Window` regardless of Avalonia version — it's correct in v11 and redundant-but-harmless in v12.
+
 ## Component Architecture
 
 ### File Structure
@@ -579,4 +612,6 @@ After building or modifying an Avalonia view:
   - Verification checklist rewritten to the 10-item Avalonia checklist (compiled bindings, zero binding warnings, Tab order, automation names, four states, both theme variants, token usage, accessibility-tool pass, Headless test, cold-start)
   - Pointer added to the companion **avalonia-dev** plugin (`/avalonia-review`) for structural reviews
 - **What was preserved conceptually** (not verbatim): component-architecture framing, composition-over-configuration principle, loading/error/empty pattern, design-system-adherence framing, avoid-AI-aesthetic framing, four-tier focus on keyboard / ARIA-equivalent / focus management / color, responsive-by-default principle
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.3) — Version Awareness section now includes side-by-side XAML examples contrasting Avalonia 11 (`x:CompileBindings="True"` is opt-in) and Avalonia 12 (compiled bindings default-on, `x:DataType` still required for type checking). Added a "declare both on every root regardless of version" default posture so copy/paste between v11 and v12 projects is safe.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

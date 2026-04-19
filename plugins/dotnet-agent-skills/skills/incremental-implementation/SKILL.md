@@ -192,6 +192,8 @@ public Task<TaskId> CreateTaskAsync(
 
 Nullable reference types enabled (`<Nullable>enable</Nullable>`) and explicit defaults keep safe behavior visible at the call site.
 
+For **library** slices (class libraries consumed from WPF / WinForms / MAUI / Avalonia UI-thread callers), add `.ConfigureAwait(false)` on every public `await` — the UI hosts capture `SynchronizationContext` and resuming on it causes deadlocks under `.Result`/`.Wait()` at any callsite. ASP.NET Core hosts do not capture sync context since .NET Core 2.1, so `ConfigureAwait(false)` is a no-op there; in a library you don't know which host will consume you.
+
 ### Rule 5: Rollback-Friendly
 
 Each increment should be independently revertable:
@@ -279,4 +281,6 @@ After completing all increments for a task:
   - Increment Checklist replaces `npm test` / `npm run build` / `npx tsc --noEmit` / `npm run lint` with `dotnet test` / `dotnet build -warnaserror` / `dotnet format --verify-no-changes` (type check is subsumed by `dotnet build`)
   - Red-flag list adds "editing an already-applied EF Core migration by hand"
   - All structural sections, rationalizations, and rule ordering preserved from upstream verbatim
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.3) — Rule 4 Safe Defaults extended with a `ConfigureAwait(false)` note for library slices. Library code consumed from WPF / WinForms / MAUI / Avalonia UI-thread callers captures `SynchronizationContext` by default — every public `await` in a library should `.ConfigureAwait(false)` to avoid the deadlock trap. ASP.NET Core has no sync context since .NET Core 2.1, so it's a no-op there, but a library doesn't know which host will consume it.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

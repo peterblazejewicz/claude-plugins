@@ -25,6 +25,8 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 
 ## The Five-Axis Review
 
+> **Host-model lens.** The five axes apply universally. Individual bullets sometimes anchor on a specific host model — **server-side (ASP.NET Core)** items like N+1 EF Core patterns, `FromSqlRaw`, antiforgery tokens, and `[Authorize]` policy checks won't apply to a pure Avalonia/MAUI client; **client-side (Avalonia / MAUI / Blazor WebAssembly)** items like dispatcher marshalling and `localStorage` discipline won't apply to an ASP.NET Core API. Where a bullet is host-specific, the host is named inline.
+
 Every review evaluates code across these dimensions:
 
 ### 1. Correctness
@@ -38,6 +40,7 @@ Does the code do what it claims to do?
 - Does it pass all tests (`dotnet test`)? Are the tests actually testing the right things?
 - Are there off-by-one errors, race conditions, or state inconsistencies?
 - Is `CancellationToken` threaded through I/O methods?
+- For **library** code (NuGet packages, class libraries that may be consumed from non-ASP.NET-Core hosts — WPF, WinForms, MAUI, Avalonia UI thread), do public `await` expressions use `.ConfigureAwait(false)` to avoid capturing the caller's `SynchronizationContext`? (Not needed for code that only runs under ASP.NET Core — it has no `SynchronizationContext` since .NET Core 2.1.)
 
 ### 2. Readability & Simplicity
 
@@ -379,4 +382,8 @@ After review is complete:
   - "See Also" section points at upstream vendored references temporarily, with a forward pointer to the Wave 3 `performance-optimization-dotnet` skill
   - Red-flag list adds `FromSqlRaw`/`FromSqlInterpolated` without review justification
   - Core structure, the five-axis frame, approval standard, honesty-in-review guidance, change-sizing thresholds, and the severity prefix table preserved from upstream verbatim
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.3) — Two additions:
+    - **Host-model lens note** at the top of "The Five-Axis Review" clarifying that the five axes are universal but individual bullets sometimes anchor on a host model (server-side ASP.NET Core vs client-side Avalonia / MAUI / Blazor WebAssembly).
+    - **`ConfigureAwait(false)` bullet** added to the Correctness axis — library code consumed from non-ASP.NET-Core hosts (WPF, WinForms, MAUI, Avalonia UI-thread) should use `.ConfigureAwait(false)` on public awaits to avoid `SynchronizationContext` capture. Called out as no-op under ASP.NET Core since .NET Core 2.1.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

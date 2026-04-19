@@ -24,10 +24,12 @@ Security-first development practices for .NET applications — ASP.NET Core web 
 
 ## The Three-Tier Boundary System
 
+> **Host-model lens.** Most bullets below target **ASP.NET Core server code** (Web APIs, Razor Pages, Blazor Server). Cross-cutting items — secret handling, no `BinaryFormatter`, parameterized queries — apply to any .NET host, including Avalonia / MAUI / console apps that talk to a database or external service. Client-only items (Blazor WebAssembly `localStorage`, antiforgery tokens in cookie-auth apps) are labeled inline. When in doubt about whether a bullet applies to your host, check the examples.
+
 ### Always Do (No Exceptions)
 
 - **Validate all external input** at the system boundary (endpoints, message handlers) with FluentValidation / DataAnnotations / MediatR pipeline behaviour
-- **Parameterize all database queries** — EF Core's LINQ does this by default; if you must drop to raw SQL, use `FromSql` with interpolated strings (parameterized) or `FromSqlInterpolated`, never `FromSqlRaw($"... {input}")`
+- **Parameterize all database queries** — EF Core's LINQ does this by default; for raw SQL prefer `FromSql($"...{input}")` on EF Core 8+ (the `FormattableString` overload parameterizes automatically), or `FromSqlInterpolated($"...{input}")` on EF Core 7 and earlier. Never `FromSqlRaw($"...{input}")` — the `string` overload interpolates in C# **before** EF Core sees the query
 - **Encode output** — Razor and Blazor auto-encode `@model.Something` by default; never use `@Html.Raw(userInput)` or `MarkupString` on user-sourced content
 - **Use HTTPS** for all external communication; `app.UseHsts()` + `app.UseHttpsRedirection()` in `Program.cs`
 - **Hash passwords** with ASP.NET Core Identity's `PasswordHasher<TUser>` (PBKDF2 with SHA-256, tuned work factor), or Argon2 via `Konscious.Security.Cryptography` for new systems
@@ -57,33 +59,49 @@ Security-first development practices for .NET applications — ASP.NET Core web 
 - **Never use `MarkupString` / `@Html.Raw` with user content** without sanitization (XSS vector)
 - **Never store auth tokens in browser `localStorage`** from Blazor WebAssembly — use `HttpOnly` cookies or `sessionStorage` with short lifetimes and accept the XSS exposure risk
 - **Never expose stack traces** or internal error details to users — ASP.NET Core's production `UseExceptionHandler("/Error")` strips them by default, keep it that way
-- **Never interpolate user input into `FromSqlRaw`** — use `FromSqlInterpolated($"...{input}")` so EF Core parameterizes it, or `FromSql($"...{input}")` in newer versions
+- **Never interpolate user input into `FromSqlRaw`** — on EF Core 8+ use `FromSql($"...{input}")`; on earlier versions `FromSqlInterpolated($"...{input}")`. Both overloads take `FormattableString` and parameterize each `{}` hole; `FromSqlRaw` takes a plain `string` and does not
 
 ## OWASP Top 10 Prevention (C# / .NET)
 
 ### 1. Injection (SQL, NoSQL, OS Command)
 
+**Server-side (EF Core raw-SQL APIs)** — `FromSqlRaw`, `FromSqlInterpolated`, and `FromSql` look similar at the call site but have opposite safety semantics:
+
 ```csharp
-// BAD: SQL injection via interpolation into FromSqlRaw
+// BAD: SQL injection — FromSqlRaw takes a `string`; the interpolation happens in C#
+//      and the user-controlled value lands directly inside the query text.
 var user = await db.Users
     .FromSqlRaw($"SELECT * FROM Users WHERE Id = '{userId}'")
-    .FirstOrDefaultAsync();
-
-// GOOD: EF Core LINQ (parameterized automatically)
-var user = await db.Users.SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
-
-// GOOD: Raw SQL when you need it, parameterized
-var user = await db.Users
-    .FromSqlInterpolated($"SELECT * FROM Users WHERE Id = {userId}") // EF Core parameterizes {userId}
     .FirstOrDefaultAsync(cancellationToken);
 
-// GOOD: Dapper also parameterizes with anonymous-object parameters
+// GOOD: LINQ — EF Core parameterizes automatically. Prefer this whenever the
+//       query shape can be expressed in LINQ.
+var user = await db.Users
+    .SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+// GOOD (EF Core 8+, the canonical form): FromSql — the `FormattableString`
+//        overload sees each `{}` hole and parameterizes it, even though the
+//        syntax looks like C# interpolation.
+var user = await db.Users
+    .FromSql($"SELECT * FROM Users WHERE Id = {userId}")
+    .FirstOrDefaultAsync(cancellationToken);
+
+// GOOD (EF Core 7 and earlier): FromSqlInterpolated — identical safety to the
+// EF Core 8+ FromSql above. Still works on EF Core 8+, but FromSql is the
+// recommended name going forward.
+var user = await db.Users
+    .FromSqlInterpolated($"SELECT * FROM Users WHERE Id = {userId}")
+    .FirstOrDefaultAsync(cancellationToken);
+
+// GOOD: Dapper — anonymous-object parameters, never string concatenation
 var user = await connection.QuerySingleOrDefaultAsync<User>(
     "SELECT * FROM Users WHERE Id = @Id",
     new { Id = userId });
 ```
 
-For OS commands (`Process.Start`), never concatenate user input — use the `ProcessStartInfo.ArgumentList` collection (each item escaped individually) instead of `Arguments` (single-string interpolation).
+> **The trap**: `FromSqlRaw($"...{userId}...")` and `FromSql($"...{userId}...")` look nearly identical in source, but the method overload resolution picks opposite paths — `FromSqlRaw` takes a `string` (C# formats it before EF Core sees anything) while `FromSql` and `FromSqlInterpolated` take a `FormattableString` (EF Core sees the holes and parameterizes them). When in doubt, call `FromSql` explicitly — the compiler will reject a plain concatenated string.
+
+**Server-side (OS commands)** — for `Process.Start`, never concatenate user input into `ProcessStartInfo.Arguments` (single string, prone to quoting bugs). Use `ProcessStartInfo.ArgumentList` instead — each item is escaped individually by the runtime.
 
 ### 2. Broken Authentication
 
@@ -565,4 +583,6 @@ After implementing security-relevant code:
   - Red-flag list rewritten with .NET-specific vectors (`FromSqlRaw`, `@Html.Raw`, `MarkupString`, missing `[Authorize]`, `AllowAnyOrigin()` + `AllowCredentials()`, `BinaryFormatter`, JWT missing validations, Blazor WebAssembly localStorage)
   - Verification checklist retargeted (`dotnet list package --vulnerable`, `git log -p | grep` secret scan, multi-node Data Protection key-ring check, magic-byte upload verification)
   - Preserved: three-tier Always/Ask-First/Never framework, OWASP Top 10 numbering (#1 Injection, #2 Broken Auth, #3 XSS, #4 Broken Access Control, #5 Misconfig, #6 Sensitive Data Exposure), decision-tree shape for vulnerability triage, overall section ordering, rationalization table schema
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.3) — OWASP #1 Injection block expanded to show `FromSqlRaw` (BAD, `string` overload) alongside `FromSql` (GOOD, EF Core 8+ canonical form), `FromSqlInterpolated` (GOOD, EF Core 7 and earlier — same `FormattableString` safety), LINQ, and Dapper with anonymous-object parameters. Added a "trap" callout explaining why `FromSqlRaw($"...")` and `FromSql($"...")` look identical but have opposite safety. Always-Do and Never-Do bullets updated to match. Added a "Host-model lens" note at the top of the Three-Tier Boundary System clarifying which bullets are ASP.NET Core-specific vs cross-cutting.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)
