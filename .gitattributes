@@ -1,0 +1,4 @@
+# .gitattributes — committed to repo
+README.md merge=keep-ours
+CONTRIBUTING.md merge=keep-ours
+mkdocs.yaml merge=keep-ours
