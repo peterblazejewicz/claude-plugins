@@ -32,6 +32,8 @@ scripts/sync-agent-skills.ps1         # Maintainer-only re-sync tool
 
 **Plugin cache is version-keyed.** `claude plugins marketplace update` stores installs at `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and won't refetch an already-cached version. Any user-visible fix (even a one-line manifest correction) requires a patch bump in both manifests to propagate — same-version republishes are invisible.
 
+**Second-source external version claims.** Release dates and version numbers for upstream projects (Avalonia, EF Core, xUnit, etc.) that land in shipped skill content must be verified against a primary source (GitHub release page, NuGet, official docs) — not taken from a single research agent. 2.3.0 shipped with "Avalonia 12.0 (Feb 2026)" based on an unverified agent claim; the actual release was April 2026, and a followup commit was needed to correct it. Wrong anchor dates erode trust in the whole versioning section for agents that rely on it.
+
 ### Command Files
 
 Commands are markdown files with YAML frontmatter. Key frontmatter fields:
@@ -72,3 +74,5 @@ Downstream skill renames (use these names in any new cross-reference — upstrea
 - `browser-testing-with-devtools` → `integration-testing-dotnet` (rewritten for the 4 .NET integration boundaries)
 - `frontend-ui-engineering` → `frontend-ui-engineering-avalonia` (rewritten for Avalonia)
 - `performance-optimization` → `performance-optimization-dotnet` (rewritten for BenchmarkDotNet / dotnet-counters / PerfView)
+
+**Test-sample policy (since 2.3.0).** Use native `Xunit.Assert.X` (xUnit) or `Microsoft.VisualStudio.TestTools.UnitTesting.Assert.X` (MSTest) only. Do not introduce FluentAssertions in any new sample or prose — v8+ (Jan 2025) moved from Apache 2.0 to the XCEED source-available license; v7.x is the last OSS-compatible line. xUnit v3 + Microsoft.Testing.Platform is canonical; v2 stays source-compatible and is covered by the `test-driven-development` Version Awareness table. `Avalonia.Headless.XUnit` gained xUnit v3 support only in Avalonia 12.0 (April 2026) — 11.x projects must stay on xUnit v2 for headless UI tests.
