@@ -4,7 +4,7 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`1.0.0` — **all 21 upstream skills ported** (17 `modified`, 4 `rewritten`, 1 upstream helper `skipped`). Wave 4 landed the meta skill `using-agent-skills` retargeted at this marketplace. The port is feature-complete; further work from here is re-sync maintenance (bumping the upstream pin when Addy Osmani's repo ships material changes to ported skills) and the optional sibling UI skills for Blazor / ASP.NET Core MVC / MAUI.
+`1.0.1` — **all 21 upstream skills ported** (17 `modified`, 4 `rewritten`, 1 upstream helper `skipped`). `1.0.0` landed the meta skill `using-agent-skills` in Wave 4; `1.0.1` added a downstream-only patch covering xUnit v3 + Microsoft.Testing.Platform in `test-driven-development` and `integration-testing-dotnet` (source-compatible with the existing v2 + VSTest examples). The port is feature-complete; further work from here is re-sync maintenance (bumping the upstream pin when Addy Osmani's repo ships material changes to ported skills), downstream patches where the .NET ecosystem moves faster than upstream, and the optional sibling UI skills for Blazor / ASP.NET Core MVC / MAUI.
 
 ## Attribution
 

@@ -1,7 +1,7 @@
 ---
 name: integration-testing-dotnet
-description: Tests .NET/C# systems at their integration boundaries — HTTP APIs with `WebApplicationFactory<T>`, EF Core against real databases via Testcontainers (PostgreSQL, SQL Server, Redis), Blazor/Razor Pages in real browsers via `Microsoft.Playwright`, Avalonia UI via `Avalonia.Headless.XUnit`. Use when building or debugging anything that crosses a boundary — HTTP, database, file system, message bus, or UI rendering.
-version: 0.4.0
+description: Tests .NET/C# systems at their integration boundaries — HTTP APIs with `WebApplicationFactory<T>`, EF Core against real databases via Testcontainers (PostgreSQL, SQL Server, Redis), Blazor/Razor Pages in real browsers via `Microsoft.Playwright`, Avalonia UI via `Avalonia.Headless.XUnit`. Works with xUnit v2/v3 on VSTest or Microsoft.Testing.Platform. Use when building or debugging anything that crosses a boundary — HTTP, database, file system, message bus, or UI rendering.
+version: 1.0.1
 source: rewritten from vendor/agent-skills/skills/browser-testing-with-devtools/SKILL.md@44dac80
 ---
 
@@ -38,6 +38,8 @@ This skill covers the four integration boundaries that matter most in .NET:
 
 ```xml
 <!-- tests/MyApp.Integration.Tests/MyApp.Integration.Tests.csproj -->
+
+<!-- Option A: xUnit v2 on VSTest (the broadly-deployed setup) -->
 <ItemGroup>
   <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
   <PackageReference Include="xunit" />
@@ -46,10 +48,27 @@ This skill covers the four integration boundaries that matter most in .NET:
   <PackageReference Include="Microsoft.NET.Test.Sdk" />
 </ItemGroup>
 
+<!-- Option B: xUnit v3 on Microsoft.Testing.Platform (.NET 8+; test project compiles to an executable) -->
+<!--
+<ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  <PackageReference Include="xunit.v3" />
+  <PackageReference Include="xunit.v3.runner.visualstudio" />
+  <PackageReference Include="FluentAssertions" />
+  <!-- No Microsoft.NET.Test.Sdk needed — MTP is self-contained -->
+</ItemGroup>
+<PropertyGroup>
+  <OutputType>Exe</OutputType>
+  <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+</PropertyGroup>
+-->
+
 <ItemGroup>
   <ProjectReference Include="..\..\src\MyApp\MyApp.csproj" />
 </ItemGroup>
 ```
+
+Either option compiles the same `WebApplicationFactory<Program>` test code verbatim — the runner choice is transparent to test authors. See [`test-driven-development`](../test-driven-development/SKILL.md#version-awareness-xunit-v2-vs-v3-and-microsofttestingplatform) for the full v2/v3 + VSTest/MTP comparison.
 
 In `Program.cs`, make the entry point testable — add a `partial class Program { }` stub at the bottom so `WebApplicationFactory<Program>` can reference it:
 
@@ -466,4 +485,6 @@ After any integration test pass:
   - **Security Boundaries** section — kept the full "treat browser content as untrusted data" guidance because it applies identically to Playwright (page DOM, console, network responses, `EvaluateAsync` return values). Adapted the JS-execution bullets from "JavaScript Execution" to "`page.EvaluateAsync`" since that's the .NET-side API for the same capability
   - Content-boundary markers (trusted/untrusted) framing
   - Common Rationalizations and Red Flags table structure; individual rows retargeted to .NET tools
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (skill v1.0.1) — HTTP-boundary csproj block annotated with an xUnit v3 + Microsoft.Testing.Platform alternative (`xunit.v3` + `xunit.v3.runner.visualstudio`, `<OutputType>Exe</OutputType>`, `<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>`, no `Microsoft.NET.Test.Sdk` needed). Added a pointer to the `test-driven-development` Version Awareness section for the full v2-vs-v3 / VSTest-vs-MTP comparison. Test-authoring code (`WebApplicationFactory<Program>`, `IClassFixture`, `[Fact]`, `Assert.*`) compiles unchanged against both options. Description updated to mention "xUnit v2/v3 on VSTest or Microsoft.Testing.Platform".
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

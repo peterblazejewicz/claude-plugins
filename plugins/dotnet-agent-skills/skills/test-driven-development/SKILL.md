@@ -1,7 +1,7 @@
 ---
 name: test-driven-development
-description: Drives .NET/C# development with tests — RED/GREEN/REFACTOR with xUnit or MSTest, the Prove-It Pattern for bug fixes, the test pyramid with `WebApplicationFactory` for integration and `Playwright`/`Avalonia.Headless` for E2E. Use when implementing any logic, fixing any bug, or changing any behavior.
-version: 0.4.0
+description: Drives .NET/C# development with tests — RED/GREEN/REFACTOR with xUnit (v2 or v3) or MSTest, the Prove-It Pattern for bug fixes, the test pyramid with `WebApplicationFactory` for integration and `Playwright`/`Avalonia.Headless` for E2E. Supports both VSTest and Microsoft.Testing.Platform (MTP) runners. Use when implementing any logic, fixing any bug, or changing any behavior.
+version: 1.0.1
 source: vendor/agent-skills/skills/test-driven-development/SKILL.md@44dac80
 ---
 
@@ -24,6 +24,29 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
 **When NOT to use:** Pure configuration changes, documentation updates, or static content changes that have no behavioral impact.
 
 **Related:** For HTTP and UI integration, combine TDD with `integration-testing-dotnet` — that skill covers `WebApplicationFactory<T>`, Testcontainers, `Microsoft.Playwright`, and `Avalonia.Headless` for Blazor / ASP.NET Core / Avalonia tests respectively.
+
+## Version Awareness: xUnit v2 vs v3, and Microsoft.Testing.Platform
+
+The guidance below works with both current xUnit major versions and both current runners. Detect which one the project uses (the `.csproj` package references are the tell) and apply the matching packaging.
+
+| Aspect | xUnit v2 (mature) | xUnit v3 (current) |
+|---|---|---|
+| Core package | `xunit` | `xunit.v3` |
+| IDE / VSTest runner | `xunit.runner.visualstudio` | `xunit.v3.runner.visualstudio` |
+| Output of `dotnet build` on the test project | DLL loaded by the runner | **Executable** (can be run directly: `./MyApp.Tests.exe`) |
+| Native runner | VSTest (`dotnet test`) | Microsoft.Testing.Platform (MTP) — faster startup, self-contained; still invokable via `dotnet test` |
+| Minimum target framework | netcoreapp3.1+ / net472 | net8.0 or later |
+| Source-level API compatibility | `[Fact]`, `[Theory]`, `[InlineData]`, `Assert.*`, `IClassFixture<T>`, `ICollectionFixture<T>`, `[Collection]` — **all identical** between v2 and v3 for normal test code | same |
+
+**Practical upshot for the TDD workflow:**
+
+- The RED / GREEN / REFACTOR examples in this skill compile unchanged against either version.
+- `dotnet test` works in both worlds. On v3 the command invokes MTP; on v2 it invokes VSTest. Same user-facing command for agents driving tests from CI or a Husky.Net hook.
+- On v3, `dotnet run --project tests/MyApp.Tests` is a legitimate alternative — the test project is an executable — useful when the VSTest runner setup is causing trouble or when you want zero-overhead test startup locally.
+- MTP filtering syntax differs slightly from VSTest. `dotnet test --filter "FullyQualifiedName~X"` still works on both; for v3-native MTP flags see the xUnit v3 docs (link in "See Also").
+- For **new** projects on .NET 8+, prefer xUnit v3 + MTP. For **existing** v2 projects, don't migrate unless there's a concrete reason — the API surface for test authors is source-compatible.
+
+**MSTest parallel:** MSTest has shipped MTP-native support since 3.6. The `MSTest.TestFramework` + `MSTest.Sdk` packages give you an MTP-first experience with the same `[TestClass]`/`[TestMethod]`/`Assert.*` API.
 
 ## The TDD Cycle
 
@@ -427,8 +450,9 @@ This separation ensures the test is written without knowledge of the fix, making
 
 - Upstream testing-patterns reference (generic, pre-dates this adaptation): [`../../vendor/agent-skills/references/testing-patterns.md`](../../vendor/agent-skills/references/testing-patterns.md)
 - For HTTP / browser / desktop integration testing, see [`integration-testing-dotnet`](../integration-testing-dotnet/SKILL.md) — covers `WebApplicationFactory<TEntryPoint>`, Testcontainers, `Microsoft.Playwright`, and `Avalonia.Headless.XUnit`
-- xUnit docs: https://xunit.net/
-- MSTest docs: https://learn.microsoft.com/dotnet/core/testing/unit-testing-mstest-intro
+- xUnit: https://xunit.net/ (covers both v2 and v3; v3's "Getting Started" section describes the MTP-native workflow)
+- MSTest: https://learn.microsoft.com/dotnet/core/testing/unit-testing-mstest-intro
+- Microsoft.Testing.Platform: https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro
 - `TimeProvider`: https://learn.microsoft.com/dotnet/api/system.timeprovider
 
 ## Common Rationalizations
@@ -496,4 +520,6 @@ After completing any implementation:
   - Red-flag list adds `.Result`/`.Wait()`, mocking `DbContext`, missing `tests/` directory, `[Fact(Skip = "…")]`
   - Verification checklist retargeted to `dotnet test`, `TimeProvider` + `FakeTimeProvider`, real EF Core provider, `--collect:"XPlat Code Coverage"`
   - Preserved verbatim: TDD cycle diagram, Step 1/2/3 structure, Prove-It Pattern flowchart, Test Pyramid diagram, Beyonce Rule, Arrange-Act-Assert frame, Common Rationalizations and Red Flags structure
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (skill v1.0.1) — Added "Version Awareness: xUnit v2 vs v3, and Microsoft.Testing.Platform" section covering package-reference differences (`xunit` vs `xunit.v3`), test-project-as-executable output in v3, VSTest vs MTP runner differences, `dotnet run --project tests/…` as a v3-only alternative to `dotnet test`, source-level API compatibility for `[Fact]` / `Assert.*` / `IClassFixture<T>`, MSTest's parallel MTP-native story via `MSTest.Sdk`. Added MTP docs to "See Also". Description updated to mention "(v2 or v3)" and "VSTest and Microsoft.Testing.Platform (MTP) runners".
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)
