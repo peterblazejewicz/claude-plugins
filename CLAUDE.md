@@ -28,6 +28,10 @@ scripts/sync-agent-skills.ps1         # Maintainer-only re-sync tool
 
 **Version coupling**: when bumping a plugin's `version`, update *both* `plugins/<name>/.claude-plugin/plugin.json` *and* the matching entry in `.claude-plugin/marketplace.json`. Users pulling via `claude plugins marketplace update` won't see the new version unless both are in sync.
 
+**`plugin.json` manifest schema is strict.** Valid top-level fields used by this repo: `name`, `version`, `description`, `skills`, `commands`. Other directories Claude Code reads from a plugin — `agents/`, `hooks/`, `.mcp.json` — are **auto-discovered by convention**; do NOT add them as manifest keys (e.g. `"agents": "./agents/"`) or install fails with "invalid manifest file". 2.2.0 shipped broken for this reason; 2.2.1 hotfixed by removing the key.
+
+**Plugin cache is version-keyed.** `claude plugins marketplace update` stores installs at `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and won't refetch an already-cached version. Any user-visible fix (even a one-line manifest correction) requires a patch bump in both manifests to propagate — same-version republishes are invisible.
+
 ### Command Files
 
 Commands are markdown files with YAML frontmatter. Key frontmatter fields:
