@@ -11,6 +11,22 @@ Adapted from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skill
 
 Lists the skills currently available in this plugin and the natural-language prompts that trigger them. Skills activate automatically when your request matches their description — you rarely invoke them by hand.
 
+## Related commands
+
+7 short lifecycle wrappers ship alongside this catalog — ported from the upstream `.claude/commands/` set with .NET framing. See the plugin [`README.md`](../README.md#commands) for the full mapping.
+
+| What you're doing          | Command           | Key principle                                  |
+| -------------------------- | ----------------- | ---------------------------------------------- |
+| Define what to build       | `/spec`           | Spec before code                               |
+| Plan how to build it       | `/plan`           | Small, atomic tasks with `dotnet` verification |
+| Build incrementally        | `/build`          | One vertical slice at a time                   |
+| Prove it works             | `/test`           | xUnit/MSTest as proof                          |
+| Review before merge        | `/review`         | Five-axis review, `file.cs:line` findings      |
+| Simplify the code          | `/code-simplify`  | Clarity over cleverness                        |
+| Ship to production         | `/ship`           | Faster is safer, rollback first                |
+
+If `/test` or `/review` is shadowed by another command in your setup, use the qualified form: `/dotnet-skills:test`, `/dotnet-skills:review`.
+
 ## Meta
 
 - **using-agent-skills** — Discovers and invokes the right skill from this plugin for the task at hand; governs how every other skill activates. Triggers: *"which skill should I use for X?"*, *"start a new .NET session"*, *"give me a phase-by-phase map"*.

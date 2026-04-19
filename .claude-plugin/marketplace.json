@@ -18,7 +18,7 @@
     {
       "name": "dotnet-skills",
       "description": "Agent skills for .NET 8+ development (Avalonia, ASP.NET Core, Blazor, MAUI, EF Core, xUnit/MSTest). Adapted from addyosmani/agent-skills (MIT).",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": "./plugins/dotnet-skills",
       "category": "developer-tools",
       "tags": ["dotnet", "csharp", "agent-skills", "avalonia", "aspnetcore", "blazor", "maui", "efcore", "xunit", "mstest"]

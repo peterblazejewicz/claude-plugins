@@ -19,9 +19,9 @@ Plugin details: [`plugins/avalonia-dev/README.md`](./plugins/avalonia-dev/README
 
 ### `dotnet-skills` — .NET/C# agent skills (indirect fork of addyosmani/agent-skills)
 
-Production-grade engineering skills adapted for .NET 8+ (LTS or newer), C# 12+, xUnit (v2 or v3) and MSTest, EF Core, and Avalonia UI (with ASP.NET Core, Blazor, and .NET MAUI covered by guidance). Currently at `2.0.0` — all 21 upstream skills ported across Define/Plan/Build/Verify/Review/Ship, plus a meta-skill for discovery. **Breaking in 2.0.0: the plugin was renamed from `dotnet-agent-skills` to `dotnet-skills`** to match the slash command and save typing on qualified skill references. Existing installs must uninstall + reinstall under the new name; see the plugin's [README](./plugins/dotnet-skills/README.md#installation).
+Production-grade engineering skills adapted for .NET 8+ (LTS or newer), C# 12+, xUnit (v2 or v3) and MSTest, EF Core, and Avalonia UI (with ASP.NET Core, Blazor, and .NET MAUI covered by guidance). Currently at `2.1.0` — all 21 upstream skills ported across Define/Plan/Build/Verify/Review/Ship, plus a meta-skill for discovery. `2.1.0` adds the 7 upstream lifecycle slash-command wrappers: `/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`. Earlier, `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking); existing installs must uninstall + reinstall under the new name.
 
-Run `/dotnet-skills` to list available skills. Plugin details: [`plugins/dotnet-skills/README.md`](./plugins/dotnet-skills/README.md).
+Run `/dotnet-skills` to list available skills, or jump straight to a lifecycle phase with `/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`. Plugin details: [`plugins/dotnet-skills/README.md`](./plugins/dotnet-skills/README.md).
 
 ## Installation
 
