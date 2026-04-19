@@ -4,7 +4,7 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-Pre-release (`0.5.0`). Waves 0–3 complete — 20 of 21 skills ported. Wave 3 added two .NET-specific rewrites: `frontend-ui-engineering-avalonia` (Avalonia 11/12 + CommunityToolkit.Mvvm + compiled bindings + theming + `AutomationProperties`) and `performance-optimization-dotnet` (BenchmarkDotNet + dotnet-counters + dotnet-trace + PerfView + EF Core/Kestrel/GC/allocation triage). One skill (the meta `using-agent-skills`, Wave 4) remains pending.
+`1.0.0` — **all 21 upstream skills ported** (17 `modified`, 4 `rewritten`, 1 upstream helper `skipped`). Wave 4 landed the meta skill `using-agent-skills` retargeted at this marketplace. The port is feature-complete; further work from here is re-sync maintenance (bumping the upstream pin when Addy Osmani's repo ships material changes to ported skills) and the optional sibling UI skills for Blazor / ASP.NET Core MVC / MAUI.
 
 ## Attribution
 
@@ -43,7 +43,7 @@ Lists available skills and their triggers. Individual skills activate from natur
 | 1B (remaining agnostic) | idea-refine (+ 3 references), api-and-interface-design, security-and-hardening, git-workflow-and-versioning, deprecation-and-migration, documentation-and-adrs, source-driven-development, shipping-and-launch | ✅ ported |
 | 2 (testing/CI) | test-driven-development, ci-cd-and-automation, integration-testing-dotnet (rewritten from browser-testing-with-devtools) | ✅ ported |
 | 3 (.NET rewrites) | frontend-ui-engineering-avalonia, performance-optimization-dotnet | ✅ ported |
-| 4 (meta) | using-agent-skills | pending |
+| 4 (meta) | using-agent-skills | ✅ ported |
 
 ## Syncing upstream
 

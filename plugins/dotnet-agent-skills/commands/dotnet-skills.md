@@ -11,6 +11,10 @@ Adapted from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skill
 
 Lists the skills currently available in this plugin and the natural-language prompts that trigger them. Skills activate automatically when your request matches their description — you rarely invoke them by hand.
 
+## Meta
+
+- **using-agent-skills** — Discovers and invokes the right skill from this plugin for the task at hand; governs how every other skill activates. Triggers: *"which skill should I use for X?"*, *"start a new .NET session"*, *"give me a phase-by-phase map"*.
+
 ## Skills available now
 
 **Define** — figure out what to build:
