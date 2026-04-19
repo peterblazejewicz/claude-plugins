@@ -26,6 +26,8 @@ scripts/sync-agent-skills.ps1         # Maintainer-only re-sync tool
 
 **Invariant**: `plugins/<name>/` contains only what end users need at runtime. Anything that exists to help maintainers keep the plugin in sync with an upstream source belongs in `sync-state/<name>/` and is never published via the marketplace. The `source` field in `marketplace.json` points at `plugins/<name>/`, so everything under that path gets installed when a user runs `claude plugins install <name>`.
 
+**Version coupling**: when bumping a plugin's `version`, update *both* `plugins/<name>/.claude-plugin/plugin.json` *and* the matching entry in `.claude-plugin/marketplace.json`. Users pulling via `claude plugins marketplace update` won't see the new version unless both are in sync.
+
 ### Command Files
 
 Commands are markdown files with YAML frontmatter. Key frontmatter fields:
@@ -60,3 +62,8 @@ Key files:
 - `scripts/sync-agent-skills.ps1` — PowerShell re-sync tool; supports `-UpstreamRef <sha|branch>` and `-Verify` (drift check)
 
 When editing any ported `SKILL.md` or `commands/*.md`, preserve the "Source & Modifications" footer — it records upstream SHA, status, and the specific `.NET`-targeted changes so re-syncs stay coherent. Downstream-only patches (where the .NET ecosystem moves faster than upstream) go in a dated "Downstream patches" subsection of the same footer. The `dotnet-skills` command file does not carry a footer (it has no upstream counterpart — it's a catalog command).
+
+Downstream skill renames (use these names in any new cross-reference — upstream names produce broken links):
+- `browser-testing-with-devtools` → `integration-testing-dotnet` (rewritten for the 4 .NET integration boundaries)
+- `frontend-ui-engineering` → `frontend-ui-engineering-avalonia` (rewritten for Avalonia)
+- `performance-optimization` → `performance-optimization-dotnet` (rewritten for BenchmarkDotNet / dotnet-counters / PerfView)
