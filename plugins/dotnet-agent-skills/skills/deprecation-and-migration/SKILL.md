@@ -168,8 +168,27 @@ public sealed class LegacyTaskServiceAdapter : IOldTaskApi
     }
 
     // Old synchronous method signature, delegates to the new async one.
-    // Blocks intentionally to preserve the old contract for legacy callers
-    // that cannot yet be made async. New callers should use ITaskService directly.
+    //
+    // DANGER: .GetAwaiter().GetResult() blocks the calling thread until the Task
+    //   completes. In hosts that capture a SynchronizationContext — WPF, WinForms,
+    //   .NET MAUI UI thread, Avalonia dispatcher, older ASP.NET-on-.NET-Framework —
+    //   this DEADLOCKS if the inner Task tries to resume on that same captured
+    //   context (the thread is blocked waiting, the continuation is waiting for
+    //   the thread). Symptoms: the UI freezes and never recovers.
+    //
+    // This adapter is safe ONLY because:
+    //   (a) it is registered in the composition root of a console-style worker
+    //       or ASP.NET Core host (no captured SynchronizationContext), AND
+    //   (b) the inner service intentionally doesn't .ConfigureAwait(false), AND
+    //   (c) its whole purpose is to bridge legacy sync callers to the new async
+    //       API — new callers should use ITaskService directly.
+    //
+    // Do not cargo-cult this pattern into WPF / WinForms / MAUI / Avalonia callers.
+    // If an UI-thread caller needs to call async code from a sync signature, the
+    // only correct options are: (1) make the signature async, (2) kick the work
+    // onto the thread pool via Task.Run and show a busy state, or (3) make the
+    // inner code ConfigureAwait(false) end-to-end and accept the deadlock risk
+    // with eyes open.
     public OldTask GetTask(int id)
     {
         var task = _newService.GetTaskAsync(id.ToString(), CancellationToken.None)
@@ -181,7 +200,7 @@ public sealed class LegacyTaskServiceAdapter : IOldTaskApi
 }
 ```
 
-The `GetAwaiter().GetResult()` is a red flag in most code but is acceptable inside an adapter whose explicit purpose is to bridge the synchronous-to-async transition. Document it.
+`.GetAwaiter().GetResult()` is a red flag in most code. It is acceptable **only** inside an adapter whose explicit purpose is to bridge a sync-to-async transition **and** whose host is proven not to capture a `SynchronizationContext`. Document both conditions in the code — a future contributor reading this class in isolation will not know either one is true. Never copy this pattern into code that might run on a UI thread without first making the inner chain `ConfigureAwait(false)`-clean end to end.
 
 ### Feature Flag Migration
 
@@ -282,4 +301,6 @@ After completing a deprecation:
   - Red-flag list adds `[Obsolete]` attributes without `UrlFormat` or migration-guide message
   - Verification checklist adds NuGet unlist step and orphaned-config cleanup
   - Preserved verbatim: Code Is a Liability framing, four-step migration process, strangler phase diagram, rationalizations table frame, "removing code is an achievement" emphasis
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.4) — Strengthened the warning around the Adapter Pattern's `.GetAwaiter().GetResult()` example. Inline comment now spells out the `SynchronizationContext` deadlock mechanism by name (WPF / WinForms / MAUI / Avalonia dispatcher / older ASP.NET-on-.NET-Framework), lists the three conditions that make this specific adapter safe, and enumerates the three correct alternatives for UI-thread callers (make signature async, `Task.Run` with busy state, or `ConfigureAwait(false)` end-to-end). Prevents agents from cargo-culting the pattern into deadlock-prone UI code.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

@@ -4,7 +4,7 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`1.0.3` — all 21 upstream skills ported (17 `modified`, 4 `rewritten`, 1 upstream helper `skipped`). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch to the testing skills; `1.0.2` cleaned up the plugin's installed surface; `1.0.3` addressed an external review with contrasting counter-examples where .NET semantics are easy to over-generalize (async unwrap, EF Core raw-SQL overload resolution, strongly-typed ID JSON shape, EF Core non-nullable migration, Avalonia v11/v12 compiled-bindings opt-in) plus host-model lens notes and library `ConfigureAwait(false)` guidance.
+`1.0.4` — all 21 upstream skills ported (17 `modified`, 4 `rewritten`, 1 upstream helper `skipped`). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` cleaned up the plugin's installed surface; `1.0.3` addressed the first external-review round (contrasting counter-examples, host-model lens notes, library `ConfigureAwait(false)`); `1.0.4` closes the second review round — `performance-optimization-dotnet` now carries the same library `ConfigureAwait(false)` guidance as the rest of the set, and `deprecation-and-migration`'s Adapter Pattern example spells out the `SynchronizationContext` deadlock mechanism by name so agents don't cargo-cult `.GetAwaiter().GetResult()` into UI-thread code.
 
 ## Attribution
 

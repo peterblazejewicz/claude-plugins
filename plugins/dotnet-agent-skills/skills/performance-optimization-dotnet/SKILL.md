@@ -222,6 +222,19 @@ public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToke
 
 `.Result`, `.Wait()`, `.GetAwaiter().GetResult()` in request-handling or UI paths are a red flag. The only acceptable uses are in composition-root startup synchronization and in documented adapter shims (see `deprecation-and-migration`).
 
+**Library code — add `.ConfigureAwait(false)`.** If the method lives in a class library that may be consumed from hosts that capture a `SynchronizationContext` (WPF, WinForms, MAUI UI thread, Avalonia dispatcher, older ASP.NET-on-.NET-Framework), append `.ConfigureAwait(false)` to every public `await`. Without it, the continuation marshals back to the caller's sync context, which (a) adds a thread-pool hop of overhead on each await and (b) sets up the classic deadlock when any upstream caller blocks on the returned Task (`.Result` / `.Wait()` / `.GetAwaiter().GetResult()`). In **ASP.NET Core hosts** this is a no-op — there is no `SynchronizationContext` since .NET Core 2.1 — but a library doesn't know which host will consume it, so default the posture to "ConfigureAwait(false) on every public-API await."
+
+```csharp
+// Library method — targets unknown host
+public async Task<OrderDto> GetAsync(Guid id, CancellationToken cancellationToken)
+{
+    var row = await _db.Orders
+        .FindAsync([id], cancellationToken)
+        .ConfigureAwait(false);                                           // ← don't capture sync context
+    return row is null ? throw new OrderNotFoundException(id) : row.ToDto();
+}
+```
+
 #### Unbounded Queries / Missing Pagination
 
 ```csharp
@@ -496,4 +509,6 @@ After any performance-related change:
   - Red Flags list rewritten around .NET smells (`.Result`/`.Wait()`, cartesian `Include`, Debug-mode benchmarks, per-request `HttpClient`, runtime-compiled `Regex`, non-virtualized lists, missing `[MemoryDiagnoser]`)
   - Verification checklist adds noise-floor check, `[MemoryDiagnoser]` requirement, monitoring dashboard reflection, CI budget pass
 - **What was preserved conceptually** (principles, not content): "measure before optimizing" framing, the MEASURE → IDENTIFY → FIX → VERIFY → GUARD 5-step workflow (added GUARD as a proper step where upstream had it as a sub-bullet), the anti-pattern-fix-example structure, the "Performance Budget + CI enforcement" closing section, Common Rationalizations and Red Flags table shape
+- **Downstream patches** (applied after the initial sync; not tracked against upstream):
+  - **2026-04-19** (plugin v1.0.4) — Sync-Over-Async anti-pattern section now covers `ConfigureAwait(false)` in library code, with an explicit "no-op under ASP.NET Core since .NET Core 2.1" caveat and the deadlock-avoidance rationale. Keeps the skill set internally consistent with `code-review-and-quality` and `incremental-implementation`, which already carry the same guidance.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)
