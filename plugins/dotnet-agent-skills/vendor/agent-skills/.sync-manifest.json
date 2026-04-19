@@ -1,0 +1,318 @@
+{
+  "upstream": "https://github.com/addyosmani/agent-skills.git",
+  "ref": "44dac80216da709913fb410f632a65547866346f",
+  "commitDate": "2026-04-18T22:18:38-07:00",
+  "syncedAt": "2026-04-19T14:08:09.8963913Z",
+  "files": [
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "sha256": "88114d43d4c67cd9639f78ba72870a65b41f3d270058c7bc53c9def423178356",
+      "bytes": 577
+    },
+    {
+      "path": ".claude-plugin/plugin.json",
+      "sha256": "b9e575b4a8dbe0283c4dc3bd7548e546a1d8476d27c4d9dad6037a7361283498",
+      "bytes": 435
+    },
+    {
+      "path": ".claude/commands/build.md",
+      "sha256": "4e2df3d4ed93adffa03c66004e09e58ea9e7505fe02dc9e25e9e30daa77346f5",
+      "bytes": 741
+    },
+    {
+      "path": ".claude/commands/code-simplify.md",
+      "sha256": "108efe728fe4fe60264353bf5890822147aba87d2c5f8570bfdbce98139309f1",
+      "bytes": 1090
+    },
+    {
+      "path": ".claude/commands/plan.md",
+      "sha256": "4b7f63bee84b3b99474746dee6fb447ed81d3c824eeedb62d90ec04e010967be",
+      "bytes": 653
+    },
+    {
+      "path": ".claude/commands/review.md",
+      "sha256": "8b438e341142787b9f7ecb6276103bab59b01c0d7d10c6ad26f50607a3dfa214",
+      "bytes": 862
+    },
+    {
+      "path": ".claude/commands/ship.md",
+      "sha256": "10bad68f66cc41f04e2f1420f4f46597edabf29b94f90a007b8e9925ce1b04a8",
+      "bytes": 830
+    },
+    {
+      "path": ".claude/commands/spec.md",
+      "sha256": "a755af54310a3eccc51680f3c01944060a1864450020aabb3be3eef4b40e153e",
+      "bytes": 692
+    },
+    {
+      "path": ".claude/commands/test.md",
+      "sha256": "e80b6c801a2507e8f6eb7a53c62f78a0dd5e8e2a18d8482c470b5381f91e0874",
+      "bytes": 684
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "76503b08161eed808babf62e2b38bc1322084527cfd06c1b5c74093fe0b54508",
+      "bytes": 100
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "c5d10c2e986b5892ab0d0b63ee9d2eb8ef83a1ad3e33d12308bb0d522fe8bef5",
+      "bytes": 5435
+    },
+    {
+      "path": "agents/code-reviewer.md",
+      "sha256": "eee0c42d5db202e9dc5906becb8816399bee5ca33458afb501a5b7c3f0df3e4a",
+      "bytes": 3368
+    },
+    {
+      "path": "agents/security-auditor.md",
+      "sha256": "9cda8a1962f0c00091ecc50ed041dbc2418af566048b70c800bc9179e31d43dc",
+      "bytes": 3736
+    },
+    {
+      "path": "agents/test-engineer.md",
+      "sha256": "b39bc198f425ebe43462a29ec4ef4c626023c17abb17c32d1b8ae4e501a1e1ad",
+      "bytes": 2891
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "265abea242ab915cbf2a5003f2d1b40c545b15c2444346f752d93ac9f8db9a4e",
+      "bytes": 2058
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "f0adad2fa3e5b67e167380aa1a344315e57c8620f44b6c6e5cddb0f3f9a05aff",
+      "bytes": 2251
+    },
+    {
+      "path": "docs/copilot-setup.md",
+      "sha256": "1abd9f2d571d19308821853319a62f2987ed33bfa054c9d4c46ed57817ecc4c2",
+      "bytes": 3143
+    },
+    {
+      "path": "docs/cursor-setup.md",
+      "sha256": "91d3fa8850046b91fecbfb07e22dcb4cb024b2e213a74cb5ba0cf7d49b3dd040",
+      "bytes": 2724
+    },
+    {
+      "path": "docs/gemini-cli-setup.md",
+      "sha256": "3b4fed05a31087026358e147138c4abe4e64028bf04c67981e577b7cb986aa53",
+      "bytes": 4804
+    },
+    {
+      "path": "docs/getting-started.md",
+      "sha256": "e75805cf3f9c51ca3eb4da1cf377bcfa257596bda05b9292d36c6c195a32b020",
+      "bytes": 5544
+    },
+    {
+      "path": "docs/opencode-setup.md",
+      "sha256": "b2341d419b72db84677e9a20a7f7f1e4bd861aedac254c789bdd1bf67e485a02",
+      "bytes": 4340
+    },
+    {
+      "path": "docs/skill-anatomy.md",
+      "sha256": "f930b809e2ff0765c13b188a2556360e505da74d1c75f607094822991bca5cce",
+      "bytes": 4983
+    },
+    {
+      "path": "docs/windsurf-setup.md",
+      "sha256": "ee3326d8ba587756ba24cd75d8fb2d79ccc71f43dafb1bb80b4078b0b20d93b8",
+      "bytes": 1519
+    },
+    {
+      "path": "hooks/hooks.json",
+      "sha256": "ff42a420ae68f06cdf441c0ff2fa91bc99cc5038283fa6d129c868e4875eb3a4",
+      "bytes": 238
+    },
+    {
+      "path": "hooks/sdd-cache-post.sh",
+      "sha256": "35f52825e0fba31e1784c4527251ff70a59d6790b68fb12552a062caa03d333d",
+      "bytes": 4702
+    },
+    {
+      "path": "hooks/sdd-cache-pre.sh",
+      "sha256": "9dea0018359e3ee2e3ec5f2a870eb0b482d805596fc3af7d5f3812c7ea63da1e",
+      "bytes": 4367
+    },
+    {
+      "path": "hooks/SDD-CACHE.md",
+      "sha256": "d5d98313518c3ea5156fe44ed2ec8cb8c5da948bac19b7d6a403bf563040cbca",
+      "bytes": 8557
+    },
+    {
+      "path": "hooks/session-start.sh",
+      "sha256": "bed403d97f1a62a7258e5fd61857ca4612011885e4b4368a5e7cb952069e59fb",
+      "bytes": 709
+    },
+    {
+      "path": "hooks/simplify-ignore-test.sh",
+      "sha256": "b848742436c4d0090ebaff22aeb924913edfe19f0d6777c9dc933a387a1d9644",
+      "bytes": 8650
+    },
+    {
+      "path": "hooks/SIMPLIFY-IGNORE.md",
+      "sha256": "d280c77f66c6949ca4f1a89f1360b4844704c92124a48ad23ea76fcf01597848",
+      "bytes": 3941
+    },
+    {
+      "path": "hooks/simplify-ignore.sh",
+      "sha256": "fbb4464f986a6f7105e90b75b199a2acd01f50edba5cf2c8db209681511cd1cd",
+      "bytes": 12475
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "b88ef8718459d5b5aabb1943cb8f4fd57963422f2d98a801dac814fea53932c8",
+      "bytes": 1089
+    },
+    {
+      "path": "README.md",
+      "sha256": "9548a0c418fac8545322dd97c17430595b9f6866bea7f1d80490509023d0f713",
+      "bytes": 16700
+    },
+    {
+      "path": "references/accessibility-checklist.md",
+      "sha256": "f0e9930986a3dbb74426042f710723ab259ea72ffde1c31697ac2630fea98ea7",
+      "bytes": 5366
+    },
+    {
+      "path": "references/performance-checklist.md",
+      "sha256": "205e17c99a48ed7da3f5a228071c1b337a1c69eba58fed1cd98935f7ced3d3c3",
+      "bytes": 7561
+    },
+    {
+      "path": "references/security-checklist.md",
+      "sha256": "d3e091388d423c14ed50952aad1e63841eb8d5cec248cbccf54ba4a2c35e3967",
+      "bytes": 4719
+    },
+    {
+      "path": "references/testing-patterns.md",
+      "sha256": "dba46e9c566b36a859a940b5ce99ecfef8e913a617595a06ad012cde29ee8b2f",
+      "bytes": 7216
+    },
+    {
+      "path": "skills/api-and-interface-design/SKILL.md",
+      "sha256": "2edf9b46c90030ee2874537fd28212f7ba84840bdfd4c457d47eb16e40369e2e",
+      "bytes": 10601
+    },
+    {
+      "path": "skills/browser-testing-with-devtools/SKILL.md",
+      "sha256": "1e632b3022522d6c192218f2a815a7d88c782918b0fdcfc1e15f7cf9d7d6192b",
+      "bytes": 12803
+    },
+    {
+      "path": "skills/ci-cd-and-automation/SKILL.md",
+      "sha256": "78e4183e1b31b557ef367cb6cee25bbe31c200e3b5dd1fe9df415f271b185dc9",
+      "bytes": 11722
+    },
+    {
+      "path": "skills/code-review-and-quality/SKILL.md",
+      "sha256": "b226799dfd7191a149be6b55fcb83581dc1a39f787642f679832fba6358366e7",
+      "bytes": 14632
+    },
+    {
+      "path": "skills/code-simplification/SKILL.md",
+      "sha256": "855d8983e5c02c7c43769b546745f4558d7ac0a947dade213ca2dc5efa7eed7f",
+      "bytes": 13876
+    },
+    {
+      "path": "skills/context-engineering/SKILL.md",
+      "sha256": "ca3e50a41e4c59661deb8f25a63a330e5300e0c90483622f2e28fa6f85f45db4",
+      "bytes": 11359
+    },
+    {
+      "path": "skills/debugging-and-error-recovery/SKILL.md",
+      "sha256": "6a7ab3ea7f20c4e7901fb549c2520c5b7b2922b314b10a74bbf55c96b9c90b1e",
+      "bytes": 10904
+    },
+    {
+      "path": "skills/deprecation-and-migration/SKILL.md",
+      "sha256": "51428c96d07b1fd1095854e7451cf96a4eceff17fc95f83091c5b8dde26a1ef4",
+      "bytes": 9206
+    },
+    {
+      "path": "skills/documentation-and-adrs/SKILL.md",
+      "sha256": "50001fd5e467c137c114a98149448f9b5c98e4bc1c5732f4e3e767d3d0f04127",
+      "bytes": 9012
+    },
+    {
+      "path": "skills/frontend-ui-engineering/SKILL.md",
+      "sha256": "02839d25ff52f87c1720f8751ed5ff6e92f2c36611f520e6b148174e126375b6",
+      "bytes": 10967
+    },
+    {
+      "path": "skills/git-workflow-and-versioning/SKILL.md",
+      "sha256": "7f1930b3dd61aadccdb2b81c6250446bec9591daec1dccf2f7fdb2fed14f3b85",
+      "bytes": 10830
+    },
+    {
+      "path": "skills/idea-refine/examples.md",
+      "sha256": "2d33b9366b9bbd8c543cf1a96612f5f09cf98a9f0ff76179383fdc6d460b2672",
+      "bytes": 20522
+    },
+    {
+      "path": "skills/idea-refine/frameworks.md",
+      "sha256": "fd804967ecdd64f2f71f29dd719cad0125a8a3522d62297cf6a0a5fb02f6bcdc",
+      "bytes": 5503
+    },
+    {
+      "path": "skills/idea-refine/refinement-criteria.md",
+      "sha256": "3509788260754d528f439aeedcd3acea3d2bf3df05e07c78415da8601efd943c",
+      "bytes": 5851
+    },
+    {
+      "path": "skills/idea-refine/scripts/idea-refine.sh",
+      "sha256": "e5ae48b40cfa41edcaf032451a3516ab0efede39d483a10d87f5328cdc1764ee",
+      "bytes": 357
+    },
+    {
+      "path": "skills/idea-refine/SKILL.md",
+      "sha256": "5f20a041d71cb923be0c79aabe464a6248ac630f823116a3bd4bc48441e625be",
+      "bytes": 8099
+    },
+    {
+      "path": "skills/incremental-implementation/SKILL.md",
+      "sha256": "67e9e343220fe7eebad916f0d228b5d509d87bbe5777ac49d420bb072715cab5",
+      "bytes": 8710
+    },
+    {
+      "path": "skills/performance-optimization/SKILL.md",
+      "sha256": "ab3958f17a0acc084de95241f6f3500f240fde16cbdae2b9fed8d95b95f698fa",
+      "bytes": 11943
+    },
+    {
+      "path": "skills/planning-and-task-breakdown/SKILL.md",
+      "sha256": "f04f4a7d8cae853a23a7615fd5a20814d786055e53bdb8a2fe5498f903187a3b",
+      "bytes": 7234
+    },
+    {
+      "path": "skills/security-and-hardening/SKILL.md",
+      "sha256": "ff775f565399175ffd8a3b5e5d56c0c77898383d47af75365158acd6bd8b64a5",
+      "bytes": 11650
+    },
+    {
+      "path": "skills/shipping-and-launch/SKILL.md",
+      "sha256": "4d274eaee9384bd7083424ba603542b20a0f8a8e041325042d2baaf2b9021728",
+      "bytes": 10221
+    },
+    {
+      "path": "skills/source-driven-development/SKILL.md",
+      "sha256": "b91b4698a996d01901b6885bcb907ec29c9f4cf8f9ebf761d192e7e5d00bb718",
+      "bytes": 8398
+    },
+    {
+      "path": "skills/spec-driven-development/SKILL.md",
+      "sha256": "3b438fb526c354117c7b954ed5d3793e92ec0413581c349e603d7f95f06248c3",
+      "bytes": 7860
+    },
+    {
+      "path": "skills/test-driven-development/SKILL.md",
+      "sha256": "067c05139e939a1578aeee7316a9610c49efde0b0ea3c811572152f353bb267d",
+      "bytes": 14848
+    },
+    {
+      "path": "skills/using-agent-skills/SKILL.md",
+      "sha256": "eb6f02147bb0e006888e6a2bbf9b90669e756f78ee161a165ba37250edf51c32",
+      "bytes": 8759
+    }
+  ]
+}
