@@ -12,17 +12,16 @@ The `dotnet-agent-skills` plugin is an **indirect fork** of [addyosmani/agent-sk
 This derivative retargets upstream's JavaScript/TypeScript-oriented content toward the modern .NET ecosystem:
 
 - .NET 8+ LTS runtime, C# 12+ language features
-- xUnit and MSTest as testing frameworks
+- xUnit (v2 or v3) and MSTest as testing frameworks
 - Entity Framework Core as the data access layer
-- Avalonia UI as the primary UI target (ASP.NET Core, Blazor, .NET MAUI to follow)
+- Avalonia UI as the primary UI target (ASP.NET Core, Blazor, .NET MAUI covered by guidance)
 
 ## Where adaptations live
 
-- Upstream snapshot (read-only): [`vendor/agent-skills/`](./vendor/agent-skills)
 - Ported skills (adapted): [`skills/`](./skills)
-- Per-skill provenance and modification list: the **Source & Modifications** footer in every ported `SKILL.md`
-- Machine-readable port ledger: [`SYNC.md`](./SYNC.md)
-- Pinned upstream commit + sync log: [`UPSTREAM.md`](./UPSTREAM.md)
+- Per-skill provenance and modification list: the **Source & Modifications** footer in every ported `SKILL.md`, including a link to the upstream file at the pinned commit
+
+The upstream snapshot, sync ledger, and re-sync tooling live outside the installed plugin in the source repository — they are maintenance artifacts for the plugin's authors and are not shipped to end users.
 
 ## Attribution requirements
 

@@ -493,7 +493,7 @@ Wire up a pre-commit hook (Husky.Net) that runs this and fails the commit on a m
 
 ## See Also
 
-- Upstream checklist (generic, pre-dates this adaptation): [`../../vendor/agent-skills/references/security-checklist.md`](../../vendor/agent-skills/references/security-checklist.md)
+- Upstream checklist (generic, pre-dates this adaptation): https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/security-checklist.md
 - ASP.NET Core security docs: https://learn.microsoft.com/aspnet/core/security/
 - EF Core raw-SQL safety: https://learn.microsoft.com/ef/core/querying/sql-queries
 - Data Protection: https://learn.microsoft.com/aspnet/core/security/data-protection/

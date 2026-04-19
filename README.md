@@ -19,7 +19,7 @@ Plugin details: [`plugins/avalonia-dev/README.md`](./plugins/avalonia-dev/README
 
 ### `dotnet-agent-skills` — .NET/C# agent skills (indirect fork of addyosmani/agent-skills)
 
-Production-grade engineering skills adapted for .NET 8+ (LTS or newer), C# 12+, xUnit and MSTest, EF Core, and Avalonia UI (with ASP.NET Core, Blazor, and .NET MAUI targets planned). Currently at `0.1.0` — Wave 0 scaffolding with one sample skill (`spec-driven-development`); 20 more skills tracked as `pending` in the port ledger.
+Production-grade engineering skills adapted for .NET 8+ (LTS or newer), C# 12+, xUnit (v2 or v3) and MSTest, EF Core, and Avalonia UI (with ASP.NET Core, Blazor, and .NET MAUI covered by guidance). Currently at `1.0.2` — all 21 upstream skills ported across Define/Plan/Build/Verify/Review/Ship, plus a meta-skill for discovery.
 
 Run `/dotnet-skills` to list available skills. Plugin details: [`plugins/dotnet-agent-skills/README.md`](./plugins/dotnet-agent-skills/README.md).
 
@@ -33,7 +33,9 @@ claude plugins install dotnet-agent-skills
 
 ## Credits
 
-The `dotnet-agent-skills` plugin is an **indirect fork** of [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) by Addy Osmani, used under the **MIT License** (© 2025 Addy Osmani). Upstream content is vendored as a pinned snapshot under [`plugins/dotnet-agent-skills/vendor/agent-skills/`](./plugins/dotnet-agent-skills/vendor/agent-skills) and ported skill-by-skill with .NET/C# adaptations. Per-skill provenance lives in [`plugins/dotnet-agent-skills/SYNC.md`](./plugins/dotnet-agent-skills/SYNC.md); the upstream LICENSE is preserved verbatim at [`plugins/dotnet-agent-skills/LICENSES/agent-skills-MIT.txt`](./plugins/dotnet-agent-skills/LICENSES/agent-skills-MIT.txt).
+The `dotnet-agent-skills` plugin is an **indirect fork** of [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) by Addy Osmani, used under the **MIT License** (© 2025 Addy Osmani). Upstream content is ported skill-by-skill with .NET/C# adaptations; the upstream LICENSE is preserved verbatim at [`plugins/dotnet-agent-skills/LICENSES/agent-skills-MIT.txt`](./plugins/dotnet-agent-skills/LICENSES/agent-skills-MIT.txt) and per-skill provenance is recorded in the "Source & Modifications" footer of every ported `SKILL.md`.
+
+Maintenance artifacts (pinned upstream snapshot, per-skill port ledger, re-sync script) live outside the installed plugin at [`sync-state/dotnet-agent-skills/`](./sync-state/dotnet-agent-skills) and [`scripts/sync-agent-skills.ps1`](./scripts/sync-agent-skills.ps1) — so end users installing `dotnet-agent-skills` from the marketplace don't receive them.
 
 ## Requirements
 

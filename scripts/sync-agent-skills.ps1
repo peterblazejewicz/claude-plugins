@@ -42,10 +42,12 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $repoRoot     = Split-Path -Parent $PSScriptRoot
-$pluginRoot   = Join-Path $repoRoot 'plugins/dotnet-agent-skills'
-$vendorRoot   = Join-Path $pluginRoot 'vendor/agent-skills'
+# Sync infrastructure lives OUTSIDE the plugin directory so it isn't shipped
+# to end users when the plugin is installed from the marketplace.
+$syncState    = Join-Path $repoRoot 'sync-state/dotnet-agent-skills'
+$vendorRoot   = Join-Path $syncState 'vendor/agent-skills'
 $manifestPath = Join-Path $vendorRoot '.sync-manifest.json'
-$upstreamMd   = Join-Path $pluginRoot 'UPSTREAM.md'
+$upstreamMd   = Join-Path $syncState 'UPSTREAM.md'
 $readmeTxt    = Join-Path $vendorRoot 'README.txt'
 
 $excludeDirs = @('.git', '.github', 'node_modules')

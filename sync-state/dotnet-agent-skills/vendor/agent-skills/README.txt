@@ -3,9 +3,9 @@ READ-ONLY — do not edit files in this directory by hand.
 This tree is a pinned snapshot of addyosmani/agent-skills (MIT, (c) 2025 Addy Osmani).
 It is regenerated in full by scripts/sync-agent-skills.ps1.
 
-- Pinned commit and sync log: ../UPSTREAM.md
+- Pinned commit and sync log: ../../UPSTREAM.md
 - Per-file SHA256 manifest:    .sync-manifest.json (created by the sync script)
-- Port ledger:                 ../SYNC.md
+- Port ledger:                 ../../SYNC.md
 
 Any edits here will be clobbered on the next sync AND flagged by:
     pwsh scripts/sync-agent-skills.ps1 -Verify

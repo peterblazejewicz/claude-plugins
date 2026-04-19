@@ -49,16 +49,3 @@ Lists the skills currently available in this plugin and the natural-language pro
 - **deprecation-and-migration** — Retires `[Obsolete]` types, strangler pattern for migrations, `IOptionsMonitor` feature flags, NuGet unlist, Roslyn analyzer code-fix migration tooling. Triggers: *"how do we deprecate this?"*, *"retire the legacy service"*.
 - **shipping-and-launch** — Pre-launch checklist, `IOptions<FeatureOptions>` / `Microsoft.FeatureManagement`, Application Insights / OpenTelemetry monitoring, EF Core migration rollback, expand-contract schema pattern. Triggers: *"are we ready to ship?"*, *"write a rollback plan"*.
 
-## Skills coming in later waves
-
-Full inventory — with wave assignments and port status — lives in the plugin's [`SYNC.md`](../SYNC.md). Run `/dotnet-skills` after each sync to see which skills have moved from `pending` to ported.
-
-## Syncing upstream
-
-The plugin tracks upstream via a pinned-commit snapshot under [`vendor/agent-skills/`](../vendor/agent-skills). Re-sync with:
-
-```powershell
-pwsh scripts/sync-agent-skills.ps1
-```
-
-See [`UPSTREAM.md`](../UPSTREAM.md) for the current pin and sync log.

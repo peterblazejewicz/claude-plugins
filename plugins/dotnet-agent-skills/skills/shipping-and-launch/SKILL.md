@@ -318,7 +318,7 @@ Every deployment needs a rollback plan before it happens:
 
 ## See Also
 
-- Upstream pre-launch references (generic): [`../../vendor/agent-skills/references/security-checklist.md`](../../vendor/agent-skills/references/security-checklist.md), [`performance-checklist.md`](../../vendor/agent-skills/references/performance-checklist.md), [`accessibility-checklist.md`](../../vendor/agent-skills/references/accessibility-checklist.md)
+- Upstream pre-launch references (generic) at the pinned commit: [security-checklist](https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/security-checklist.md), [performance-checklist](https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/performance-checklist.md), [accessibility-checklist](https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/accessibility-checklist.md)
 - ASP.NET Core production deployment: https://learn.microsoft.com/aspnet/core/host-and-deploy/
 - EF Core migration bundles: https://learn.microsoft.com/ef/core/managing-schemas/migrations/applying#bundles
 - Azure App Service slot swap: https://learn.microsoft.com/azure/app-service/deploy-staging-slots

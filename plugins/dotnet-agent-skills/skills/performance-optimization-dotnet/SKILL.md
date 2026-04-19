@@ -412,7 +412,7 @@ The script (a few lines of PowerShell) parses the JSON and fails the build when 
 
 ## See Also
 
-- Upstream performance-checklist reference (generic, pre-dates this adaptation): [`../../vendor/agent-skills/references/performance-checklist.md`](../../vendor/agent-skills/references/performance-checklist.md)
+- Upstream performance-checklist reference (generic, pre-dates this adaptation): https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/performance-checklist.md
 - [`integration-testing-dotnet`](../integration-testing-dotnet/SKILL.md) — the testing harness you'll layer performance assertions into
 - [`shipping-and-launch`](../shipping-and-launch/SKILL.md) — the rollout thresholds table that consumes these metrics
 - .NET performance docs: https://learn.microsoft.com/dotnet/core/diagnostics/

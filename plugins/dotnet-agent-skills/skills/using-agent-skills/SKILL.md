@@ -177,7 +177,7 @@ These are the subtle errors that look like productivity but create problems:
 
 5. **Version-aware skills detect their target.** Skills that branch on framework version (currently `frontend-ui-engineering-avalonia` for Avalonia 11 vs 12) read `Directory.Packages.props` / `.csproj` before applying patterns. When the project's stack is unclear, [`source-driven-development`](../source-driven-development/SKILL.md) is the right first stop.
 
-6. **Skipped upstream content is intentional.** Upstream's `scripts/idea-refine.sh` bash helper is deliberately not ported (recorded as `skipped` in [`SYNC.md`](../../SYNC.md)). `docs/ideas/` is treated as a path convention, nothing more.
+6. **Skipped upstream content is intentional.** Upstream's `scripts/idea-refine.sh` bash helper is deliberately not ported. `docs/ideas/` is treated as a path convention, nothing more.
 
 ## Lifecycle Sequence
 
@@ -248,9 +248,9 @@ spec-driven-development  →  deprecation-and-migration  →  integration-testin
 ## Pointers Out
 
 - Plugin README: [`../../README.md`](../../README.md)
-- Per-skill port provenance: [`../../SYNC.md`](../../SYNC.md)
-- Upstream sync status: [`../../UPSTREAM.md`](../../UPSTREAM.md)
 - Attribution + license: [`../../NOTICE.md`](../../NOTICE.md), [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)
+- Per-skill upstream provenance: the "Source & Modifications" footer on every ported `SKILL.md` in this plugin
+- Upstream repository (authoritative for re-sync status): https://github.com/addyosmani/agent-skills
 - Companion plugin for structural Avalonia reviews: [`../../../avalonia-dev/README.md`](../../../avalonia-dev/README.md) (`/avalonia-review`)
 
 ## Verification
@@ -261,7 +261,7 @@ This is a meta-skill — its "verification" is that the other skills activate cl
 - [ ] A natural-language prompt matching a skill's `description` (e.g. *"help me spec out a new C# service"*) activates the right skill
 - [ ] The discovery tree above maps every reasonable task type to at least one skill
 - [ ] No dangling references to upstream skill names that were renamed in this plugin (`frontend-ui-engineering` → `frontend-ui-engineering-avalonia`; `browser-testing-with-devtools` → `integration-testing-dotnet`; `performance-optimization` → `performance-optimization-dotnet`)
-- [ ] The Lifecycle Sequence matches the actual set of ported skills in [`../../SYNC.md`](../../SYNC.md)
+- [ ] The Lifecycle Sequence matches the actual set of ported skills in `skills/`
 
 ---
 

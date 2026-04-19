@@ -325,8 +325,8 @@ Part of code review is dependency review:
 
 ## See Also
 
-- For detailed security review guidance, see the upstream reference at [`../../vendor/agent-skills/references/security-checklist.md`](../../vendor/agent-skills/references/security-checklist.md)
-- For performance review checks, see [`../../vendor/agent-skills/references/performance-checklist.md`](../../vendor/agent-skills/references/performance-checklist.md) — note these are generic; a `dotnet`-specific checklist will ship with `performance-optimization-dotnet` in Wave 3
+- For detailed security review guidance, see the upstream reference at https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/security-checklist.md
+- For performance review checks, see https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/performance-checklist.md — note these are generic; the `dotnet`-specific checklist lives in the `performance-optimization-dotnet` skill
 
 ## Common Rationalizations
 

@@ -448,7 +448,7 @@ This separation ensures the test is written without knowledge of the fix, making
 
 ## See Also
 
-- Upstream testing-patterns reference (generic, pre-dates this adaptation): [`../../vendor/agent-skills/references/testing-patterns.md`](../../vendor/agent-skills/references/testing-patterns.md)
+- Upstream testing-patterns reference (generic, pre-dates this adaptation): https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/references/testing-patterns.md
 - For HTTP / browser / desktop integration testing, see [`integration-testing-dotnet`](../integration-testing-dotnet/SKILL.md) — covers `WebApplicationFactory<TEntryPoint>`, Testcontainers, `Microsoft.Playwright`, and `Avalonia.Headless.XUnit`
 - xUnit: https://xunit.net/ (covers both v2 and v3; v3's "Getting Started" section describes the MTP-native workflow)
 - MSTest: https://learn.microsoft.com/dotnet/core/testing/unit-testing-mstest-intro
