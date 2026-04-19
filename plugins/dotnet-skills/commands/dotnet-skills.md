@@ -1,6 +1,6 @@
 ---
 name: dotnet-skills
-description: List and invoke .NET agent skills adapted from addyosmani/agent-skills (spec-driven development, TDD, code review, and more — with .NET 8+, C# 12+, xUnit/MSTest, EF Core, Avalonia framing)
+description: List the .NET skills, subagents, and lifecycle commands shipped by this plugin (adapted from addyosmani/agent-skills — spec-driven development, TDD, code review, security audit, test engineering, and more with .NET 8+, C# 12+, xUnit/MSTest, EF Core, Avalonia framing)
 ---
 
 # .NET Agent Skills
@@ -26,6 +26,14 @@ Lists the skills currently available in this plugin and the natural-language pro
 | Ship to production         | `/ship`           | Faster is safer, rollback first                |
 
 If `/test` or `/review` is shadowed by another command in your setup, use the qualified form: `/dotnet-skills:test`, `/dotnet-skills:review`.
+
+## Agents
+
+3 .NET-adapted subagents ship alongside the commands and skills — reusable personas for deeper single-purpose work, ported from the upstream `agents/` set. Launch them with the `Agent` tool and `subagent_type: dotnet-skills:<name>` (they're not slash commands). Claude Code auto-namespaces plugin-provided subagents, so they coexist with built-in and sibling-plugin agents of the same short name.
+
+- **code-reviewer** — Staff-engineer persona conducting a five-axis code review (correctness, readability, architecture, security, performance) with .NET-specific checks: nullable-reference-type honesty, `CancellationToken` threading, DI lifetime correctness, EF Core N+1 / `FromSqlRaw` flagging, `IHttpClientFactory` vs per-call `HttpClient`, Avalonia/Blazor UI-thread marshalling. Emits `file.cs:line`-anchored findings categorized Critical / Important / Suggestion. Triggers: *"review this PR as a Staff Engineer"*, *"give me a thorough five-axis review"*.
+- **security-auditor** — Security-engineer persona running an OWASP-aligned audit of the ASP.NET Core / Blazor / MAUI stack: FluentValidation + `FromSqlInterpolated` for input; Identity + JWT bearer + policy-based authz for authN/authZ; Data Protection + Key Vault + PII scrubs for data protection; security-header middleware + CORS + `dotnet list package --vulnerable` for infrastructure; HMAC webhook verification + OAuth PKCE for third-party. Emits Critical / High / Medium / Low findings with proof-of-concept and a .NET-API-grounded fix. Triggers: *"security audit this service"*, *"check this endpoint for OWASP Top 10"*.
+- **test-engineer** — QA-engineer persona designing test suites, writing tests, and analyzing coverage gaps: xUnit (v2/v3) or MSTest with FluentAssertions, `WebApplicationFactory<Program>` for HTTP, Testcontainers for DB (not `EntityFrameworkCore.InMemory`), `Microsoft.Playwright` for Blazor/Razor, `Avalonia.Headless.XUnit` for Avalonia; `TimeProvider` + `FakeTimeProvider` for time-dependent tests; Prove-It Pattern for bug fixes. Triggers: *"plan the test suite for this feature"*, *"write a failing test for this bug"*, *"analyze test coverage gaps"*.
 
 ## Meta
 

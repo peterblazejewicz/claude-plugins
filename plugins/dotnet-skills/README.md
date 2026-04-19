@@ -4,9 +4,9 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`2.1.0` — **Adds 7 short slash-command wrappers** (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. Backwards compatible: the original `/dotnet-skills` catalog command and all 21 skill `name:` fields are unchanged. See [Commands](#commands) below for the full mapping.
+`2.2.0` — **Adds 3 .NET-adapted subagents** (`code-reviewer`, `security-auditor`, `test-engineer`) ported from the upstream `agents/` set. Invoke via the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Backwards compatible: all 21 skills and 8 slash commands are unchanged. See [Agents](#agents) below for the full mapping.
 
-Prior releases: `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
+Prior releases: `2.1.0` added 7 short slash-command wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
 
 ## Attribution
 
@@ -64,6 +64,18 @@ Skills also activate automatically based on what you're doing — designing an A
 ### Disambiguating when shadowed
 
 If `/test` or `/review` collides with a personal command or another plugin in your setup, invoke the qualified form: `/dotnet-skills:test`, `/dotnet-skills:review`. The qualified form works for every command in this plugin.
+
+## Agents
+
+3 .NET-adapted subagents ship alongside the commands — reusable personas for deeper single-purpose work, ported from the upstream [`agents/`](https://github.com/addyosmani/agent-skills/tree/44dac80216da709913fb410f632a65547866346f/agents) set. Each agent has a `Source & Modifications` footer linking back to its upstream file at the pinned commit.
+
+| Agent | Persona | When to use |
+| --- | --- | --- |
+| [code-reviewer](./agents/code-reviewer.md) | Staff-Engineer five-axis reviewer (correctness, readability, architecture, security, performance) with nullable-RT / DI lifetime / EF Core N+1 / `IHttpClientFactory` / UI-thread checks | Thorough `file.cs:line`-anchored review before merge, categorized Critical / Important / Suggestion |
+| [security-auditor](./agents/security-auditor.md) | Security-Engineer running an OWASP-aligned audit of the ASP.NET Core / Blazor / MAUI stack (FluentValidation, Identity + JWT + policy-based authz, Data Protection, Key Vault, security headers, CORS, HMAC webhooks, OAuth PKCE) | Security-focused review with proof-of-concept Critical / High / Medium / Low findings and .NET-API-grounded fixes |
+| [test-engineer](./agents/test-engineer.md) | QA-Engineer designing test suites (xUnit v2/v3 or MSTest + FluentAssertions), `WebApplicationFactory<T>` / Testcontainers / `Microsoft.Playwright` / `Avalonia.Headless.XUnit`; `TimeProvider` + `FakeTimeProvider`; Prove-It Pattern | Planning a test suite, writing a failing test for a bug, or analyzing coverage gaps |
+
+**Invocation.** Launch an agent through the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Claude Code auto-namespaces plugin-provided agents, so `dotnet-skills:code-reviewer` coexists with built-in and sibling-plugin subagents of the same short name (e.g. `pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`) — always use the qualified form to pick the .NET-adapted one.
 
 ## Skills
 
