@@ -13,13 +13,32 @@ Lists the skills currently available in this plugin and the natural-language pro
 
 ## Skills available now
 
-- **spec-driven-development** — Creates specs before coding for .NET projects. Triggers: *"help me spec out a new C# service"*, *"write a spec for this Avalonia app before we build it"*, *"I need a specification for this feature"*.
+**Define** — figure out what to build:
+- **idea-refine** — Refines raw ideas through divergent/convergent thinking; produces a one-pager with MVP scope and a "Not Doing" list. Triggers: *"help me refine this idea"*, *"ideate on X"*, *"stress-test my plan"*.
+- **spec-driven-development** — Creates specs before coding for .NET projects. Triggers: *"help me spec out a new C# service"*, *"write a spec for this Avalonia app"*.
+
+**Plan** — decompose the work:
 - **planning-and-task-breakdown** — Breaks .NET/C# work into ordered, verifiable tasks with `dotnet` CLI verification. Triggers: *"break this feature into tasks"*, *"how should I sequence this?"*.
+
+**Build** — execute with discipline:
 - **incremental-implementation** — Thin vertical slices with `dotnet test` + `dotnet build -warnaserror` between each. Triggers: *"this feels too big to land in one step"*, *"let's ship this in pieces"*.
-- **code-review-and-quality** — Five-axis review (correctness, readability, architecture, security, performance) with .NET-specific checks (async correctness, DI lifetimes, EF Core N+1). Triggers: *"review this PR"*, *"is this ready to merge?"*.
-- **code-simplification** — Reduces C# complexity while preserving behavior. Covers null-coalescing, `switch` expressions, `record struct`, LINQ-vs-loop tradeoffs. Triggers: *"simplify this code"*, *"this method is too long"*.
-- **debugging-and-error-recovery** — Systematic root-cause debugging for `dotnet test` failures, `NullReferenceException`, DbContext concurrency issues, missing DI registrations, cancellation surprises. Triggers: *"this test is failing"*, *"why is this breaking?"*.
+- **api-and-interface-design** — Stable HTTP / library surface design with C# records, ProblemDetails, FluentValidation, strongly-typed IDs, pattern-matching unions. Triggers: *"design this API"*, *"what should the DTO shape be?"*.
 - **context-engineering** — Optimizes CLAUDE.md, `.editorconfig`, and conversation management for .NET projects. Triggers: *"the agent keeps hallucinating APIs"*, *"set up CLAUDE.md for this Avalonia project"*.
+- **source-driven-development** — Cites Microsoft Learn and official docs for every framework-specific decision; detects stack from `global.json` / `Directory.Packages.props`. Triggers: *"verify this EF Core pattern against the docs"*, *"I want cited code"*.
+
+**Verify** — catch bugs:
+- **debugging-and-error-recovery** — Systematic root-cause debugging for `dotnet test` failures, `NullReferenceException`, DbContext concurrency, missing DI registrations, cancellation surprises. Triggers: *"this test is failing"*, *"why is this breaking?"*.
+
+**Review** — hold the bar:
+- **code-review-and-quality** — Five-axis review (correctness, readability, architecture, security, performance) with .NET checks (async correctness, DI lifetimes, EF Core N+1). Triggers: *"review this PR"*, *"is this ready to merge?"*.
+- **code-simplification** — Reduces C# complexity while preserving behavior. Covers null-coalescing, `switch` expressions, `record struct`, LINQ tradeoffs. Triggers: *"simplify this code"*, *"this method is too long"*.
+- **security-and-hardening** — Full .NET security pass: FluentValidation, EF Core parameterization, ASP.NET Core Identity / JWT bearer, policy-based authz, Data Protection, antiforgery, `dotnet list package --vulnerable`, rate limiting. Triggers: *"review this for security"*, *"is this endpoint safe?"*.
+
+**Ship** — release safely:
+- **git-workflow-and-versioning** — Trunk-based branches, atomic commits, Husky.Net pre-commit hooks running `dotnet test` / `dotnet format` / `dotnet build -warnaserror`. Triggers: *"what's a good commit message?"*, *"should I split this PR?"*.
+- **documentation-and-adrs** — ADRs for EF Core / Dapper / UI-framework decisions, XML doc comments on public APIs, Swashbuckle OpenAPI metadata, README with `dotnet` CLI commands. Triggers: *"write an ADR for this"*, *"document this API"*.
+- **deprecation-and-migration** — Retires `[Obsolete]` types, strangler pattern for migrations, `IOptionsMonitor` feature flags, NuGet unlist, Roslyn analyzer code-fix migration tooling. Triggers: *"how do we deprecate this?"*, *"retire the legacy service"*.
+- **shipping-and-launch** — Pre-launch checklist, `IOptions<FeatureOptions>` / `Microsoft.FeatureManagement`, Application Insights / OpenTelemetry monitoring, EF Core migration rollback, expand-contract schema pattern. Triggers: *"are we ready to ship?"*, *"write a rollback plan"*.
 
 ## Skills coming in later waves
 

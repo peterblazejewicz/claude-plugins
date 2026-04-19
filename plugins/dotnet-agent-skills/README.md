@@ -4,7 +4,7 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-Pre-release (`0.2.0`). Wave 0 scaffolding + Wave 1A — 7 skills ported (one sample plus six core execution skills). Remaining 14 skills are tracked in [`SYNC.md`](./SYNC.md) as `pending`.
+Pre-release (`0.3.0`). Wave 0 + Wave 1 complete — 15 of 21 skills ported (Wave 1 = 14 language-agnostic skills with targeted .NET adaptations). Remaining 6 skills (Waves 2–4) are tracked in [`SYNC.md`](./SYNC.md) as `pending`.
 
 ## Attribution
 
@@ -40,7 +40,7 @@ Lists available skills and their triggers. Individual skills activate from natur
 |------|--------|--------|
 | 0 (sample) | spec-driven-development | ✅ ported |
 | 1A (core execution) | planning-and-task-breakdown, incremental-implementation, code-review-and-quality, code-simplification, debugging-and-error-recovery, context-engineering | ✅ ported |
-| 1B (remaining agnostic) | idea-refine, api-and-interface-design, security-and-hardening, git-workflow-and-versioning, deprecation-and-migration, documentation-and-adrs, source-driven-development, shipping-and-launch | pending |
+| 1B (remaining agnostic) | idea-refine (+ 3 references), api-and-interface-design, security-and-hardening, git-workflow-and-versioning, deprecation-and-migration, documentation-and-adrs, source-driven-development, shipping-and-launch | ✅ ported |
 | 2 (testing/CI) | test-driven-development, ci-cd-and-automation, browser-testing-with-devtools → integration-testing-dotnet | pending |
 | 3 (.NET rewrites) | frontend-ui-engineering-avalonia, performance-optimization-dotnet | pending |
 | 4 (meta) | using-agent-skills | pending |
