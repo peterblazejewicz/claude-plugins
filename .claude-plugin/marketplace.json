@@ -1,7 +1,7 @@
 {
   "name": "blazejewicz-claude-plugins",
-  "version": "2.0.0",
-  "description": "Claude Code plugins for Avalonia and .NET cross-platform UI development",
+  "version": "2.0.1",
+  "description": "Claude Code plugins for .NET cross-platform UI development",
   "owner": {
     "name": "Piotr Błażejewicz",
     "email": "peterblazejewicz@users.noreply.github.com"
