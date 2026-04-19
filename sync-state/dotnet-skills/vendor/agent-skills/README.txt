@@ -10,5 +10,5 @@ It is regenerated in full by scripts/sync-agent-skills.ps1.
 Any edits here will be clobbered on the next sync AND flagged by:
     pwsh scripts/sync-agent-skills.ps1 -Verify
 
-If you need to adapt a skill, port it into plugins/dotnet-agent-skills/skills/<name>/SKILL.md
+If you need to adapt a skill, port it into plugins/dotnet-skills/skills/<name>/SKILL.md
 and record the change in SYNC.md.

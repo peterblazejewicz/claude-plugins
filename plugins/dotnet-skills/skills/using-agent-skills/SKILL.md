@@ -1,17 +1,17 @@
 ---
 name: using-agent-skills
-description: Meta-skill — discovers and invokes the right .NET/C# agent skill from this marketplace for the task at hand. Use when starting a session, when a task doesn't obviously map to a single skill, or when you need a phase-by-phase map of what's available across Define / Plan / Build / Verify / Review / Ship. Governs how every other skill in `dotnet-agent-skills` is discovered and activated.
+description: Meta-skill — discovers and invokes the right .NET/C# agent skill from this marketplace for the task at hand. Use when starting a session, when a task doesn't obviously map to a single skill, or when you need a phase-by-phase map of what's available across Define / Plan / Build / Verify / Review / Ship. Governs how every other skill in `dotnet-skills` is discovered and activated.
 version: 1.0.0
 source: rewritten from vendor/agent-skills/skills/using-agent-skills/SKILL.md@44dac80
 ---
 
-<!-- Adapted from addyosmani/agent-skills (MIT © 2025 Addy Osmani). This is a STRUCTURAL REWRITE targeted at the `dotnet-agent-skills` plugin in this marketplace. Upstream's skeleton (discovery tree + operating behaviors + failure modes + lifecycle + quick reference) is preserved; skill names are retargeted (integration-testing-dotnet, frontend-ui-engineering-avalonia, performance-optimization-dotnet); cross-cuts to the companion avalonia-dev plugin are added. Because upstream and downstream now have different skill inventories, future re-syncs of this specific file are NOT tracked — see SYNC.md. -->
+<!-- Adapted from addyosmani/agent-skills (MIT © 2025 Addy Osmani). This is a STRUCTURAL REWRITE targeted at the `dotnet-skills` plugin in this marketplace. Upstream's skeleton (discovery tree + operating behaviors + failure modes + lifecycle + quick reference) is preserved; skill names are retargeted (integration-testing-dotnet, frontend-ui-engineering-avalonia, performance-optimization-dotnet); cross-cuts to the companion avalonia-dev plugin are added. Because upstream and downstream now have different skill inventories, future re-syncs of this specific file are NOT tracked — see SYNC.md. -->
 
-# Using `dotnet-agent-skills`
+# Using `dotnet-skills`
 
 ## Overview
 
-`dotnet-agent-skills` is a collection of 20 engineering workflow skills organized by development phase, targeted at modern .NET (8+ LTS, C# 12+). Each skill encodes a specific process with concrete `dotnet` CLI commands, NuGet-ecosystem tooling, and .NET-specific anti-patterns. This meta-skill helps you discover and apply the right skill for your current task.
+`dotnet-skills` is a collection of 20 engineering workflow skills organized by development phase, targeted at modern .NET (8+ LTS, C# 12+). Each skill encodes a specific process with concrete `dotnet` CLI commands, NuGet-ecosystem tooling, and .NET-specific anti-patterns. This meta-skill helps you discover and apply the right skill for your current task.
 
 The plugin is an **indirect fork** of [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT © 2025 Addy Osmani) with targeted adaptations — see the plugin's [`README.md`](../../README.md) and [`NOTICE.md`](../../NOTICE.md). The companion [`avalonia-dev`](../../../avalonia-dev/README.md) plugin in this marketplace covers structural Avalonia/MAUI reviews (design tokens, project layout, phased migration) and pairs naturally with the `frontend-ui-engineering-avalonia` skill defined here.
 
@@ -272,7 +272,7 @@ This is a meta-skill — its "verification" is that the other skills activate cl
 - **Status**: `rewritten` — upstream and downstream now have different skill inventories (we renamed three skills and skipped one upstream helper script), so re-syncing this specific file against upstream no longer produces useful deltas. Per-skill re-syncs for the other 20 skills remain worthwhile; this file's upstream will be re-read on major upstream changes but not line-diffed.
 - **Rationale**: the meta skill's job is to reflect *our* marketplace's skill inventory, not upstream's. As long as the names, phases, and activation story diverge, a faithful port of upstream's prose would actively mislead readers. Preserving the skeleton (discovery tree, core operating behaviors, failure modes, lifecycle sequence, quick reference) keeps the conceptual continuity with upstream readers; the content fills in our specifics.
 - **What changed**:
-  - Plugin-specific overview: names this plugin (`dotnet-agent-skills`), credits Addy Osmani upstream, cross-references the companion `avalonia-dev` plugin
+  - Plugin-specific overview: names this plugin (`dotnet-skills`), credits Addy Osmani upstream, cross-references the companion `avalonia-dev` plugin
   - New "How Skills Activate" section explaining Claude Code's two activation paths (natural-language description matching + `/dotnet-skills` explicit listing)
   - Discovery tree retargeted: renames three skills (`integration-testing-dotnet`, `frontend-ui-engineering-avalonia`, `performance-optimization-dotnet`), adds `code-simplification` / `deprecation-and-migration` branches (upstream omits them from its tree), directs structural Avalonia reviews to the companion `avalonia-dev` plugin
   - Core Operating Behaviors preserved as the six-section spine with .NET-flavored examples throughout (Avalonia/EF Core assumptions, `FromSqlRaw` push-back, `IOptions<T>` simplicity call-out, `using` directive + source-generated file scope discipline)

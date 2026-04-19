@@ -4,7 +4,9 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`1.0.4` — all 21 upstream skills ported (17 `modified`, 4 `rewritten`, 1 upstream helper `skipped`). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` cleaned up the plugin's installed surface; `1.0.3` addressed the first external-review round (contrasting counter-examples, host-model lens notes, library `ConfigureAwait(false)`); `1.0.4` closes the second review round — `performance-optimization-dotnet` now carries the same library `ConfigureAwait(false)` guidance as the rest of the set, and `deprecation-and-migration`'s Adapter Pattern example spells out the `SynchronizationContext` deadlock mechanism by name so agents don't cargo-cult `.GetAwaiter().GetResult()` into UI-thread code.
+`2.0.0` — **Breaking: plugin renamed from `dotnet-agent-skills` to `dotnet-skills`.** Existing installs see the old slug as missing after a marketplace refresh; re-install under the new name (see Installation below). No content regressions — the 21 ported skills and every skill's frontmatter `name:` field are unchanged; only the plugin prefix on qualified invocations changes (e.g. `dotnet-skills:spec-driven-development` instead of `dotnet-agent-skills:spec-driven-development`), saving 6 characters on every qualified reference.
+
+Prior content history: `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
 
 ## Attribution
 
@@ -17,10 +19,22 @@ Every ported skill carries a `Source & Modifications` footer linking back to the
 
 ## Installation
 
+**New install:**
+
 ```bash
 claude plugins marketplace add peterblazejewicz/claude-plugins
-claude plugins install dotnet-agent-skills
+claude plugins install dotnet-skills
 ```
+
+**Migrating from `dotnet-agent-skills` (any 1.x):**
+
+```bash
+claude plugins uninstall dotnet-agent-skills
+claude plugins marketplace update peterblazejewicz/claude-plugins
+claude plugins install dotnet-skills
+```
+
+After reinstall, qualified skill references use the new prefix (`dotnet-skills:spec-driven-development`, etc.). The unqualified `/dotnet-skills` slash command continues to work unchanged.
 
 ## Usage
 

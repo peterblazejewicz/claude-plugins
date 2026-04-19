@@ -1,6 +1,6 @@
 {
   "name": "blazejewicz-claude-plugins",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Claude Code plugins for .NET cross-platform UI development",
   "owner": {
     "name": "Piotr Błażejewicz",
@@ -16,10 +16,10 @@
       "tags": ["avalonia", "xaml", "dotnet", "ui", "theming", "design-tokens", "mvvm"]
     },
     {
-      "name": "dotnet-agent-skills",
+      "name": "dotnet-skills",
       "description": "Agent skills for .NET 8+ development (Avalonia, ASP.NET Core, Blazor, MAUI, EF Core, xUnit/MSTest). Adapted from addyosmani/agent-skills (MIT).",
-      "version": "1.0.4",
-      "source": "./plugins/dotnet-agent-skills",
+      "version": "2.0.0",
+      "source": "./plugins/dotnet-skills",
       "category": "developer-tools",
       "tags": ["dotnet", "csharp", "agent-skills", "avalonia", "aspnetcore", "blazor", "maui", "efcore", "xunit", "mstest"]
     }

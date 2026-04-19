@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-  Sync addyosmani/agent-skills into plugins/dotnet-agent-skills/vendor/agent-skills.
+  Sync addyosmani/agent-skills into plugins/dotnet-skills/vendor/agent-skills.
 
 .DESCRIPTION
   Shallow-fetches the upstream repo at the requested ref, copies its tree (minus
@@ -44,7 +44,7 @@ Set-StrictMode -Version Latest
 $repoRoot     = Split-Path -Parent $PSScriptRoot
 # Sync infrastructure lives OUTSIDE the plugin directory so it isn't shipped
 # to end users when the plugin is installed from the marketplace.
-$syncState    = Join-Path $repoRoot 'sync-state/dotnet-agent-skills'
+$syncState    = Join-Path $repoRoot 'sync-state/dotnet-skills'
 $vendorRoot   = Join-Path $syncState 'vendor/agent-skills'
 $manifestPath = Join-Path $vendorRoot '.sync-manifest.json'
 $upstreamMd   = Join-Path $syncState 'UPSTREAM.md'

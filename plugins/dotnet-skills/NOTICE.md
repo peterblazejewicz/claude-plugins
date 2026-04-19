@@ -1,6 +1,6 @@
 # NOTICE
 
-The `dotnet-agent-skills` plugin is an **indirect fork** of [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills).
+The `dotnet-skills` plugin is an **indirect fork** of [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills).
 
 - **Upstream**: https://github.com/addyosmani/agent-skills
 - **Upstream license**: MIT — `SPDX-License-Identifier: MIT`
