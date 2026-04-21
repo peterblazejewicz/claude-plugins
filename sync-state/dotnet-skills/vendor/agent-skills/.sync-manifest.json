@@ -1,8 +1,8 @@
 {
   "upstream": "https://github.com/addyosmani/agent-skills.git",
-  "ref": "44dac80216da709913fb410f632a65547866346f",
-  "commitDate": "2026-04-18T22:18:38-07:00",
-  "syncedAt": "2026-04-19T14:08:09.8963913Z",
+  "ref": "1f66d57a5e1b041b11e49a8cdca275aa472f0131",
+  "commitDate": "2026-04-20T23:34:32-07:00",
+  "syncedAt": "2026-04-21T20:48:03.9583434Z",
   "files": [
     {
       "path": ".claude-plugin/marketplace.json",
@@ -36,8 +36,8 @@
     },
     {
       "path": ".claude/commands/ship.md",
-      "sha256": "10bad68f66cc41f04e2f1420f4f46597edabf29b94f90a007b8e9925ce1b04a8",
-      "bytes": 830
+      "sha256": "8e7198233105890cdb26dc8dacbd9008e1f52c076c327a0e3c3ca89df9320c27",
+      "bytes": 4673
     },
     {
       "path": ".claude/commands/spec.md",
@@ -56,23 +56,28 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "c5d10c2e986b5892ab0d0b63ee9d2eb8ef83a1ad3e33d12308bb0d522fe8bef5",
-      "bytes": 5435
+      "sha256": "7ba74c40022c2c99adfd569ad8b0d73e0483affb5713f779b45c4b67796b6357",
+      "bytes": 7033
     },
     {
       "path": "agents/code-reviewer.md",
-      "sha256": "eee0c42d5db202e9dc5906becb8816399bee5ca33458afb501a5b7c3f0df3e4a",
-      "bytes": 3368
+      "sha256": "23b8da087132f01accbf64522d652fa6146881c61b609d5cdb00adfa2880952d",
+      "bytes": 3892
+    },
+    {
+      "path": "agents/README.md",
+      "sha256": "69988408802646d47a377e611f3fa8583203a9920b52a3d272db763867a66317",
+      "bytes": 6747
     },
     {
       "path": "agents/security-auditor.md",
-      "sha256": "9cda8a1962f0c00091ecc50ed041dbc2418af566048b70c800bc9179e31d43dc",
-      "bytes": 3736
+      "sha256": "cfce362c05161cd1bdcc0a1b1e0b3a7e111efaf11abb8de8ed43c78c9d3a39e4",
+      "bytes": 4219
     },
     {
       "path": "agents/test-engineer.md",
-      "sha256": "b39bc198f425ebe43462a29ec4ef4c626023c17abb17c32d1b8ae4e501a1e1ad",
-      "bytes": 2891
+      "sha256": "e7a950b19e8204074db467f8a335a16db9289caca97d04f89693a9a21a947b65",
+      "bytes": 3364
     },
     {
       "path": "CLAUDE.md",
@@ -173,6 +178,11 @@
       "path": "references/accessibility-checklist.md",
       "sha256": "f0e9930986a3dbb74426042f710723ab259ea72ffde1c31697ac2630fea98ea7",
       "bytes": 5366
+    },
+    {
+      "path": "references/orchestration-patterns.md",
+      "sha256": "07eb72139a78b085b4cc5ee6cf1d950ef4d9353ef75784166a8ceec213962bcb",
+      "bytes": 18571
     },
     {
       "path": "references/performance-checklist.md",

@@ -7,11 +7,11 @@ The pinned-commit table below is rewritten by `scripts/sync-agent-skills.ps1` on
 |-------|-------|
 | Upstream repository | https://github.com/addyosmani/agent-skills |
 | Upstream license | MIT (© 2025 Addy Osmani) |
-| Pinned commit SHA | `44dac80216da709913fb410f632a65547866346f` |
-| Pinned commit (short) | `44dac80` |
-| Synced on | 2026-04-19 |
+| Pinned commit SHA | `1f66d57a5e1b041b11e49a8cdca275aa472f0131` |
+| Pinned commit (short) | `1f66d57` |
+| Synced on | 2026-04-21 |
 | Prior pin | `44dac80` |
-| Changed since prior pin | no changes |
+| Changed since prior pin | 2 added, 5 modified |
 <!-- sync:pin:end -->
 
 ## How to re-sync
@@ -42,5 +42,7 @@ After a successful sync:
 <!-- Append-only history of syncs. Newest first. The sync script prepends entries inside the marker block below. -->
 
 <!-- sync:log:begin -->
+- **2026-04-21** — Synced to `1f66d57` (2 added, 5 modified).
+- **2026-04-21** — Synced to `44dac80` (no changes).
 - **2026-04-19** — Initial pin at `44dac80`. Vendor tree populated; sample skill `spec-driven-development` ported.
 <!-- sync:log:end -->

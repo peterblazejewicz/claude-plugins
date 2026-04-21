@@ -1,7 +1,7 @@
 ---
 name: security-auditor
 description: .NET/C# security engineer focused on vulnerability detection, threat modeling, and secure coding practices for ASP.NET Core / Blazor / MAUI applications. Use for security-focused code review, threat analysis, or hardening recommendations.
-source: vendor/agent-skills/agents/security-auditor.md@44dac80
+source: vendor/agent-skills/agents/security-auditor.md@1f66d57
 ---
 
 <!-- Adapted from addyosmani/agent-skills (MIT © 2025 Addy Osmani). See the "Source & Modifications" footer at the bottom of this file for the exact changes applied to the upstream body. -->
@@ -115,12 +115,18 @@ For the full hardening process and remediation patterns, see the sibling skill `
 6. Review dependencies for known CVEs via `dotnet list package --vulnerable --include-transitive`; cross-reference GHSA IDs.
 7. Never suggest disabling security controls as a "fix" (no `ServerCertificateCustomValidationCallback = (_, _, _, _) => true`, no `[ValidateAntiForgeryToken]` removal, no `AllowAnyOrigin + AllowCredentials`).
 
+## Composition
+
+- **Invoke directly when:** the user wants a security-focused pass on a specific .NET change, file, or system component.
+- **Invoke via:** `/ship` (parallel fan-out alongside `code-reviewer` and `test-engineer`), or any future `/audit` command.
+- **Do not invoke from another persona.** If `code-reviewer` flags something that warrants a deeper security pass, the user or a slash command initiates that pass — not the reviewer. On Claude Code, subagents cannot spawn other subagents, so the rule is enforced at the platform level. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+
 ---
 
 ## Source & Modifications
 
-- **Upstream**: https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/agents/security-auditor.md
-- **Pinned commit**: `44dac80216da709913fb410f632a65547866346f` (synced 2026-04-19)
+- **Upstream**: https://github.com/addyosmani/agent-skills/blob/1f66d57a5e1b041b11e49a8cdca275aa472f0131/agents/security-auditor.md
+- **Pinned commit**: `1f66d57a5e1b041b11e49a8cdca275aa472f0131` (synced 2026-04-21; prior pin `44dac80` synced 2026-04-19)
 - **Status**: `modified (heavy)`
 - **Changes**:
   - Persona reframed as a **.NET/C# Security Engineer** — explicit cross-reference to `security-and-hardening` for hardening process depth
@@ -132,5 +138,6 @@ For the full hardening process and remediation patterns, see the sibling skill `
   - **Severity table** extended with .NET-specific examples: `FromSqlRaw` with user input → Critical; missing authz on a protected endpoint → High; weak session cookie / over-broad CORS → Medium; missing CSP header → Low
   - **Recommendation fields** require .NET API grounding — sample fixes reference FluentValidation rules, `[Authorize(Policy = ...)]`, `FromSqlInterpolated`, etc.
   - **Rule 7** expanded with concrete .NET anti-patterns: no `ServerCertificateCustomValidationCallback = (_, _, _, _) => true`, no `[ValidateAntiForgeryToken]` removal, no `AllowAnyOrigin + AllowCredentials`
+  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `README.md` and `../references/orchestration-patterns.md`; `/ship` named as the canonical parallel-fan-out entry point
   - OWASP Top 10 + 5-section frame + severity taxonomy preserved from upstream
 - **License**: MIT © 2025 Addy Osmani — see [`../LICENSES/agent-skills-MIT.txt`](../LICENSES/agent-skills-MIT.txt)

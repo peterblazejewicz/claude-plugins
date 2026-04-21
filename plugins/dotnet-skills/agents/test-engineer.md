@@ -1,7 +1,7 @@
 ---
 name: test-engineer
 description: .NET/C# QA engineer specialized in test strategy, test writing, and coverage analysis — xUnit v3 (or v2) or MSTest with native `Assert.X`, WebApplicationFactory, Testcontainers, Microsoft.Playwright, and Avalonia.Headless. Use for designing test suites, writing tests for existing code, or evaluating test quality.
-source: vendor/agent-skills/agents/test-engineer.md@44dac80
+source: vendor/agent-skills/agents/test-engineer.md@1f66d57
 ---
 
 <!-- Adapted from addyosmani/agent-skills (MIT © 2025 Addy Osmani). See the "Source & Modifications" footer at the bottom of this file for the exact changes applied to the upstream body. -->
@@ -148,12 +148,18 @@ When analyzing test coverage:
 9. **Use native assertions.** `Xunit.Assert.X` for xUnit; `Microsoft.VisualStudio.TestTools.UnitTesting.Assert.X` (with `CollectionAssert` and `StringAssert` for specialised checks) for MSTest. Do not introduce FluentAssertions — v8+ is non-Apache-licensed, and the diagnostic output difference isn't worth the third-party dependency or the license audit.
 10. **Run with the project's configured runner** — VSTest via `dotnet test` for xUnit v2 / MSTest (default), or Microsoft.Testing.Platform via `dotnet run` / `dotnet test --platform` for xUnit v3 and MTP-native MSTest.
 
+## Composition
+
+- **Invoke directly when:** the user asks for test design, coverage analysis, or a Prove-It test for a specific .NET bug.
+- **Invoke via:** `/test` (TDD workflow using the sibling skill) or `/ship` (parallel fan-out for coverage-gap analysis alongside `code-reviewer` and `security-auditor`).
+- **Do not invoke from another persona.** Recommendations to add tests belong in your report; the user or a slash command decides when to act on them. On Claude Code, subagents cannot spawn other subagents, so the rule is enforced at the platform level. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+
 ---
 
 ## Source & Modifications
 
-- **Upstream**: https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/agents/test-engineer.md
-- **Pinned commit**: `44dac80216da709913fb410f632a65547866346f` (synced 2026-04-19)
+- **Upstream**: https://github.com/addyosmani/agent-skills/blob/1f66d57a5e1b041b11e49a8cdca275aa472f0131/agents/test-engineer.md
+- **Pinned commit**: `1f66d57a5e1b041b11e49a8cdca275aa472f0131` (synced 2026-04-21; prior pin `44dac80` synced 2026-04-19)
 - **Status**: `modified`
 - **Changes**:
   - Persona reframed as a **.NET/C# QA Engineer** — explicit cross-reference to `test-driven-development` (RED/GREEN/REFACTOR) and `integration-testing-dotnet` (boundary patterns)
@@ -165,6 +171,7 @@ When analyzing test coverage:
   - **New "Handle Time Correctly"** section — `TimeProvider` injection, `FakeTimeProvider` with `Advance`/`SetUtcNow`, ban on `DateTime.UtcNow` in the SUT and `Thread.Sleep` in tests
   - **Output format** changed to `file.cs:line` references; recommendation names follow `TypeName_Scenario_Expected`
   - **Rules** augmented with: Rule 3 names `IAsyncLifetime` / `[TestInitialize]` / `[ClassInitialize]`; Rule 5 renamed "Mock at system boundaries" to call out `HttpMessageHandler` fakes and `FakeTimeProvider`, and explicitly forbids mocking `DbContext` / `IQueryable<T>`; new Rule 6 forbids `Microsoft.EntityFrameworkCore.InMemory`; Rule 9 forbids FluentAssertions and names native `Assert.X` as the standard; new Rule 10 names the VSTest vs Microsoft.Testing.Platform runner decision
+  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `README.md` and `../references/orchestration-patterns.md`; `/test` and `/ship` named as the standard entry points
   - Core structure (analyze-before-writing, test-at-the-right-level, Prove-It Pattern, descriptive tests, scenario coverage, priority tiers in the output) preserved from upstream
 - **Downstream patches** (applied after the initial port; not tracked against upstream):
   - **2026-04-19** (agent v1.0.1, plugin v2.3.0) — **FluentAssertions removed from samples and guidance.** xUnit sample body rewritten to native `Xunit.Assert` (`Assert.IsType<T>(result)` return value + `Assert.Contains("key", dict.Keys)`); MSTest sample body rewritten to MSTest native `Assert` (`Assert.IsInstanceOfType<T>(result)` + `Assert.IsTrue(dict.ContainsKey(...))`). Rule 9 flipped from "use FluentAssertions when the project does" to "do not introduce FluentAssertions — v8+ is non-Apache-licensed, and the diagnostic-output advantage doesn't justify a third-party dependency or a license audit." Description frontmatter now reads "xUnit v3 (or v2) or MSTest with native `Assert.X`". The Analyze-Before-Writing checklist flags encountered FluentAssertions usage as a migration signal rather than a neutral "detect which style".

@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Senior .NET/C# code reviewer that evaluates changes across five dimensions — correctness, readability, architecture, security, and performance — with .NET 8+ (Avalonia, ASP.NET Core, Blazor, MAUI, EF Core, xUnit/MSTest) framing. Use for thorough code review before merge.
-source: vendor/agent-skills/agents/code-reviewer.md@44dac80
+source: vendor/agent-skills/agents/code-reviewer.md@1f66d57
 ---
 
 <!-- Adapted from addyosmani/agent-skills (MIT © 2025 Addy Osmani). See the "Source & Modifications" footer at the bottom of this file for the exact changes applied to the upstream body. -->
@@ -121,12 +121,18 @@ Use `file.cs:line` format for every finding so the author can navigate directly 
 6. If you're uncertain about something, say so and suggest investigation (`dotnet-counters`, an explicit test, analyzer run) rather than guessing.
 7. Verdict depends on project conventions, not personal preference. `.editorconfig` and the analyzer ruleset are the absolute authority on style.
 
+## Composition
+
+- **Invoke directly when:** the user asks for a review of a specific .NET change, file, or PR.
+- **Invoke via:** `/review` (single-perspective review with the sibling skill) or `/ship` (parallel fan-out alongside `security-auditor` and `test-engineer`).
+- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. On Claude Code this is also a platform guarantee: subagents cannot spawn other subagents. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+
 ---
 
 ## Source & Modifications
 
-- **Upstream**: https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/agents/code-reviewer.md
-- **Pinned commit**: `44dac80216da709913fb410f632a65547866346f` (synced 2026-04-19)
+- **Upstream**: https://github.com/addyosmani/agent-skills/blob/1f66d57a5e1b041b11e49a8cdca275aa472f0131/agents/code-reviewer.md
+- **Pinned commit**: `1f66d57a5e1b041b11e49a8cdca275aa472f0131` (synced 2026-04-21; prior pin `44dac80` synced 2026-04-19)
 - **Status**: `modified`
 - **Changes**:
   - Persona reframed as a **.NET/C# Staff Engineer** — explicit cross-reference to the sibling skill `code-review-and-quality` for the full process, to `security-auditor` / `security-and-hardening` for security depth, and to `performance-optimization-dotnet` for profiling depth
@@ -140,5 +146,6 @@ Use `file.cs:line` format for every finding so the author can navigate directly 
   - Critical/Important/Suggestion severity prefixes aligned with the sibling skill's table (e.g. `FromSqlRaw` with user input is Critical)
   - Verification-story checklist retargeted to `dotnet build -warnaserror` + `dotnet test` + FluentValidation + `dotnet list package --vulnerable`
   - Rule 7 added — `.editorconfig` and the analyzer ruleset are the style authority (mirrors the disagreement-hierarchy in the sibling skill)
+  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `README.md` and `../references/orchestration-patterns.md`; references `/review` (single-persona) and `/ship` (parallel fan-out) as the standard entry points
   - Core structure (five-axis frame, Critical/Important/Suggestion categorization, review output template, review-tests-first discipline) preserved from upstream
 - **License**: MIT © 2025 Addy Osmani — see [`../LICENSES/agent-skills-MIT.txt`](../LICENSES/agent-skills-MIT.txt)
