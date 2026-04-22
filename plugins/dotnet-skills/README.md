@@ -4,11 +4,9 @@ Agent skills for **.NET 8+ (LTS or newer)** development, adapted from [addyosman
 
 ## Status
 
-`2.3.0` — **Drops FluentAssertions everywhere and makes xUnit v3 + Microsoft.Testing.Platform the canonical test setup.** All code samples in `test-driven-development`, `integration-testing-dotnet`, and the `test-engineer` subagent now use native `Xunit.Assert.X` or MSTest `Assert.X`. Prose, frontmatter descriptions, package references, and stack-detection examples are scrubbed of FluentAssertions across 9 files. xUnit v2 is still supported (source-compatible at the test-author level) but relegated to a compact "Version Awareness" table. `Avalonia.Headless.XUnit` gets an explicit version-cliff callout: xUnit v3 requires Avalonia 12; 11.x stays on xUnit v2.
+`2.5.0` — **GitHub Copilot CLI compatibility.** Adds `.agent.md` wrappers alongside the three Claude Code subagents (`code-reviewer`, `security-auditor`, `test-engineer`) so they're invocable on Copilot CLI as `/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`. The existing `marketplace.json` already works as a Copilot CLI marketplace (confirmed live — Copilot CLI reads `.claude-plugin/marketplace.json` directly). `plugin.json` enriched with `author` / `license` / `repository` / `homepage` / `keywords` / `category` fields that feed Copilot's `/plugin` discovery UI (Claude Code ignores them; the strict schema allows them). All 21 `SKILL.md` files already portable across both tools — the Agent Skills frontmatter is a cross-vendor standard. Custom slash commands are not a Copilot CLI surface yet ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618) open) — Copilot users get the three agent entry points plus skill auto-activation; the 8 Claude Code commands remain unchanged.
 
-> **Why drop FluentAssertions.** FluentAssertions v8 (January 2025) moved to the XCEED source-available license; only v7.x remains Apache 2.0. Recommending "FluentAssertions" without pinning drives agents toward v8+ and a licensing audit every team will lose. Native `Assert.X` keeps the toolchain simpler, eliminates a third-party dependency per test project, and avoids the license question entirely.
-
-Prior releases: `2.2.1` hotfix removed an invalid `"agents": "./agents/"` entry from `plugin.json` that slipped into 2.2.0 and broke install-time manifest validation (Claude Code auto-discovers `./agents/` by convention — no field required). `2.2.0` added 3 .NET-adapted subagents (`code-reviewer`, `security-auditor`, `test-engineer`) ported from the upstream `agents/` set. `2.1.0` added 7 short slash-command wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
+Prior releases: `2.4.1` surfaced the `/ship` fan-out + new agent docs in the catalog. `2.4.0` restructured `/ship` as a three-phase fan-out orchestrator (Phase A parallel personas; Phase B .NET pre-launch checklist; Phase C go/no-go with rollback); ported upstream `agents/README.md` + `references/orchestration-patterns.md` with .NET framing. `2.3.0` dropped FluentAssertions everywhere and made xUnit v3 + Microsoft.Testing.Platform canonical — native `Xunit.Assert.X` / MSTest `Assert.X` across 9 files (FluentAssertions v8 moved to the XCEED source-available license in January 2025; v7.x is the last Apache-2.0 line); `Avalonia.Headless.XUnit` version-cliff callout (xUnit v3 requires Avalonia 12 — April 2026; 11.x stays on xUnit v2). `2.2.1` hotfix removed an invalid `"agents": "./agents/"` entry from `plugin.json` that slipped into 2.2.0 and broke install-time manifest validation (Claude Code auto-discovers `./agents/` by convention — no field required). `2.2.0` added 3 .NET-adapted subagents ported from the upstream `agents/` set. `2.1.0` added 7 short slash-command wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`) adapted from the upstream `.claude/commands/` set. `2.0.0` renamed the plugin from `dotnet-agent-skills` to `dotnet-skills` (breaking). `1.0.0` landed the meta skill `using-agent-skills`; `1.0.1` added an xUnit v3 + Microsoft.Testing.Platform patch; `1.0.2` moved maintenance artifacts out of the installed plugin surface; `1.0.3` and `1.0.4` closed two rounds of external review with contrasting examples, host-model lens notes, library `ConfigureAwait(false)` guidance, EF Core raw-SQL overload clarifications, the `SynchronizationContext` deadlock warning on the Adapter Pattern, and the strongly-typed ID JSON converter.
 
 ## Attribution
 
@@ -21,18 +19,44 @@ Every ported skill carries a `Source & Modifications` footer linking back to the
 
 ## Installation
 
+### Claude Code
+
 ```bash
 claude plugins marketplace add peterblazejewicz/claude-plugins
 claude plugins install dotnet-skills
 ```
 
+### GitHub Copilot CLI
+
+```bash
+copilot plugin marketplace add peterblazejewicz/claude-plugins
+# then inside copilot:
+/plugin install dotnet-skills@blazejewicz-claude-plugins
+```
+
+Copilot CLI reads the same `.claude-plugin/marketplace.json` as Claude Code — no second marketplace to maintain.
+
 ## Usage
+
+### Claude Code
 
 ```
 /dotnet-skills
 ```
 
-Lists available skills and their triggers. Individual skills activate from natural-language prompts (e.g. _"help me spec out a new C# service"_ triggers `spec-driven-development`).
+Lists available skills and their triggers. Individual skills activate from natural-language prompts (e.g. _"help me spec out a new C# service"_ triggers `spec-driven-development`). The 8 lifecycle commands (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/dotnet-skills`) are Claude Code–only.
+
+### GitHub Copilot CLI
+
+Three personas are invocable directly:
+
+```
+/agent code-reviewer
+/agent security-auditor
+/agent test-engineer
+```
+
+The 21 skills activate automatically via description-match — ask Copilot to plan a .NET feature, write a failing xUnit test, or do a security review, and the right skill engages. Custom slash commands aren't a Copilot CLI surface yet ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618)); use the agents + skill auto-activation pattern.
 
 ## Commands
 
@@ -78,6 +102,8 @@ If `/test` or `/review` collides with a personal command or another plugin in yo
 | [test-engineer](./agents/test-engineer.md) | QA-Engineer designing test suites (xUnit v3 or v2, or MSTest — native `Assert.X`), `WebApplicationFactory<T>` / Testcontainers / `Microsoft.Playwright` / `Avalonia.Headless.XUnit`; `TimeProvider` + `FakeTimeProvider`; Prove-It Pattern | Planning a test suite, writing a failing test for a bug, or analyzing coverage gaps |
 
 **Invocation.** Launch an agent through the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Claude Code auto-namespaces plugin-provided agents, so `dotnet-skills:code-reviewer` coexists with built-in and sibling-plugin subagents of the same short name (e.g. `pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`) — always use the qualified form to pick the .NET-adapted one.
+
+**Copilot CLI.** The same three personas ship as `.agent.md` siblings (`code-reviewer.agent.md`, `security-auditor.agent.md`, `test-engineer.agent.md`) in `plugins/dotnet-skills/agents/`. Invoke as `/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`. Bodies are kept in lockstep with the Claude Code forms; upstream attribution is not duplicated — the `.agent.md` footer points to the `.md` sibling as canonical.
 
 ## Skills
 

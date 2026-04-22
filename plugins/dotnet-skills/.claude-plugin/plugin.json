@@ -1,7 +1,28 @@
 {
   "name": "dotnet-skills",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "Agent skills for .NET 8+ (Avalonia, ASP.NET Core, Blazor, MAUI, EF Core, xUnit/MSTest). Adapted from addyosmani/agent-skills (MIT).",
+  "author": {
+    "name": "Piotr Błażejewicz",
+    "email": "peterblazejewicz@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/peterblazejewicz/claude-plugins",
+  "homepage": "https://github.com/peterblazejewicz/claude-plugins/tree/main/plugins/dotnet-skills",
+  "keywords": [
+    "dotnet",
+    "csharp",
+    "agent-skills",
+    "avalonia",
+    "aspnetcore",
+    "blazor",
+    "maui",
+    "efcore",
+    "xunit",
+    "mstest",
+    "tdd"
+  ],
+  "category": "developer-tools",
   "skills": "./skills/",
   "commands": "./commands/"
 }
