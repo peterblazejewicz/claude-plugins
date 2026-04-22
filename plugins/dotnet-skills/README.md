@@ -28,13 +28,31 @@ claude plugins install dotnet-skills
 
 ### GitHub Copilot CLI
 
+**Preferred — via the plugin marketplace** (Copilot CLI 1.x, GA Feb 2026):
+
 ```bash
 copilot plugin marketplace add peterblazejewicz/claude-plugins
 # then inside copilot:
 /plugin install dotnet-skills@blazejewicz-claude-plugins
 ```
 
-Copilot CLI reads the same `.claude-plugin/marketplace.json` as Claude Code — no second marketplace to maintain.
+Copilot CLI reads the same `.claude-plugin/marketplace.json` as Claude Code — no second marketplace to maintain. Skills and agents install under `~/.copilot/plugins/`.
+
+**Alternative — per-repo install** (commit the agents directly to your project):
+
+```bash
+# Copy the 3 Copilot-shaped agent personas into your repo
+cp /path/to/claude-plugins/plugins/dotnet-skills/agents/code-reviewer.agent.md   .github/agents/
+cp /path/to/claude-plugins/plugins/dotnet-skills/agents/security-auditor.agent.md .github/agents/
+cp /path/to/claude-plugins/plugins/dotnet-skills/agents/test-engineer.agent.md    .github/agents/
+
+# Optionally, copy individual skills to activate automatically in this repo
+mkdir -p .github/skills/test-driven-development
+cp /path/to/claude-plugins/plugins/dotnet-skills/skills/test-driven-development/SKILL.md \
+   .github/skills/test-driven-development/SKILL.md
+```
+
+Use this when your team wants the personas version-controlled alongside the code rather than installed per-developer. Full copy of all 21 skills is rarely what you want — copy only the ones that apply to the repo. See [GitHub Docs — Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and [Creating custom agents for Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli).
 
 ## Usage
 
@@ -57,6 +75,23 @@ Three personas are invocable directly:
 ```
 
 The 21 skills activate automatically via description-match — ask Copilot to plan a .NET feature, write a failing xUnit test, or do a security review, and the right skill engages. Custom slash commands aren't a Copilot CLI surface yet ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618)); use the agents + skill auto-activation pattern.
+
+### VS Code Copilot Chat
+
+The same `.agent.md` files work in VS Code Copilot Chat when the repo is open (workspace-scope) or when you copy them to `~/.copilot/agents/` (user-scope). Invoke with `@<name>`:
+
+```
+@code-reviewer Review this change across the five axes.
+@test-engineer Analyze coverage for OrderService and propose missing tests.
+@security-auditor Audit this endpoint for OWASP Top 10 in ASP.NET Core context.
+```
+
+### Usage tips
+
+1. **Keep prompts task-focused.** Copilot matches skills by description — naming the artifact (`xUnit test`, `EF Core migration`, `Avalonia view`) reliably activates the right skill from the 21 in this pack.
+2. **Compose agents for high-stakes changes.** For a change that touches auth or payment, run `/agent code-reviewer` first, then `/agent security-auditor` on the same diff — the two reports complement rather than duplicate (code-reviewer covers the five-axis baseline; security-auditor goes OWASP-deep on ASP.NET Core specifics).
+3. **Lean on `test-engineer` for bug-fix discipline.** Its Prove-It Pattern (write a failing xUnit/MSTest test first, confirm it fails for the right reason, then fix) is the fastest way to avoid landing a "fix" that passes tests for the wrong reason.
+4. **Don't duplicate skills into your repo unless you need to.** The plugin-marketplace install is the simpler story; the per-repo copy path is for teams that want agents committed to the project for reproducibility across developers.
 
 ## Commands
 

@@ -46,11 +46,24 @@ Run `/dotnet-skills` to list available skills, or jump straight to a lifecycle p
 
 ## Installation
 
+### Claude Code
+
 ```bash
 claude plugins marketplace add peterblazejewicz/claude-plugins
 claude plugins install avalonia-dev
 claude plugins install dotnet-skills
 ```
+
+### GitHub Copilot CLI
+
+```bash
+copilot plugin marketplace add peterblazejewicz/claude-plugins
+# then inside copilot:
+/plugin install avalonia-dev@blazejewicz-claude-plugins
+/plugin install dotnet-skills@blazejewicz-claude-plugins
+```
+
+Copilot CLI reads the same `.claude-plugin/marketplace.json` — no second manifest. `dotnet-skills` exposes three personas on Copilot CLI (`/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`); the 21 skills activate automatically by description-match. See [`plugins/dotnet-skills/README.md`](./plugins/dotnet-skills/README.md#github-copilot-cli) for the full Copilot setup (including per-repo install and VS Code Chat invocation).
 
 ## Credits
 
