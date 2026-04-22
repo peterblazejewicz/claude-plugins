@@ -125,7 +125,7 @@ Use `file.cs:line` format for every finding so the author can navigate directly 
 
 - **Invoke directly when:** the user asks for a review of a specific .NET change, file, or PR.
 - **Invoke via:** `/review` (single-perspective review with the sibling skill) or `/ship` (parallel fan-out alongside `security-auditor` and `test-engineer`).
-- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. On Claude Code this is also a platform guarantee: subagents cannot spawn other subagents. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. On Claude Code this is also a platform guarantee: subagents cannot spawn other subagents. See [`../references/agents-overview.md`](../references/agents-overview.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
 
 ---
 
@@ -146,6 +146,6 @@ Use `file.cs:line` format for every finding so the author can navigate directly 
   - Critical/Important/Suggestion severity prefixes aligned with the sibling skill's table (e.g. `FromSqlRaw` with user input is Critical)
   - Verification-story checklist retargeted to `dotnet build -warnaserror` + `dotnet test` + FluentValidation + `dotnet list package --vulnerable`
   - Rule 7 added — `.editorconfig` and the analyzer ruleset are the style authority (mirrors the disagreement-hierarchy in the sibling skill)
-  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `README.md` and `../references/orchestration-patterns.md`; references `/review` (single-persona) and `/ship` (parallel fan-out) as the standard entry points
+  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `../references/agents-overview.md` (relocated from `README.md` in v2.5.1) and `../references/orchestration-patterns.md`; references `/review` (single-persona) and `/ship` (parallel fan-out) as the standard entry points
   - Core structure (five-axis frame, Critical/Important/Suggestion categorization, review output template, review-tests-first discipline) preserved from upstream
 - **License**: MIT © 2025 Addy Osmani — see [`../LICENSES/agent-skills-MIT.txt`](../LICENSES/agent-skills-MIT.txt)

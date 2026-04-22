@@ -151,7 +151,7 @@ When analyzing test coverage:
 
 - **Invoke directly when:** the user asks for test design, coverage analysis, or a Prove-It test for a specific .NET bug.
 - **Invoke via:** `/test` (TDD workflow using the sibling skill) or `/ship` (parallel fan-out for coverage-gap analysis alongside `code-reviewer` and `security-auditor`).
-- **Do not invoke from another persona.** Recommendations to add tests belong in your report; the user or a slash command decides when to act on them. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+- **Do not invoke from another persona.** Recommendations to add tests belong in your report; the user or a slash command decides when to act on them. See [`../references/agents-overview.md`](../references/agents-overview.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
 
 ---
 

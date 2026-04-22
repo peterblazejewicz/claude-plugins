@@ -124,7 +124,7 @@ Use `file.cs:line` format for every finding so the author can navigate directly 
 
 - **Invoke directly when:** the user asks for a review of a specific .NET change, file, or PR.
 - **Invoke via:** `/review` (single-perspective review with the sibling skill) or `/ship` (parallel fan-out alongside `security-auditor` and `test-engineer`).
-- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+- **Do not invoke from another persona.** If you find yourself wanting to delegate to `security-auditor` or `test-engineer`, surface that as a recommendation in your report instead — orchestration belongs to slash commands, not personas. See [`../references/agents-overview.md`](../references/agents-overview.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
 
 ---
 

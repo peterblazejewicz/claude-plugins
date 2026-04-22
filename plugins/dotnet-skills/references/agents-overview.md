@@ -1,12 +1,12 @@
 # Agent Personas
 
-Specialist .NET/C# personas that play a single role with a single perspective. Each persona is a Markdown file consumed as a system prompt by your harness (Claude Code, Cursor, Copilot, etc.). On Claude Code, the files in this directory are auto-discovered as subagents when the `dotnet-skills` plugin is enabled — no path configuration needed.
+Specialist .NET/C# personas that play a single role with a single perspective. Each persona is a Markdown file consumed as a system prompt by your harness (Claude Code, Cursor, Copilot, etc.). The persona files live in [`../agents/`](../agents/) and are auto-discovered when the `dotnet-skills` plugin is enabled — no path configuration needed. On Copilot CLI, the same personas are provided as `.agent.md` siblings for the `.agent.md` loader.
 
 | Persona | Role | Best for |
 |---------|------|----------|
-| [code-reviewer](code-reviewer.md) | .NET Staff Engineer | Five-axis review before merge — nullable honesty, async correctness, DI lifetimes, EF Core N+1, `MyApp.*` layering |
-| [security-auditor](security-auditor.md) | .NET Security Engineer | Vulnerability detection translated to ASP.NET Core / EF Core / Blazor equivalents of OWASP Top 10 |
-| [test-engineer](test-engineer.md) | .NET QA Engineer | Test strategy, coverage analysis, Prove-It pattern — xUnit v3/v2 or MSTest with native `Assert.X` |
+| [code-reviewer](../agents/code-reviewer.md) | .NET Staff Engineer | Five-axis review before merge — nullable honesty, async correctness, DI lifetimes, EF Core N+1, `MyApp.*` layering |
+| [security-auditor](../agents/security-auditor.md) | .NET Security Engineer | Vulnerability detection translated to ASP.NET Core / EF Core / Blazor equivalents of OWASP Top 10 |
+| [test-engineer](../agents/test-engineer.md) | .NET QA Engineer | Test strategy, coverage analysis, Prove-It pattern — xUnit v3/v2 or MSTest with native `Assert.X` |
 
 ## How personas relate to skills and commands
 
@@ -41,7 +41,7 @@ Pick this only when **independent** investigations can run in parallel and produ
 
 - `/ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision against the .NET pre-launch checklist (EF Core migration rollback, `dotnet list package --vulnerable`, feature flags, monitoring)
 
-This is the only orchestration pattern this plugin endorses. See [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
+This is the only orchestration pattern this plugin endorses. See [`orchestration-patterns.md`](orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 
 ## Decision matrix
 
@@ -109,7 +109,7 @@ The personas in this plugin are designed to work as Claude Code subagents and as
 - **As subagents:** auto-discovered when the `dotnet-skills` plugin is enabled (no path config needed). Use the Agent tool with `subagent_type: code-reviewer` (or `security-auditor`, `test-engineer`). `/ship` is the canonical example. If you've also defined your own persona with the same name in `.claude/agents/` or `~/.claude/agents/`, Claude Code's scope priority resolves in your favor — your customizations win over the plugin defaults.
 - **As Agent Teams teammates** (experimental, requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`): reference the same persona name when spawning a teammate. The persona's body is **appended to** the teammate's system prompt as additional instructions (not a replacement), so your persona text sits on top of the team-coordination instructions the lead installs (SendMessage, task-list tools, etc.).
 
-Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging for a flaky `TaskCanceledException`). See [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full mapping.
+Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging for a flaky `TaskCanceledException`). See [`orchestration-patterns.md`](orchestration-patterns.md) for the full mapping.
 
 Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter — those fields are silently ignored. Avoid relying on them when authoring new personas here.
 
@@ -119,7 +119,7 @@ Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmat
 2. Define the role, scope, output format, and rules — grounded in .NET/C# specifics.
 3. Add a **Composition** block at the bottom (Invoke directly when / Invoke via / Do not invoke from another persona).
 4. Add the persona to the table at the top of this file.
-5. If the persona enables a new orchestration pattern, document it in [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) rather than inventing the pattern in the persona file itself.
+5. If the persona enables a new orchestration pattern, document it in [`orchestration-patterns.md`](orchestration-patterns.md) rather than inventing the pattern in the persona file itself.
 6. If the persona is ported from an upstream file, carry the "Source & Modifications" footer so the sync script can track drift against the pinned commit.
 
 ---
@@ -138,4 +138,6 @@ Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmat
   - "Adding a new persona" step 6 added — carry the "Source & Modifications" footer on ported personas so `scripts/sync-agent-skills.ps1 -Verify` can track drift against the pinned commit
   - Link to `CLAUDE.md` replaces upstream's `AGENTS.md` (which lives vendor-only in this repo — see `sync-state/dotnet-skills/SYNC.md`)
   - Core structure (persona table, three-layer composition table, decision matrix, worked examples for valid and invalid orchestration, persona rules, Claude Code interop note) preserved from upstream
+- **Downstream patches** (applied after the initial port; not tracked against upstream):
+  - **2026-04-22** (plugin v2.5.1) — **Relocated from `agents/README.md` to `references/agents-overview.md`** so Copilot CLI's agent loader stops scanning it as a malformed agent. Issue: Copilot CLI scans every `.md` file in a plugin's `agents/` directory and requires agent-shaped YAML frontmatter, even though its own docs say only `.agent.md` files are agent files ([github/copilot-cli#2187](https://github.com/github/copilot-cli/issues/2187)). A README with no frontmatter therefore produced install-time warnings (`custom agent markdown frontmatter is malformed: missing or malformed YAML frontmatter`). Moving the file out of `agents/` sidesteps the scanner entirely and matches the de-facto convention in [github/awesome-copilot](https://github.com/github/awesome-copilot) (no non-agent `.md` files in `agents/`). Cross-references in all 6 persona files (`code-reviewer.md`, `code-reviewer.agent.md`, `security-auditor.md`, `security-auditor.agent.md`, `test-engineer.md`, `test-engineer.agent.md`) and in `commands/dotnet-skills.md` updated from `[README.md](README.md)` / `[../agents/README.md](../agents/README.md)` to `[../references/agents-overview.md](../references/agents-overview.md)` / `[references/agents-overview.md](../references/agents-overview.md)`. Internal links inside this file were also rebased: persona-table cells and "pattern catalog" cross-links. The Claude Code auto-discovery paragraph was updated to clarify that personas live in [`../agents/`](../agents/), not in this directory.
 - **License**: MIT © 2025 Addy Osmani — see [`../LICENSES/agent-skills-MIT.txt`](../LICENSES/agent-skills-MIT.txt)

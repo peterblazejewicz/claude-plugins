@@ -1,6 +1,6 @@
 {
   "name": "dotnet-skills",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Agent skills for .NET 8+ (Avalonia, ASP.NET Core, Blazor, MAUI, EF Core, xUnit/MSTest). Adapted from addyosmani/agent-skills (MIT).",
   "author": {
     "name": "Piotr Błażejewicz",

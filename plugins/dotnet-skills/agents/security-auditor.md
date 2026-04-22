@@ -119,7 +119,7 @@ For the full hardening process and remediation patterns, see the sibling skill `
 
 - **Invoke directly when:** the user wants a security-focused pass on a specific .NET change, file, or system component.
 - **Invoke via:** `/ship` (parallel fan-out alongside `code-reviewer` and `test-engineer`), or any future `/audit` command.
-- **Do not invoke from another persona.** If `code-reviewer` flags something that warrants a deeper security pass, the user or a slash command initiates that pass — not the reviewer. On Claude Code, subagents cannot spawn other subagents, so the rule is enforced at the platform level. See [`README.md`](README.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
+- **Do not invoke from another persona.** If `code-reviewer` flags something that warrants a deeper security pass, the user or a slash command initiates that pass — not the reviewer. On Claude Code, subagents cannot spawn other subagents, so the rule is enforced at the platform level. See [`../references/agents-overview.md`](../references/agents-overview.md) for the decision matrix and [`../references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the full pattern catalog.
 
 ---
 
@@ -138,6 +138,6 @@ For the full hardening process and remediation patterns, see the sibling skill `
   - **Severity table** extended with .NET-specific examples: `FromSqlRaw` with user input → Critical; missing authz on a protected endpoint → High; weak session cookie / over-broad CORS → Medium; missing CSP header → Low
   - **Recommendation fields** require .NET API grounding — sample fixes reference FluentValidation rules, `[Authorize(Policy = ...)]`, `FromSqlInterpolated`, etc.
   - **Rule 7** expanded with concrete .NET anti-patterns: no `ServerCertificateCustomValidationCallback = (_, _, _, _) => true`, no `[ValidateAntiForgeryToken]` removal, no `AllowAnyOrigin + AllowCredentials`
-  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `README.md` and `../references/orchestration-patterns.md`; `/ship` named as the canonical parallel-fan-out entry point
+  - **Composition block** added (synced from upstream `1f66d57`) — "Invoke directly when / Invoke via / Do not invoke from another persona"; cross-links to `../references/agents-overview.md` (relocated from `README.md` in v2.5.1) and `../references/orchestration-patterns.md`; `/ship` named as the canonical parallel-fan-out entry point
   - OWASP Top 10 + 5-section frame + severity taxonomy preserved from upstream
 - **License**: MIT © 2025 Addy Osmani — see [`../LICENSES/agent-skills-MIT.txt`](../LICENSES/agent-skills-MIT.txt)
