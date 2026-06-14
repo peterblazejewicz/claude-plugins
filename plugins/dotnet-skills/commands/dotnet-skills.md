@@ -13,29 +13,31 @@ Lists the skills currently available in this plugin and the natural-language pro
 
 ## Related commands
 
-7 short lifecycle wrappers ship alongside this catalog — ported from the upstream `.claude/commands/` set with .NET framing. See the plugin [`README.md`](../README.md#commands) for the full mapping.
+8 short command wrappers ship alongside this catalog — 7 lifecycle wrappers ported from the upstream `.claude/commands/` set with .NET framing, plus the `/webperf` specialist audit. See the plugin [`README.md`](../README.md#commands) for the full mapping.
 
 | What you're doing          | Command           | Key principle                                  |
 | -------------------------- | ----------------- | ---------------------------------------------- |
 | Define what to build       | `/spec`           | Spec before code                               |
 | Plan how to build it       | `/plan`           | Small, atomic tasks with `dotnet` verification |
-| Build incrementally        | `/build`          | One vertical slice at a time                   |
+| Build incrementally        | `/build`          | One slice at a time, or `/build auto` for the whole plan |
 | Prove it works             | `/test`           | xUnit/MSTest as proof                          |
 | Review before merge        | `/review`         | Five-axis review, `file.cs:line` findings      |
 | Simplify the code          | `/code-simplify`  | Clarity over cleverness                        |
 | Ship to production         | `/ship`           | Parallel fan-out → merge → rollback plan       |
+| Audit web performance      | `/webperf`        | Honest CWV audit (Blazor / ASP.NET Core web only) |
 
 If `/test` or `/review` is shadowed by another command in your setup, use the qualified form: `/dotnet-skills:test`, `/dotnet-skills:review`.
 
 ## Agents
 
-3 .NET-adapted subagents ship alongside the commands and skills — reusable personas for deeper single-purpose work, ported from the upstream `agents/` set. Launch them with the `Agent` tool and `subagent_type: dotnet-skills:<name>` (they're not slash commands). Claude Code auto-namespaces plugin-provided subagents, so they coexist with built-in and sibling-plugin agents of the same short name.
+4 .NET-adapted subagents ship alongside the commands and skills — reusable personas for deeper single-purpose work, ported from the upstream `agents/` set. Launch them with the `Agent` tool and `subagent_type: dotnet-skills:<name>` (they're not slash commands). Claude Code auto-namespaces plugin-provided subagents, so they coexist with built-in and sibling-plugin agents of the same short name.
 
 `/ship` is the canonical parallel-fan-out entry point — it spawns all three personas concurrently, then the main agent synthesizes their reports against the .NET pre-launch checklist into a go/no-go decision with a `dotnet ef database update <PreviousMigration>` rollback plan. For the full composition model (the user or a slash command is always the orchestrator; personas never call each other), see [`references/agents-overview.md`](../references/agents-overview.md) for the decision matrix and [`references/orchestration-patterns.md`](../references/orchestration-patterns.md) for the pattern catalog, Claude Code subagent/Agent-Teams interop, and a `TaskCanceledException` competing-hypothesis worked example.
 
 - **code-reviewer** — Staff-engineer persona conducting a five-axis code review (correctness, readability, architecture, security, performance) with .NET-specific checks: nullable-reference-type honesty, `CancellationToken` threading, DI lifetime correctness, EF Core N+1 / `FromSqlRaw` flagging, `IHttpClientFactory` vs per-call `HttpClient`, Avalonia/Blazor UI-thread marshalling. Emits `file.cs:line`-anchored findings categorized Critical / Important / Suggestion. Triggers: *"review this PR as a Staff Engineer"*, *"give me a thorough five-axis review"*.
 - **security-auditor** — Security-engineer persona running an OWASP-aligned audit of the ASP.NET Core / Blazor / MAUI stack: FluentValidation + `FromSqlInterpolated` for input; Identity + JWT bearer + policy-based authz for authN/authZ; Data Protection + Key Vault + PII scrubs for data protection; security-header middleware + CORS + `dotnet list package --vulnerable` for infrastructure; HMAC webhook verification + OAuth PKCE for third-party. Emits Critical / High / Medium / Low findings with proof-of-concept and a .NET-API-grounded fix. Triggers: *"security audit this service"*, *"check this endpoint for OWASP Top 10"*.
 - **test-engineer** — QA-engineer persona designing test suites, writing tests, and analyzing coverage gaps: xUnit v3 (or v2) or MSTest with native `Assert.X`, `WebApplicationFactory<Program>` for HTTP, Testcontainers for DB (not `EntityFrameworkCore.InMemory`), `Microsoft.Playwright` for Blazor/Razor, `Avalonia.Headless.XUnit` for Avalonia; `TimeProvider` + `FakeTimeProvider` for time-dependent tests; Prove-It Pattern for bug fixes. Triggers: *"plan the test suite for this feature"*, *"write a failing test for this bug"*, *"analyze test coverage gaps"*.
+- **web-performance-auditor** — Web-performance-engineer persona auditing Blazor (Server / WebAssembly / Auto `@rendermode`) and ASP.NET Core MVC / Razor Pages front ends against Core Web Vitals: render-mode choice, WASM payload (trimming / AOT / globalization / lazy-load), `MapStaticAssets` fingerprint + brotli, prerender + `PersistentComponentState`, `<Virtualize>` / `ShouldRender` / `StateHasChanged`, `AddOutputCache`. Never fabricates metrics — source-only audits are labeled `potential impact`. Invoked via `/webperf` (**not** part of the `/ship` fan-out — web front ends only); server-runtime concerns hand off to `performance-optimization-dotnet`. Triggers: *"audit Core Web Vitals on this Blazor page"*, *"why is this Razor page slow to load?"*.
 
 ## Meta
 
@@ -44,6 +46,7 @@ If `/test` or `/review` is shadowed by another command in your setup, use the qu
 ## Skills available now
 
 **Define** — figure out what to build:
+- **interview-me** — Extracts what you actually want via a one-question-at-a-time interview (each with the agent's guess attached) until ~95% confidence about the underlying intent — before any plan, spec, or code exists. Triggers: *"interview me"*, *"grill me"*, *"are we sure?"*, *"this ask is vague — help me pin it down"*.
 - **idea-refine** — Refines raw ideas through divergent/convergent thinking; produces a one-pager with MVP scope and a "Not Doing" list. Triggers: *"help me refine this idea"*, *"ideate on X"*, *"stress-test my plan"*.
 - **spec-driven-development** — Creates specs before coding for .NET projects. Triggers: *"help me spec out a new C# service"*, *"write a spec for this Avalonia app"*.
 
@@ -52,6 +55,8 @@ If `/test` or `/review` is shadowed by another command in your setup, use the qu
 
 **Build** — execute with discipline:
 - **incremental-implementation** — Thin vertical slices with `dotnet test` + `dotnet build -warnaserror` between each. Triggers: *"this feels too big to land in one step"*, *"let's ship this in pieces"*.
+- **observability-and-instrumentation** — Instrument as you build: structured `ILogger` + `[LoggerMessage]`, `System.Diagnostics.Metrics` (RED/USE) + `dotnet-counters`, OpenTelemetry tracing, symptom-based alerts with runbooks. Triggers: *"add logging/metrics/tracing to this service"*, *"I can't tell what happened in production"*, *"set up OpenTelemetry"*.
+- **doubt-driven-development** — Subjects non-trivial decisions to a fresh-context adversarial review (spawn a reviewer biased to disprove) before they stand — distinct from the post-hoc `/review`. Triggers: *"double-check this design"*, *"is this actually thread-safe?"*, *"adversarially review this before I commit"*.
 - **api-and-interface-design** — Stable HTTP / library surface design with C# records, ProblemDetails, FluentValidation, strongly-typed IDs, pattern-matching unions. Triggers: *"design this API"*, *"what should the DTO shape be?"*.
 - **context-engineering** — Optimizes CLAUDE.md, `.editorconfig`, and conversation management for .NET projects. Triggers: *"the agent keeps hallucinating APIs"*, *"set up CLAUDE.md for this Avalonia project"*.
 - **source-driven-development** — Cites Microsoft Learn and official docs for every framework-specific decision; detects stack from `global.json` / `Directory.Packages.props`. Triggers: *"verify this EF Core pattern against the docs"*, *"I want cited code"*.

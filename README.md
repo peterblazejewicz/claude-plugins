@@ -29,7 +29,7 @@ Run `/dotnet-skills` to list available skills, or jump straight to a lifecycle p
 ● ★ Insight ─────────────────────────────────────
   - The /dotnet-skills:dotnet-skills command is a catalog command — unlike the other 7 lifecycle wrappers (/spec, /plan, /build, etc.), it has no upstream counterpart and carries no "Source &
   Modifications" footer (per CLAUDE.md line discussing the dotnet-skills command file).
-  - Notice the three-tier taxonomy: 21 skills (auto-triggered by prompt matching), 7 slash commands (manual invocation for lifecycle phases), and 3 subagents (launched via the Agent tool with
+  - Notice the three-tier taxonomy: 24 skills (auto-triggered by prompt matching), 8 slash commands (7 lifecycle phases + the `/webperf` specialist audit; manual invocation), and 4 subagents (launched via the Agent tool with
   subagent_type: dotnet-skills:<name>). They coexist because Claude Code auto-namespaces plugin-provided subagents.
   - The Define → Plan → Build → Verify → Review → Ship flow mirrors a classic SDLC — but the skills activate on prompt match, so you get them for free by describing work naturally rather than
   memorizing slash commands.
@@ -63,7 +63,7 @@ copilot plugin marketplace add peterblazejewicz/claude-plugins
 /plugin install dotnet-skills@blazejewicz-claude-plugins
 ```
 
-Copilot CLI reads the same `.claude-plugin/marketplace.json` — no second manifest. `dotnet-skills` exposes three personas on Copilot CLI (`/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`); the 21 skills activate automatically by description-match. See [`plugins/dotnet-skills/README.md`](./plugins/dotnet-skills/README.md#github-copilot-cli) for the full Copilot setup (including per-repo install and VS Code Chat invocation).
+Copilot CLI reads the same `.claude-plugin/marketplace.json` — no second manifest. `dotnet-skills` exposes four personas on Copilot CLI (`/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`, `/agent web-performance-auditor`); the 24 skills activate automatically by description-match. See [`plugins/dotnet-skills/README.md`](./plugins/dotnet-skills/README.md#github-copilot-cli) for the full Copilot setup (including per-repo install and VS Code Chat invocation).
 
 ## Credits
 

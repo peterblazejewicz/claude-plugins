@@ -458,6 +458,7 @@ This separation ensures the test is written without knowledge of the fix, making
 | "It's just a prototype" | Prototypes become production code. Tests from day one prevent the "test debt" crisis. |
 | "EF Core InMemory is good enough for tests" | It skips relational constraints. You'll discover that the day you deploy to Postgres. Use SQLite in-memory or Testcontainers. |
 | "I'll use DateTime.UtcNow — it's fine" | Time-dependent tests go flaky the minute someone runs them on a slow CI machine. Inject `TimeProvider` from day one. |
+| "Let me run `dotnet test` again just to be extra sure" | After a clean test run, repeating the same command adds nothing unless the code has changed since. Run again after subsequent edits, not as reassurance. |
 
 ## Red Flags
 
@@ -471,6 +472,7 @@ This separation ensures the test is written without knowledge of the fix, making
 - `.Result` or `.Wait()` in test bodies
 - Mocking `DbContext` directly instead of using a real provider (SQLite or Testcontainers)
 - A solution with no `tests/` directory
+- Running the same `dotnet test` command twice in a row without any intervening code change
 
 ## Verification
 
@@ -484,6 +486,8 @@ After completing any implementation:
 - [ ] Time-dependent logic uses `TimeProvider` injected via DI; tests use `FakeTimeProvider`
 - [ ] Integration tests use a real provider (SQLite or Testcontainers), not `EntityFrameworkCore.InMemory`
 - [ ] Coverage hasn't decreased (`dotnet test --collect:"XPlat Code Coverage"` if tracked)
+
+**Note:** Run each test command after a change that could affect the result. After a clean `dotnet test` run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no confidence.
 
 ---
 
@@ -514,4 +518,5 @@ After completing any implementation:
 - **Downstream patches** (applied after the initial sync; not tracked against upstream):
   - **2026-04-19** (skill v1.0.1) — Added "Version Awareness: xUnit v2 vs v3, and Microsoft.Testing.Platform" section covering package-reference differences (`xunit` vs `xunit.v3`), test-project-as-executable output in v3, VSTest vs MTP runner differences, `dotnet run --project tests/…` as a v3-only alternative to `dotnet test`, source-level API compatibility for `[Fact]` / `Assert.*` / `IClassFixture<T>`, MSTest's parallel MTP-native story via `MSTest.Sdk`. Added MTP docs to "See Also". Description updated to mention "(v2 or v3)" and "VSTest and Microsoft.Testing.Platform (MTP) runners".
   - **2026-04-19** (skill v1.0.2, plugin v2.3.0) — **FluentAssertions removed** and **xUnit v3 made canonical**. Rationale: FluentAssertions v8 (January 2025) moved to the XCEED source-available license; only v7.x remains Apache 2.0, and recommending "FluentAssertions" without pinning nudges agents toward v8. Every sample now uses native `Xunit.Assert.X` or MSTest `Assert.X`. The optional "FluentAssertions alternative" block after the RED step is deleted. Prove-It, State-vs-Interaction, DAMP, TimeProvider, and Arrange-Act-Assert samples rewritten — `completed.CompletedAt.Should().NotBeNull()` → `Assert.NotNull(completed.CompletedAt)`, `tasks.Data.Should().BeInDescendingOrder(...)` → `Assert.Equal(tasks.Data.OrderByDescending(...), tasks.Data)`, `act.Should().Throw<E>().WithMessage("*X*")` → `var ex = Assert.Throws<E>(act); Assert.Contains("X", ex.Message)`, `result.IsOverdue.Should().BeTrue()` → `Assert.True(result.IsOverdue)`. Test-pyramid diagram label changed `xUnit / MSTest + FluentAssertions` → `xUnit v3 / MSTest + native Assert`. Version Awareness "practical upshot" reframed — v3 is the current recommendation for new projects; v2 stays source-compatible for test authors.
+  - **Upstream sync 2026-06-14 (plugin v2.6.0)** — re-pinned to `3a6fc63`. Ported the upstream "no redundant re-runs" guidance (a new rationalization row, a new red-flag, and a `**Note:**` after the Verification checklist): after a clean `dotnet test` run, re-running the same command on unchanged code adds no confidence. Retargeted from upstream's generic test wording to the `dotnet` CLI.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

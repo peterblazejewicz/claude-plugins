@@ -7,6 +7,7 @@ Specialist .NET/C# personas that play a single role with a single perspective. E
 | [code-reviewer](../agents/code-reviewer.md) | .NET Staff Engineer | Five-axis review before merge — nullable honesty, async correctness, DI lifetimes, EF Core N+1, `MyApp.*` layering |
 | [security-auditor](../agents/security-auditor.md) | .NET Security Engineer | Vulnerability detection translated to ASP.NET Core / EF Core / Blazor equivalents of OWASP Top 10 |
 | [test-engineer](../agents/test-engineer.md) | .NET QA Engineer | Test strategy, coverage analysis, Prove-It pattern — xUnit v3/v2 or MSTest with native `Assert.X` |
+| [web-performance-auditor](../agents/web-performance-auditor.md) | .NET Web Performance Engineer | Core Web Vitals audit of Blazor / ASP.NET Core front ends — render-mode choice, WASM payload, `MapStaticAssets`, prerender double-fetch. **Web only**; invoked via `/webperf`, not in the `/ship` fan-out |
 
 ## How personas relate to skills and commands
 
@@ -35,11 +36,14 @@ Pick this when there's a repeatable workflow you'd otherwise re-explain every ti
 - `/review` → wraps `code-reviewer` with `dotnet-skills:code-review-and-quality`
 - `/test` → wraps `test-engineer` with `dotnet-skills:test-driven-development`
 - `/code-simplify` → wraps the simplification workflow over C# idioms
+- `/webperf` → wraps `web-performance-auditor` for Core Web Vitals audits of Blazor / ASP.NET Core front ends (web only)
 
 ### Slash command (orchestrator — fan-out)
 Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
 
 - `/ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision against the .NET pre-launch checklist (EF Core migration rollback, `dotnet list package --vulnerable`, feature flags, monitoring)
+
+`web-performance-auditor` is deliberately **excluded** from the `/ship` fan-out: performance audits apply to web front ends only, so adding it to a global pre-launch fan-out would produce noise in library, desktop, and CLI projects. Invoke it on demand via `/webperf`.
 
 This is the only orchestration pattern this plugin endorses. See [`orchestration-patterns.md`](orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 

@@ -54,7 +54,7 @@ cp /path/to/claude-plugins/plugins/dotnet-skills/skills/test-driven-development/
    .github/skills/test-driven-development/SKILL.md
 ```
 
-Use this when your team wants the personas version-controlled alongside the code rather than installed per-developer. Full copy of all 21 skills is rarely what you want — copy only the ones that apply to the repo. See [GitHub Docs — Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and [Creating custom agents for Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli).
+Use this when your team wants the personas version-controlled alongside the code rather than installed per-developer. Full copy of all 24 skills is rarely what you want — copy only the ones that apply to the repo. See [GitHub Docs — Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and [Creating custom agents for Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli).
 
 ## Usage
 
@@ -64,19 +64,20 @@ Use this when your team wants the personas version-controlled alongside the code
 /dotnet-skills
 ```
 
-Lists available skills and their triggers. Individual skills activate from natural-language prompts (e.g. _"help me spec out a new C# service"_ triggers `spec-driven-development`). The 8 lifecycle commands (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/dotnet-skills`) are Claude Code–only.
+Lists available skills and their triggers. Individual skills activate from natural-language prompts (e.g. _"help me spec out a new C# service"_ triggers `spec-driven-development`). The 9 commands (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`, `/dotnet-skills`) are Claude Code–only.
 
 ### GitHub Copilot CLI
 
-Three personas are invocable directly:
+Four personas are invocable directly:
 
 ```
 /agent code-reviewer
 /agent security-auditor
 /agent test-engineer
+/agent web-performance-auditor
 ```
 
-The 21 skills activate automatically via description-match — ask Copilot to plan a .NET feature, write a failing xUnit test, or do a security review, and the right skill engages. Custom slash commands aren't a Copilot CLI surface yet ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618)); use the agents + skill auto-activation pattern.
+The 24 skills activate automatically via description-match — ask Copilot to plan a .NET feature, write a failing xUnit test, or do a security review, and the right skill engages. Custom slash commands aren't a Copilot CLI surface yet ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618)); use the agents + skill auto-activation pattern.
 
 ### VS Code Copilot Chat
 
@@ -97,18 +98,19 @@ The same `.agent.md` files work in VS Code Copilot Chat when the repo is open (w
 
 ## Commands
 
-8 slash commands ship with this plugin. `/dotnet-skills` is the catalog command; the other 7 map to the development lifecycle and activate the right skills automatically — ported from the upstream [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) command set with .NET framing.
+9 slash commands ship with this plugin. `/dotnet-skills` is the catalog command; 7 map to the development lifecycle and `/webperf` is a specialist web-performance audit — all activate the right skills/personas automatically, ported from the upstream [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) command set with .NET framing.
 
 | What you're doing          | Command           | Key principle                                  |
 | -------------------------- | ----------------- | ---------------------------------------------- |
 | List skills and triggers   | `/dotnet-skills`  | Inventory before action                        |
 | Define what to build       | `/spec`           | Spec before code                               |
 | Plan how to build it       | `/plan`           | Small, atomic tasks with `dotnet` verification |
-| Build incrementally        | `/build`          | One vertical slice at a time                   |
+| Build incrementally        | `/build`          | One slice at a time, or `/build auto` for the whole plan |
 | Prove it works             | `/test`           | xUnit/MSTest as proof                          |
 | Review before merge        | `/review`         | Five-axis review, `file.cs:line` findings      |
 | Simplify the code          | `/code-simplify`  | Clarity over cleverness                        |
 | Ship to production         | `/ship`           | Faster is safer, rollback first                |
+| Audit web performance      | `/webperf`        | Honest CWV audit (Blazor / ASP.NET Core web only) |
 
 Skills also activate automatically based on what you're doing — designing an API triggers `api-and-interface-design`, building an Avalonia view triggers `frontend-ui-engineering-avalonia`, and so on.
 
@@ -123,6 +125,7 @@ Skills also activate automatically based on what you're doing — designing an A
 | `/review`         | `code-review-and-quality` (+ `security-and-hardening` + `performance-optimization-dotnet`)                    |
 | `/code-simplify`  | `code-simplification` (+ `code-review-and-quality` to review the result)                                      |
 | `/ship`           | `shipping-and-launch`                                                                                         |
+| `/webperf`        | `web-performance-auditor` persona (web front ends only; not part of the `/ship` fan-out)                     |
 
 ### Disambiguating when shadowed
 
@@ -130,26 +133,28 @@ If `/test` or `/review` collides with a personal command or another plugin in yo
 
 ## Agents
 
-3 .NET-adapted subagents ship alongside the commands — reusable personas for deeper single-purpose work, ported from the upstream [`agents/`](https://github.com/addyosmani/agent-skills/tree/44dac80216da709913fb410f632a65547866346f/agents) set. Each agent has a `Source & Modifications` footer linking back to its upstream file at the pinned commit.
+4 .NET-adapted subagents ship alongside the commands — reusable personas for deeper single-purpose work, ported from the upstream [`agents/`](https://github.com/addyosmani/agent-skills/tree/3a6fc6392823e31e2362091bd4e3cddf5b77af14/agents) set. Each agent has a `Source & Modifications` footer linking back to its upstream file at the pinned commit.
 
 | Agent | Persona | When to use |
 | --- | --- | --- |
 | [code-reviewer](./agents/code-reviewer.md) | Staff-Engineer five-axis reviewer (correctness, readability, architecture, security, performance) with nullable-RT / DI lifetime / EF Core N+1 / `IHttpClientFactory` / UI-thread checks | Thorough `file.cs:line`-anchored review before merge, categorized Critical / Important / Suggestion |
 | [security-auditor](./agents/security-auditor.md) | Security-Engineer running an OWASP-aligned audit of the ASP.NET Core / Blazor / MAUI stack (FluentValidation, Identity + JWT + policy-based authz, Data Protection, Key Vault, security headers, CORS, HMAC webhooks, OAuth PKCE) | Security-focused review with proof-of-concept Critical / High / Medium / Low findings and .NET-API-grounded fixes |
 | [test-engineer](./agents/test-engineer.md) | QA-Engineer designing test suites (xUnit v3 or v2, or MSTest — native `Assert.X`), `WebApplicationFactory<T>` / Testcontainers / `Microsoft.Playwright` / `Avalonia.Headless.XUnit`; `TimeProvider` + `FakeTimeProvider`; Prove-It Pattern | Planning a test suite, writing a failing test for a bug, or analyzing coverage gaps |
+| [web-performance-auditor](./agents/web-performance-auditor.md) | Web-Performance-Engineer auditing Blazor (Server / WASM / Auto `@rendermode`) + ASP.NET Core MVC / Razor Pages against Core Web Vitals — render-mode choice, WASM payload, `MapStaticAssets`, prerender double-fetch, `<Virtualize>` / `StateHasChanged`, `AddOutputCache`; never fabricates metrics | Core Web Vitals audit of a .NET web front end (web only — invoked via `/webperf`, not in the `/ship` fan-out) |
 
 **Invocation.** Launch an agent through the `Agent` tool with `subagent_type: dotnet-skills:<name>`. Claude Code auto-namespaces plugin-provided agents, so `dotnet-skills:code-reviewer` coexists with built-in and sibling-plugin subagents of the same short name (e.g. `pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`) — always use the qualified form to pick the .NET-adapted one.
 
-**Copilot CLI.** The same three personas ship as `.agent.md` siblings (`code-reviewer.agent.md`, `security-auditor.agent.md`, `test-engineer.agent.md`) in `plugins/dotnet-skills/agents/`. Invoke as `/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`. Bodies are kept in lockstep with the Claude Code forms; upstream attribution is not duplicated — the `.agent.md` footer points to the `.md` sibling as canonical.
+**Copilot CLI.** The same four personas ship as `.agent.md` siblings (`code-reviewer.agent.md`, `security-auditor.agent.md`, `test-engineer.agent.md`, `web-performance-auditor.agent.md`) in `plugins/dotnet-skills/agents/`. Invoke as `/agent code-reviewer`, `/agent security-auditor`, `/agent test-engineer`, `/agent web-performance-auditor`. Bodies are kept in lockstep with the Claude Code forms; upstream attribution is not duplicated — the `.agent.md` footer points to the `.md` sibling as canonical.
 
 ## Skills
 
-21 ported skills grouped by development phase — the commands above are the entry points; any skill can also be referenced directly by name. Run `/dotnet-skills` for the current inventory with trigger examples.
+24 ported skills grouped by development phase — the commands above are the entry points; any skill can also be referenced directly by name. Run `/dotnet-skills` for the current inventory with trigger examples.
 
 ### Define — clarify what to build
 
 | Skill                                                                  | What it does                                                                                 | Use when                                                                    |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [interview-me](./skills/interview-me/SKILL.md)                         | One-question-at-a-time interview (each with the agent's guess) to extract true intent to ~95% confidence | An ask is underspecified, or you catch yourself filling in ambiguous requirements |
 | [idea-refine](./skills/idea-refine/SKILL.md)                           | Divergent/convergent thinking to turn vague .NET ideas into a one-pager with MVP scope        | You have a rough concept (new Avalonia app, API, NuGet library) to explore  |
 | [spec-driven-development](./skills/spec-driven-development/SKILL.md)   | PRD covering objective, `dotnet` CLI commands, project structure, code style, testing, bounds | Starting a new .NET project, feature, or significant change                 |
 
@@ -164,6 +169,8 @@ If `/test` or `/review` collides with a personal command or another plugin in yo
 | Skill                                                                                                | What it does                                                                                                       | Use when                                                                |
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | [incremental-implementation](./skills/incremental-implementation/SKILL.md)                           | Thin vertical slices — `dotnet test` + `dotnet build -warnaserror` between each. `IOptions<FeatureOptions>` flags   | Any change touching more than one project                               |
+| [observability-and-instrumentation](./skills/observability-and-instrumentation/SKILL.md)             | Instrument as you build — structured `ILogger` + `[LoggerMessage]`, `System.Diagnostics.Metrics` (RED/USE), OpenTelemetry, symptom-based alerts | Shipping a feature to production, or you can't tell what happened from existing data |
+| [doubt-driven-development](./skills/doubt-driven-development/SKILL.md)                                | Fresh-context adversarial review of non-trivial decisions before they stand — distinct from the post-hoc `/review`  | A decision is high-stakes, irreversible, or asserts something the compiler can't verify |
 | [api-and-interface-design](./skills/api-and-interface-design/SKILL.md)                               | Contract-first design with C# records, ProblemDetails, FluentValidation, strongly-typed IDs, pattern-matching      | Designing APIs, module boundaries, or public interfaces                 |
 | [context-engineering](./skills/context-engineering/SKILL.md)                                         | CLAUDE.md / `.editorconfig` / analyzer setup for .NET projects                                                     | Starting a session, switching stacks, or when output quality drops      |
 | [source-driven-development](./skills/source-driven-development/SKILL.md)                             | Ground decisions in Microsoft Learn + framework docs + analyzer diagnostics                                        | You want authoritative, source-cited code for any .NET framework        |
