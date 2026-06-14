@@ -230,6 +230,8 @@ After each increment, verify:
 - [ ] The new functionality works as expected
 - [ ] The change is committed with a descriptive message
 
+**Note:** Run each verification command (`dotnet test`, `dotnet build -warnaserror`, `dotnet format --verify-no-changes`) after a change that could affect it. After a successful run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no information.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -239,6 +241,7 @@ After each increment, verify:
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
 | "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
 | "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
+| "Let me run `dotnet test` again just to be sure" | After a successful run, repeating the same command adds nothing unless the code has changed since. Run it again after subsequent edits, not as reassurance. |
 
 ## Red Flags
 
@@ -252,6 +255,7 @@ After each increment, verify:
 - Touching files outside the task scope "while I'm here"
 - Creating new utility projects for one-time operations
 - Editing an already-applied EF Core migration by hand
+- Running the same `dotnet build`/`dotnet test` command twice in a row without any intervening code change
 
 ## Verification
 
@@ -283,4 +287,5 @@ After completing all increments for a task:
   - All structural sections, rationalizations, and rule ordering preserved from upstream verbatim
 - **Downstream patches** (applied after the initial sync; not tracked against upstream):
   - **2026-04-19** (plugin v1.0.3) — Rule 4 Safe Defaults extended with a `ConfigureAwait(false)` note for library slices. Library code consumed from WPF / WinForms / MAUI / Avalonia UI-thread callers captures `SynchronizationContext` by default — every public `await` in a library should `.ConfigureAwait(false)` to avoid the deadlock trap. ASP.NET Core has no sync context since .NET Core 2.1, so it's a no-op there, but a library doesn't know which host will consume it.
+- **Upstream sync 2026-06-14 (plugin v2.6.0)** — re-pinned to `3a6fc63`. Ported the upstream "no redundant re-runs" guidance (added to the verification checklist as a `**Note:**`, a new rationalization row, and a new red-flag): after a successful `dotnet test`/`dotnet build -warnaserror` run, re-running the same command on unchanged code adds no information. Retargeted from upstream's generic build/test wording to the `dotnet` CLI.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)
