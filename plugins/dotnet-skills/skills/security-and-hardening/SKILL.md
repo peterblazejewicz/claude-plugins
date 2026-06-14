@@ -22,6 +22,27 @@ Security-first development practices for .NET applications — ASP.NET Core web 
 - Adding file uploads, webhooks, or callbacks
 - Handling payment or regulated data (GDPR, HIPAA, PCI DSS)
 
+## Process: Threat Model First
+
+Controls bolted on without a threat model are guesses. Before hardening, spend five minutes thinking like an attacker:
+
+1. **Map the trust boundaries.** Where does untrusted data cross into your system? HTTP requests (body, route, query, headers), form fields, `IFormFile` uploads, webhooks, third-party API responses, `Service Bus` / queue messages, and **LLM output**. Every boundary is attack surface.
+2. **Name the assets.** What's worth stealing or breaking? Credentials, PII, payment data, admin actions, money movement.
+3. **Run STRIDE over each boundary** — a quick lens, not a ceremony:
+
+| Threat | Ask | Typical .NET mitigation |
+|---|---|---|
+| **S**poofing | Can someone impersonate a user/service? | ASP.NET Core Identity / JWT bearer auth, HMAC signature verification on webhooks |
+| **T**ampering | Can data be altered in transit or at rest? | HTTPS + HSTS, parameterized EF Core queries, Data Protection integrity |
+| **R**epudiation | Can an action be denied later? | Audit logging of security events (structured `ILogger`) |
+| **I**nformation disclosure | Can data leak? | DTO field allowlists, `ProblemDetails` generic errors, encryption at rest |
+| **D**enial of service | Can it be overwhelmed? | `AddRateLimiter`, `RequestSizeLimit` / `FormOptions`, `CancellationToken` + timeouts |
+| **E**levation of privilege | Can a user gain rights they shouldn't? | Policy-based `[Authorize]`, per-resource `IAuthorizationService` checks, least privilege |
+
+4. **Write abuse cases next to use cases.** For each feature, ask "how would I misuse this?" — then make that your first xUnit/MSTest test.
+
+If you can't name the trust boundaries for a feature, you're not ready to secure it. This is OWASP **A04: Insecure Design** — most breaches begin in design, not code.
+
 ## The Three-Tier Boundary System
 
 > **Host-model lens.** Most bullets below target **ASP.NET Core server code** (Web APIs, Razor Pages, Blazor Server). Cross-cutting items — secret handling, no `BinaryFormatter`, parameterized queries — apply to any .NET host, including Avalonia / MAUI / console apps that talk to a database or external service. Client-only items (Blazor WebAssembly `localStorage`, antiforgery tokens in cookie-auth apps) are labeled inline. When in doubt about whether a bullet applies to your host, check the examples.
@@ -294,6 +315,46 @@ builder.Services
 
 **ASP.NET Core Data Protection** handles session cookies and anti-forgery tokens for you, but for encrypting arbitrary data at rest (PII fields in a database, for example), use `IDataProtectionProvider` with a named purpose string and configure a shared key ring on Azure Key Vault / Redis / file share when running multiple instances.
 
+### 7. Server-Side Request Forgery (SSRF)
+
+Any time the server fetches a URL the user influenced — webhooks, "import from URL", image proxies, link previews — an attacker can aim it at internal services (cloud metadata, `localhost`, private IPs). The #1 target is the cloud metadata endpoint `169.254.169.254` (Azure IMDS, AWS/GCP metadata), which can hand out managed-identity tokens.
+
+```csharp
+// BAD: fetch whatever the user gives you
+var content = await httpClient.GetStringAsync(input.WebhookUrl, ct);
+
+// GOOD: allowlist scheme + host, and pin the connection to a validated public IP
+static readonly HashSet<string> AllowedHosts = new(StringComparer.OrdinalIgnoreCase) { "hooks.example.com" };
+
+static Uri AssertSafeUrl(string raw)
+{
+    if (!Uri.TryCreate(raw, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+        throw new ValidationException("https URL required");
+    if (!AllowedHosts.Contains(uri.Host))
+        throw new ValidationException("host not allowed");
+    return uri;
+}
+
+// Pin DNS at connect time so a short-TTL record can't rebind to an internal IP
+// between validation and connection (the TOCTOU gap).
+var handler = new SocketsHttpHandler
+{
+    AllowAutoRedirect = false,                 // a 302 to http://169.254.169.254 must not be followed
+    ConnectCallback = async (ctx, ct) =>
+    {
+        var entries = await Dns.GetHostAddressesAsync(ctx.DnsEndPoint.Host, ct);
+        foreach (var ip in entries)
+            if (IsPrivateOrReserved(ip))        // loopback, link-local (169.254/16, fe80::/10), private, ULA
+                throw new ValidationException("resolves to a private/reserved address");
+        var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+        await socket.ConnectAsync(entries, ctx.DnsEndPoint.Port, ct);
+        return new NetworkStream(socket, ownsSocket: true);
+    }
+};
+```
+
+`IsPrivateOrReserved` should reject loopback, link-local (`169.254.0.0/16`, `fe80::/10`), private (`10/8`, `172.16/12`, `192.168/16`), and unique-local (`fc00::/7`) ranges across IPv4 and IPv6 — `IPAddress.IsLoopback` plus explicit range checks. Disabling redirects is load-bearing: without it, an allowlisted host can 302 you straight to the metadata endpoint.
+
 ## Input Validation Patterns
 
 ### Schema Validation at Boundaries (FluentValidation)
@@ -410,6 +471,17 @@ dotnet list package --vulnerable --include-transitive reports a vulnerability
 
 When you defer a fix, document the reason and set a review date. Consider wiring [Renovate](https://docs.renovatebot.com/) or Dependabot to create PRs for security updates automatically so the backlog doesn't rot.
 
+### Supply-Chain Hygiene
+
+`dotnet list package --vulnerable` catches known CVEs; it won't catch a malicious or typosquatted package. Also:
+
+- **Lock and restore reproducibly.** Commit `packages.lock.json` (enable with `<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>`) and restore with `dotnet restore --locked-mode` in CI — no silent transitive version drift between machines.
+- **Pin package sources.** Configure `<packageSourceMapping>` in `nuget.config` so each package can only come from the expected feed; a public-feed package can't silently shadow a private one (dependency-confusion defense).
+- **Review new dependencies before adding them** — maintenance, download counts, and whether they truly earn their place. Every dependency is attack surface (OWASP **A06: Vulnerable Components**, **LLM03: Supply Chain**).
+- **Be wary of build-time code execution** — NuGet packages can ship MSBuild `.targets`/`.props` and (legacy) install scripts that run during restore/build. Treat an unfamiliar package's build hooks like any untrusted code.
+- **Prefer signed packages** and consider `<trustedSigners>` in `nuget.config` for high-assurance environments.
+- **Watch for typosquats** — `Newtonsoft.Json` vs `Newtonsoft.Jsons`, `Serilog` vs `Seri1og`.
+
 ## Rate Limiting
 
 .NET 7+ ships built-in rate limiting via `Microsoft.AspNetCore.RateLimiting`:
@@ -473,6 +545,40 @@ git diff --cached | grep -iE "password|secret|api.?key|connectionstring|bearer|-
 
 Wire up a pre-commit hook (Husky.Net) that runs this and fails the commit on a match.
 
+**If a secret is ever committed, rotate it.** Deleting the line or rewriting history is not enough — assume it's compromised the moment it reaches a remote (forks, CI logs, and mirrors may already have it). Revoke and reissue the key first (rotate the Key Vault secret / regenerate the API key / cycle the connection string), *then* purge it from history.
+
+## Securing AI / LLM Features
+
+If your app calls an LLM — chatbots, summarizers, agents, RAG, anything through `Microsoft.Extensions.AI`, Semantic Kernel, or the Azure OpenAI SDK — it inherits a new attack surface. Map it to the [OWASP Top 10 for LLM Applications (2025)](https://genai.owasp.org/llm-top-10/):
+
+- **Treat all model output as untrusted input (LLM05: Improper Output Handling).** Never pass model output straight into `FromSqlRaw`, `Process.Start`, a `MarkupString` / `@Html.Raw` sink, a file path, or a reflection/`Type.GetType` call. Validate and encode it exactly as you would raw user input.
+- **Assume prompts can be hijacked (LLM01: Prompt Injection).** Untrusted text in the context window — a user message, a fetched web page, a PDF — can carry instructions. The system prompt is not a security boundary; enforce permissions in code (policy-based `[Authorize]`, per-resource checks), not in the prompt.
+- **Keep secrets and other users' data out of prompts (LLM02 / LLM07).** Anything in the context can be echoed back. Don't put API keys, connection strings, cross-tenant data, or the full system prompt where the model can repeat it.
+- **Constrain tool and agent permissions (LLM06: Excessive Agency).** Scope Semantic Kernel functions / tool callbacks to the minimum, require confirmation for destructive or irreversible actions, and validate every tool argument before executing.
+- **Bound consumption (LLM10: Unbounded Consumption).** Cap `MaxOutputTokens`, request rate (`AddRateLimiter`), and loop/recursion depth so a crafted input can't run up cost or hang the system. Always thread a `CancellationToken`.
+- **Isolate retrieval data (LLM08: Vector and Embedding Weaknesses).** In RAG, treat the vector store as a trust boundary: partition embeddings per tenant so one user can't retrieve another's data, and validate documents before indexing so poisoned content can't steer answers.
+
+```csharp
+// BAD: trusting model output as a command or as markup
+var sql = await chat.CompleteAsync($"Write SQL for: {userQuestion}", ct);
+await db.Database.ExecuteSqlRawAsync(sql.Text, ct);              // arbitrary query execution
+var html = (MarkupString)(await chat.CompleteAsync(userMessage, ct)).Text;  // stored XSS, via the model
+
+// GOOD: model output is data — parse defensively, then validate, then act through an allowlist
+CommandIntent intent;
+try
+{
+    var json = (await chat.CompleteAsync(userMessage, ct)).Text;
+    intent = JsonSerializer.Deserialize<CommandIntent>(json) ?? throw new ValidationException("null intent");
+    await _validator.ValidateAndThrowAsync(intent, ct);          // FluentValidation
+}
+catch (Exception ex) when (ex is JsonException or ValidationException)
+{
+    throw new ValidationException("unexpected model output");
+}
+await RunAllowlistedActionAsync(intent.Action, intent.Params, ct);
+```
+
 ## Security Review Checklist
 
 ```markdown
@@ -507,6 +613,17 @@ Wire up a pre-commit hook (Husky.Net) that runs this and fails the commit on a m
 - [ ] CORS restricted to known origins (never "*" with AllowCredentials)
 - [ ] dotnet list package --vulnerable clean or documented allowlist with review date
 - [ ] Production error page (UseExceptionHandler) strips internal details
+- [ ] Server-side fetches of user-supplied URLs are allowlisted and pinned (no SSRF to 169.254.169.254 / internal services)
+
+### Supply Chain
+- [ ] packages.lock.json committed; CI restores with --locked-mode
+- [ ] nuget.config uses packageSourceMapping (dependency-confusion defense)
+- [ ] New dependencies reviewed (maintenance, downloads, build .targets/.props hooks)
+
+### AI / LLM (if used)
+- [ ] Model output treated as untrusted (no FromSqlRaw / Process.Start / MarkupString / @Html.Raw / reflection sinks)
+- [ ] Secrets and other users' data kept out of prompts; system prompt not echoable
+- [ ] Tool/agent permissions scoped; destructive actions require confirmation; tokens/rate/recursion bounded
 ```
 
 ## See Also
@@ -527,8 +644,8 @@ Wire up a pre-commit hook (Husky.Net) that runs this and fails the commit on a m
 | "It's just a prototype" | Prototypes become production. Security habits from day one — it's cheaper than retrofitting. |
 | "dotnet list package --vulnerable is noisy" | Noisy means underlying risk, not noise. Triage it; don't ignore it. |
 | "Client-side validation in Blazor WebAssembly is enough" | Blazor WebAssembly runs in the user's browser — they can bypass it. Validate on the server again. |
-
-## Red Flags
+| "Threat modeling is overkill here" | Five minutes of "how would I attack this?" with STRIDE over each boundary prevents the design flaws no `[Authorize]` attribute can patch later. |
+| "It's just LLM output, it's only text" | That "text" can be a SQL statement, a `MarkupString`, or a shell command. Treat model output like any untrusted input. |
 
 - User input passed directly to `FromSqlRaw`, `Process.Start(string)`, or `@Html.Raw`
 - Secrets in `appsettings.json` checked into git, or `dotnet user-secrets` not set up for the project
@@ -541,6 +658,9 @@ Wire up a pre-commit hook (Husky.Net) that runs this and fails the commit on a m
 - `MarkupString` / `@Html.Raw` applied to user-sourced HTML
 - JWT validation missing any of: issuer, audience, lifetime, signing key, clock skew
 - Auth tokens stored in Blazor WebAssembly `localStorage`
+- Server fetches a user-supplied URL with a bare `HttpClient` (no host allowlist / IP pinning / redirect block) — SSRF
+- LLM/model output passed into `FromSqlRaw`, `Process.Start`, `MarkupString` / `@Html.Raw`, or a reflection sink
+- Secrets, PII, or the full system prompt placed inside an LLM context window
 
 ## Verification
 
@@ -555,13 +675,16 @@ After implementing security-relevant code:
 - [ ] Rate limiting active on auth endpoints
 - [ ] File upload handlers validate magic bytes, not just declared content type
 - [ ] Data Protection key ring is persisted and shared across instances for multi-node deployments
+- [ ] A threat model (trust boundaries + STRIDE) was sketched for new attack surface before hardening
+- [ ] Server-side URL fetches are allowlisted and IP-pinned with redirects disabled (no SSRF)
+- [ ] LLM/model output is parsed defensively, validated, and encoded before use (if AI features present)
 
 ---
 
 ## Source & Modifications
 
-- **Upstream**: https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/skills/security-and-hardening/SKILL.md
-- **Pinned commit**: `44dac80216da709913fb410f632a65547866346f` (synced 2026-04-19)
+- **Upstream**: https://github.com/addyosmani/agent-skills/blob/3a6fc6392823e31e2362091bd4e3cddf5b77af14/skills/security-and-hardening/SKILL.md
+- **Pinned commit**: `3a6fc6392823e31e2362091bd4e3cddf5b77af14` (synced 2026-06-14; body originally ported at `44dac80`, unchanged upstream through `1f66d57`, expanded by upstream PR #219 at `3a6fc63`)
 - **Status**: `modified` (heavy — nearly every code example and tooling reference has been retargeted; upstream structure, OWASP numbering, three-tier boundary frame, and rationalization-table schema preserved)
 - **Changes**:
   - Three-tier Always/Ask-First/Never lists rewritten for the .NET ecosystem: FluentValidation, EF Core parameterization, Razor/Blazor auto-encoding, ASP.NET Core Identity `PasswordHasher<TUser>` / Argon2, `NetEscapades.AspNetCore.SecurityHeaders`, ASP.NET Core cookie defaults, antiforgery (`IAntiforgery` / `[ValidateAntiForgeryToken]`), `dotnet list package --vulnerable`, `BinaryFormatter` ban, `MarkupString` / `@Html.Raw` ban, `FromSqlRaw` vs `FromSqlInterpolated`, Data Protection key ring rotation
@@ -583,6 +706,14 @@ After implementing security-relevant code:
   - Red-flag list rewritten with .NET-specific vectors (`FromSqlRaw`, `@Html.Raw`, `MarkupString`, missing `[Authorize]`, `AllowAnyOrigin()` + `AllowCredentials()`, `BinaryFormatter`, JWT missing validations, Blazor WebAssembly localStorage)
   - Verification checklist retargeted (`dotnet list package --vulnerable`, `git log -p | grep` secret scan, multi-node Data Protection key-ring check, magic-byte upload verification)
   - Preserved: three-tier Always/Ask-First/Never framework, OWASP Top 10 numbering (#1 Injection, #2 Broken Auth, #3 XSS, #4 Broken Access Control, #5 Misconfig, #6 Sensitive Data Exposure), decision-tree shape for vulnerability triage, overall section ordering, rationalization table schema
+  - **Upstream sync 2026-06-14 (plugin v2.6.0)** — ported upstream PR #219's expansion, retargeted to .NET:
+    - **`## Process: Threat Model First`** added before the Three-Tier Boundary System — trust-boundary mapping (HTTP/`IFormFile`/webhooks/`Service Bus`/LLM output), a STRIDE table with .NET mitigations (Identity/JWT, parameterized EF Core, `AddRateLimiter`, policy-based `[Authorize]`), abuse-cases-as-tests, framed as OWASP A04
+    - **OWASP #7 SSRF** added — `HttpClient` host allowlist + `SocketsHttpHandler.ConnectCallback` that pins DNS and rejects private/reserved IPs (closes the TOCTOU/DNS-rebinding gap upstream flagged), `AllowAutoRedirect = false` so an allowlisted host can't 302 to `169.254.169.254` (Azure IMDS)
+    - **Supply-Chain Hygiene** subsection added after the vulnerable-package triage — `packages.lock.json` + `dotnet restore --locked-mode`, `nuget.config` `<packageSourceMapping>` (dependency-confusion), build-time `.targets`/`.props` execution risk, `<trustedSigners>`, NuGet typosquats
+    - **`## Securing AI / LLM Features`** added — OWASP LLM Top 10 (2025) mapped to .NET sinks (never feed model output into `FromSqlRaw`/`Process.Start`/`MarkupString`/`@Html.Raw`/reflection), prompt-injection / secrets-in-prompt / excessive-agency / unbounded-consumption / RAG-isolation, with a defensive parse-validate-act example over `Microsoft.Extensions.AI` / Semantic Kernel
+    - **Secrets Management** augmented with secret-leak response (rotate via Key Vault first; rewriting history isn't enough)
+    - Security Review Checklist gained **Supply Chain** + **AI / LLM** subsections and an SSRF line; Rationalizations gained threat-modeling + LLM rows; Red Flags + Verification gained SSRF + LLM + threat-model items
+    - OWASP LLM Top 10 (2025) cited as the live anchor; SSRF cloud-metadata target verified as `169.254.169.254`
 - **Downstream patches** (applied after the initial sync; not tracked against upstream):
   - **2026-04-19** (plugin v1.0.3) — OWASP #1 Injection block expanded to show `FromSqlRaw` (BAD, `string` overload) alongside `FromSql` (GOOD, EF Core 8+ canonical form), `FromSqlInterpolated` (GOOD, EF Core 7 and earlier — same `FormattableString` safety), LINQ, and Dapper with anonymous-object parameters. Added a "trap" callout explaining why `FromSqlRaw($"...")` and `FromSql($"...")` look identical but have opposite safety. Always-Do and Never-Do bullets updated to match. Added a "Host-model lens" note at the top of the Three-Tier Boundary System clarifying which bullets are ASP.NET Core-specific vs cross-cutting.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)
