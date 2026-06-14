@@ -11,7 +11,7 @@ source: rewritten from vendor/agent-skills/skills/using-agent-skills/SKILL.md@44
 
 ## Overview
 
-`dotnet-skills` is a collection of 20 engineering workflow skills organized by development phase, targeted at modern .NET (8+ LTS, C# 12+). Each skill encodes a specific process with concrete `dotnet` CLI commands, NuGet-ecosystem tooling, and .NET-specific anti-patterns. This meta-skill helps you discover and apply the right skill for your current task.
+`dotnet-skills` is a collection of 23 engineering workflow skills organized by development phase, targeted at modern .NET (8+ LTS, C# 12+). Each skill encodes a specific process with concrete `dotnet` CLI commands, NuGet-ecosystem tooling, and .NET-specific anti-patterns. This meta-skill helps you discover and apply the right skill for your current task.
 
 The plugin is an **indirect fork** of [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT © 2025 Addy Osmani) with targeted adaptations — see the plugin's [`README.md`](../../README.md) and [`NOTICE.md`](../../NOTICE.md). The companion [`avalonia-dev`](../../../avalonia-dev/README.md) plugin in this marketplace covers structural Avalonia/MAUI reviews (design tokens, project layout, phased migration) and pairs naturally with the `frontend-ui-engineering-avalonia` skill defined here.
 
@@ -31,6 +31,8 @@ When a task arrives, identify the development phase and apply the corresponding 
 ```
 Task arrives
     │
+    ├── Underspecified ask, unclear intent? ──→ interview-me
+    │
     ├── Vague idea, needs refinement? ─────────→ idea-refine
     │
     ├── New .NET project/feature, no spec? ───→ spec-driven-development
@@ -42,6 +44,8 @@ Task arrives
     │   ├── Avalonia UI work? ─────────────────→ frontend-ui-engineering-avalonia
     │   ├── HTTP / library contract design? ──→ api-and-interface-design
     │   ├── Agent drifting / inventing APIs? ─→ context-engineering
+    │   ├── Non-trivial / high-stakes decision?→ doubt-driven-development
+    │   ├── Adding logs / metrics / tracing? ─→ observability-and-instrumentation
     │   └── Need doc-verified .NET code? ──────→ source-driven-development
     │
     ├── Testing?
@@ -184,25 +188,28 @@ These are the subtle errors that look like productivity but create problems:
 For a complete .NET feature, the typical skill sequence is:
 
 ```
-1.  idea-refine                         → Refine vague ideas into a "Not Doing" list
-2.  spec-driven-development             → Define what we're building (with .NET 8 / C# 12 tech stack pinned)
-3.  planning-and-task-breakdown         → Break into verifiable tasks with dotnet CLI verification
-4.  context-engineering                 → Load CLAUDE.md + .editorconfig + the right source files
-5.  source-driven-development           → Cite Microsoft Learn + framework docs at the pinned version
-6.  incremental-implementation          → Build slice by slice, dotnet test between each
-7.  frontend-ui-engineering-avalonia    → (If UI) Production-quality Avalonia view with compiled bindings
-8.  api-and-interface-design            → (If HTTP/library) Stable DTOs in MyApp.Contracts
-9.  test-driven-development             → Unit tests with xUnit/MSTest + TimeProvider for determinism
-10. integration-testing-dotnet          → HTTP (WebApplicationFactory), DB (Testcontainers), browser (Playwright), desktop (Avalonia.Headless)
-11. performance-optimization-dotnet     → (If perf-sensitive) Measure first with BenchmarkDotNet, fix the real bottleneck
-12. code-review-and-quality             → Five-axis review with .NET-specific checks
-13. code-simplification                 → Post-feature simplification pass
-14. security-and-hardening               → Full .NET security sweep before merge
-15. git-workflow-and-versioning         → Atomic commits, pre-commit via Husky.Net
-16. ci-cd-and-automation                → GitHub Actions with setup-dotnet + gates
-17. documentation-and-adrs              → XML doc comments on public API, ADR for non-obvious decisions
-18. deprecation-and-migration           → (If replacing) [Obsolete] + strangler pattern
-19. shipping-and-launch                 → Pre-launch checklist, staged rollout, rollback plan
+1.  interview-me                        → (If ask is underspecified) Extract true intent before anything exists
+2.  idea-refine                         → Refine vague ideas into a "Not Doing" list
+3.  spec-driven-development             → Define what we're building (with .NET 8 / C# 12 tech stack pinned)
+4.  planning-and-task-breakdown         → Break into verifiable tasks with dotnet CLI verification
+5.  context-engineering                 → Load CLAUDE.md + .editorconfig + the right source files
+6.  source-driven-development           → Cite Microsoft Learn + framework docs at the pinned version
+7.  incremental-implementation          → Build slice by slice, dotnet test between each
+8.  observability-and-instrumentation   → Instrument as you build — ILogger + System.Diagnostics.Metrics + OpenTelemetry
+9.  doubt-driven-development            → Adversarially review non-trivial decisions while course-correction is cheap
+10. frontend-ui-engineering-avalonia    → (If UI) Production-quality Avalonia view with compiled bindings
+11. api-and-interface-design            → (If HTTP/library) Stable DTOs in MyApp.Contracts
+12. test-driven-development             → Unit tests with xUnit/MSTest + TimeProvider for determinism
+13. integration-testing-dotnet          → HTTP (WebApplicationFactory), DB (Testcontainers), browser (Playwright), desktop (Avalonia.Headless)
+14. performance-optimization-dotnet     → (If perf-sensitive) Measure first with BenchmarkDotNet, fix the real bottleneck
+15. code-review-and-quality             → Five-axis review with .NET-specific checks
+16. code-simplification                 → Post-feature simplification pass
+17. security-and-hardening               → Full .NET security sweep before merge
+18. git-workflow-and-versioning         → Atomic commits, pre-commit via Husky.Net
+19. ci-cd-and-automation                → GitHub Actions with setup-dotnet + gates
+20. documentation-and-adrs              → XML doc comments on public API, ADR for non-obvious decisions
+21. deprecation-and-migration           → (If replacing) [Obsolete] + strangler pattern
+22. shipping-and-launch                 → Pre-launch checklist, staged rollout, rollback plan
 ```
 
 Not every task needs every skill. A bug fix might only need:
@@ -224,10 +231,13 @@ spec-driven-development  →  deprecation-and-migration  →  integration-testin
 
 | Phase | Skill | One-Line Summary |
 |-------|-------|-----------------|
+| Define | [interview-me](../interview-me/SKILL.md) | Extract the user's true intent before plan/spec/code — one question at a time to ~95% confidence |
 | Define | [idea-refine](../idea-refine/SKILL.md) | Refine ideas through structured divergent and convergent thinking |
 | Define | [spec-driven-development](../spec-driven-development/SKILL.md) | Requirements and acceptance criteria before code, with a .NET-flavored template |
 | Plan | [planning-and-task-breakdown](../planning-and-task-breakdown/SKILL.md) | Decompose into small tasks with `dotnet` CLI verification |
 | Build | [incremental-implementation](../incremental-implementation/SKILL.md) | Thin vertical slices; `dotnet test` + `dotnet build -warnaserror` between each |
+| Build | [observability-and-instrumentation](../observability-and-instrumentation/SKILL.md) | Instrument as you build — structured `ILogger`, `System.Diagnostics.Metrics`, OpenTelemetry, symptom-based alerts |
+| Build | [doubt-driven-development](../doubt-driven-development/SKILL.md) | Adversarial fresh-context review of non-trivial decisions while course-correction is cheap |
 | Build | [source-driven-development](../source-driven-development/SKILL.md) | Cite Microsoft Learn / framework docs for every framework-specific decision |
 | Build | [context-engineering](../context-engineering/SKILL.md) | Right CLAUDE.md + `.editorconfig` + source files at the right time |
 | Build | [frontend-ui-engineering-avalonia](../frontend-ui-engineering-avalonia/SKILL.md) | Production-quality Avalonia 11/12 UIs with compiled bindings + theming + accessibility |
@@ -269,7 +279,7 @@ This is a meta-skill — its "verification" is that the other skills activate cl
 
 - **Upstream**: https://github.com/addyosmani/agent-skills/blob/44dac80216da709913fb410f632a65547866346f/skills/using-agent-skills/SKILL.md
 - **Pinned commit**: `44dac80216da709913fb410f632a65547866346f` (synced 2026-04-19)
-- **Status**: `rewritten` — upstream and downstream now have different skill inventories (we renamed three skills and skipped one upstream helper script), so re-syncing this specific file against upstream no longer produces useful deltas. Per-skill re-syncs for the other 20 skills remain worthwhile; this file's upstream will be re-read on major upstream changes but not line-diffed.
+- **Status**: `rewritten` — upstream and downstream now have different skill inventories (we renamed three skills and skipped one upstream helper script), so re-syncing this specific file against upstream no longer produces useful deltas. Per-skill re-syncs for the other 23 skills remain worthwhile; this file's upstream will be re-read on major upstream changes but not line-diffed.
 - **Rationale**: the meta skill's job is to reflect *our* marketplace's skill inventory, not upstream's. As long as the names, phases, and activation story diverge, a faithful port of upstream's prose would actively mislead readers. Preserving the skeleton (discovery tree, core operating behaviors, failure modes, lifecycle sequence, quick reference) keeps the conceptual continuity with upstream readers; the content fills in our specifics.
 - **What changed**:
   - Plugin-specific overview: names this plugin (`dotnet-skills`), credits Addy Osmani upstream, cross-references the companion `avalonia-dev` plugin
@@ -278,10 +288,11 @@ This is a meta-skill — its "verification" is that the other skills activate cl
   - Core Operating Behaviors preserved as the six-section spine with .NET-flavored examples throughout (Avalonia/EF Core assumptions, `FromSqlRaw` push-back, `IOptions<T>` simplicity call-out, `using` directive + source-generated file scope discipline)
   - Added a "Skill Rules" rule about version-aware skills (`frontend-ui-engineering-avalonia` branches on Avalonia 11 vs 12 by reading `Directory.Packages.props`)
   - Added a "Skill Rules" rule about the deliberately-skipped upstream `scripts/idea-refine.sh`
-  - Lifecycle Sequence rewritten as a 19-step flow covering every Wave-0-through-Wave-3 skill by our naming, with three realistic short-flow examples (bug fix, perf hotfix, schema migration)
+  - Lifecycle Sequence rewritten as a 22-step flow covering every linear-flow skill by our naming, with three realistic short-flow examples (bug fix, perf hotfix, schema migration)
   - Quick Reference table rewritten row-by-row with our skill names, our one-line .NET-flavored summaries, and markdown links to each skill's SKILL.md
   - New "Pointers Out" section linking to README, SYNC.md, UPSTREAM.md, NOTICE.md, LICENSES, and the companion avalonia-dev plugin
   - Verification checklist rewritten as five meta-checks (including "no dangling references to renamed upstream skills")
   - All references to upstream-only concerns (Chrome DevTools MCP as the implicit browser-testing activation path) removed
 - **Preserved from upstream**: six Core Operating Behaviors structure (Surface Assumptions / Manage Confusion / Push Back / Enforce Simplicity / Maintain Scope / Verify), the ten-item Failure Modes list shape, the Skill Rules numbered format, the Phase → Skill → Summary table shape, the overall section ordering
+- **Upstream sync 2026-06-14 (plugin v2.6.0)** — inventory grew 20 → 23 non-meta skills. Added `interview-me` (Define), `doubt-driven-development` (Build), and `observability-and-instrumentation` (Build, "instrument as you build") to the count, discovery tree, Lifecycle Sequence (now 22 linear steps, observability placed next to implementation per upstream PR), and Quick Reference. Observability is grouped under Build here (honoring its instrument-as-you-build principle) rather than upstream CLAUDE.md's Ship grouping.
 - **License**: MIT © 2025 Addy Osmani — see [`../../LICENSES/agent-skills-MIT.txt`](../../LICENSES/agent-skills-MIT.txt)

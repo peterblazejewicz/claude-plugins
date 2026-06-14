@@ -28,6 +28,6 @@ See [`CLAUDE.md`](./CLAUDE.md) for the full invariant list including the strict 
 ## Per-tool surfaces
 
 - **Claude Code** loads `plugins/<name>/commands/*.md`, `plugins/<name>/skills/<skill>/SKILL.md`, and `plugins/<name>/agents/<name>.md`. Slash commands are first-class.
-- **GitHub Copilot CLI** loads `plugins/<name>/skills/<skill>/SKILL.md` (same format — cross-vendor standard) and `plugins/<name>/agents/<name>.agent.md`. Custom slash commands aren't a Copilot-CLI surface as of 2026-04 ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618)); the three personas (`code-reviewer`, `security-auditor`, `test-engineer`) are exposed as `/agent <name>` instead.
+- **GitHub Copilot CLI** loads `plugins/<name>/skills/<skill>/SKILL.md` (same format — cross-vendor standard) and `plugins/<name>/agents/<name>.agent.md`. Custom slash commands aren't a Copilot-CLI surface as of 2026-04 ([github/copilot-cli#618](https://github.com/github/copilot-cli/issues/618)); the four personas (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`) are exposed as `/agent <name>` instead.
 
 When editing a persona, update *both* the `.md` (Claude) and `.agent.md` (Copilot) forms — the `.agent.md` footer links back to `.md` as canonical for upstream attribution, so bodies should stay in lockstep. Drift between the two is a review defect.
